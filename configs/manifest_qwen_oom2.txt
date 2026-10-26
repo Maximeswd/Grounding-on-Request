@@ -1,0 +1,1 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --n_frames 1 --task mvg --data_dir data/mvg_hard --model_id Qwen/Qwen3.5-4B --run_name mvgV2_5tok_hard_1frame_seed0_qwen35

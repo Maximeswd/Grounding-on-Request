@@ -1,0 +1,12 @@
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_lora_r4_seed0 --split test_id --dump_picks 1 --tag _picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --mode noop --dump_picks 1 --tag _noop_picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35 --split test_id --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_lora_r4_seed0_qwen35 --split test_id --dump_picks 1 --tag _picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id --mode noop --dump_picks 1 --tag _noop_picks

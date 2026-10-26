@@ -1,0 +1,9 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "BEAS<|LOC_49|><|LOC_629|><|LOC_114|><|LOC_628|><|LOC_114|><|LOC_639|><|LOC_49|><|LOC_640|>\nBEAS<|LOC_419|><|LOC_621|><|LOC_467|><|LOC_620|><|LOC_467|><|LOC_630|><|LOC_419|><|LOC_631|>", "cleaned": "BEAS<|LOC_49|><|LOC_629|><|LOC_114|><|LOC_628|><|LOC_114|><|LOC_639|><|LOC_49|><|LOC_640|>\nBEAS<|LOC_419|><|LOC_621|><|LOC_467|><|LOC_620|><|LOC_467|><|LOC_630|><|LOC_419|><|LOC_631|>", "txt": "BEAS\nBEAS"}
+{"frame": "t000020", "raw": "BEAS<|LOC_0|><|LOC_0|><|LOC_999|><|LOC_0|><|LOC_999|><|LOC_999|><|LOC_0|><|LOC_999|>", "cleaned": "BEAS<|LOC_0|><|LOC_0|><|LOC_999|><|LOC_0|><|LOC_999|><|LOC_999|><|LOC_0|><|LOC_999|>", "txt": "BEAS"}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000035", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}

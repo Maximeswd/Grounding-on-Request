@@ -1,0 +1,28 @@
+[ -d runs/color_neo_ctrl_5tok_apo_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_v3_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_v3_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_pt_na_5tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_pt_na_5tok_sft_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_lora_na_1tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_lora_na_1tok_sft_seed0 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_apo_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_neo_ctrl_5tok_v3_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_neo_ctrl_5tok_v3_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_pt_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+[ -d runs/color_lora_na_1tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/color_lora_na_1tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 100 || true
+python scripts/eval_robust.py --run_dir runs/_frozen_gemma --task color --data_dir data/color --split test_id --max_n 100 --frozen_model_id base
+python scripts/eval_robust.py --run_dir runs/_frozen_qwen35 --task color --data_dir data/color --split test_id --max_n 100 --frozen_model_id Qwen/Qwen3.5-4B
+[ -d runs/vcf_neo_ctrl_5tok_apo_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_ctm_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_v3_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_v3_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_pt_na_5tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_pt_na_5tok_sft_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_lora_na_1tok_sft_seed0/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_lora_na_1tok_sft_seed0 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_neo_ctrl_5tok_v3_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_neo_ctrl_5tok_v3_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_pt_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+[ -d runs/vcf_lora_na_1tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_robust.py --run_dir runs/vcf_lora_na_1tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 || true
+python scripts/eval_robust.py --run_dir runs/_frozen_gemma --task color --data_dir data/vcf --split test_id --max_n 100 --frozen_model_id base
+python scripts/eval_robust.py --run_dir runs/_frozen_qwen35 --task color --data_dir data/vcf --split test_id --max_n 100 --frozen_model_id Qwen/Qwen3.5-4B

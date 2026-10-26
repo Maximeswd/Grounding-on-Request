@@ -1,0 +1,4 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen2b --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300

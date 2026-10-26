@@ -1,0 +1,8 @@
+python scripts/eval_flip_ll.py --run_dir runs/smoke_sweep_vcf_word --task vcf --data_dir data/vcf --split test_id --step 12 --max_n 6 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/smoke_sweep_vcf_pt --task vcf --data_dir data/vcf --split test_id --step 12 --max_n 6 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/smoke_sweep_vcf_lora --task vcf --data_dir data/vcf --split test_id --step 12 --max_n 6 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/smoke_sweep_vcf_loraad_look --task vcf --data_dir data/vcf --split test_id --step 12 --max_n 6 --third_value 1 --out_task vcf3
+python scripts/eval_mvg_flip.py --run_dir runs/smoke_sweep_mvg_word --step 12 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl --max_per_type 3 --mvg data/multiventG/multivent_g_rebuilt.json --tag _smoke
+python scripts/eval_mvg_flip.py --run_dir runs/smoke_sweep_mvg_pt --step 12 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl --max_per_type 3 --mvg data/multiventG/multivent_g_rebuilt.json --tag _smoke
+python scripts/eval_mvg_flip.py --run_dir runs/smoke_sweep_mvg_lora --step 12 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl --max_per_type 3 --mvg data/multiventG/multivent_g_rebuilt.json --tag _smoke
+python scripts/eval_mvg_flip.py --run_dir runs/smoke_sweep_mvg_loraad_vis --step 12 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl --max_per_type 3 --mvg data/multiventG/multivent_g_rebuilt.json --tag _smoke

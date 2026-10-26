@@ -1,0 +1,2 @@
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --split test_id --ops look,read --max_n 4 --run_dir runs/clevr3_f_5tok_ctm_seed0 --mode srconly --tag _smoke
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 4 --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --mode srconly --tag _smoke

@@ -1,0 +1,17 @@
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_25tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_25tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_2tok_v3_seed0 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_2tok_v3_seed0 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_2tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_2tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_30tok_v3_seed0 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_30tok_v3_seed0 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_30tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_30tok_v3_seed0_qwen35 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_ood --step 800
+python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_srcsyn_seed0 --task color --data_dir data/coco --split test_id --step 800

@@ -1,0 +1,4 @@
+python scripts/eval_clevr3_switch.py --run_dir runs/clevr3_2s_pt_1tok_ctm_cp_fc_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _fc_ptstart --pt_start 1
+python scripts/eval_clevr3_switch.py --run_dir runs/clevr3_2s_pt_1tok_ctm_cp_fc_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _fc_ptstart --pt_start 1
+python scripts/eval_clevr3_switch.py --run_dir runs/clevr3_2s_pt_1tok_ctm_cp_fc_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _fc_ptstart --pt_start 1
+python scripts/eval_clevr3_switch.py --run_dir runs/clevr3_2s_pt_1tok_ctm_cp_fc_ple_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _fc_ptstart --pt_start 1

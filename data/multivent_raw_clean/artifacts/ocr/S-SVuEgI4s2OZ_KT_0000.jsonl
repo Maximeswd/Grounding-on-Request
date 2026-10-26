@@ -1,0 +1,9 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "MS44<|LOC_740|><|LOC_553|><|LOC_893|><|LOC_566|><|LOC_885|><|LOC_592|><|LOC_732|><|LOC_579|>", "cleaned": "MS44<|LOC_740|><|LOC_553|><|LOC_893|><|LOC_566|><|LOC_885|><|LOC_592|><|LOC_732|><|LOC_579|>", "txt": "MS44"}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "SAMSUN<|LOC_783|><|LOC_275|><|LOC_994|><|LOC_268|><|LOC_996|><|LOC_294|><|LOC_786|><|LOC_301|>\nWorld Health<|LOC_296|><|LOC_471|><|LOC_476|><|LOC_473|><|LOC_476|><|LOC_487|><|LOC_296|><|LOC_485|>\norganization<|LOC_299|><|LOC_492|><|LOC_474|><|LOC_493|><|LOC_474|><|LOC_508|><|LOC_299|><|LOC_507|>", "cleaned": "SAMSUN<|LOC_783|><|LOC_275|><|LOC_994|><|LOC_268|><|LOC_996|><|LOC_294|><|LOC_786|><|LOC_301|>\nWorld Health<|LOC_296|><|LOC_471|><|LOC_476|><|LOC_473|><|LOC_476|><|LOC_487|><|LOC_296|><|LOC_485|>\norganization<|LOC_299|><|LOC_492|><|LOC_474|><|LOC_493|><|LOC_474|><|LOC_508|><|LOC_299|><|LOC_507|>", "txt": "SAMSUN\nWorld Health\norganization"}
+{"frame": "t000035", "raw": "SAMSUNG<|LOC_163|><|LOC_252|><|LOC_399|><|LOC_248|><|LOC_399|><|LOC_274|><|LOC_164|><|LOC_278|>", "cleaned": "SAMSUNG<|LOC_163|><|LOC_252|><|LOC_399|><|LOC_248|><|LOC_399|><|LOC_274|><|LOC_164|><|LOC_278|>", "txt": "SAMSUNG"}
+{"frame": "t000040", "raw": "SAMSUNG<|LOC_263|><|LOC_293|><|LOC_460|><|LOC_291|><|LOC_460|><|LOC_313|><|LOC_263|><|LOC_315|>", "cleaned": "SAMSUNG<|LOC_263|><|LOC_293|><|LOC_460|><|LOC_291|><|LOC_460|><|LOC_313|><|LOC_263|><|LOC_315|>", "txt": "SAMSUNG"}

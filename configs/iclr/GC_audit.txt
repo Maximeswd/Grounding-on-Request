@@ -1,0 +1,34 @@
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_ctm_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_apo_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_pt_na_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_pt_na_5tok_sft_seed0 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_pt_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id || true
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/vcf --split test_id --frozen_model_id base || true
+[ -d runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_id --frozen_model_id Qwen/Qwen3.5-4B || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_apo_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_pt_na_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_pt_na_5tok_sft_seed0 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_apo_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_pt_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_pt_na_5tok_ctm_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_pt_na_5tok_ctm_seed0 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_pt_na_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_pt_na_5tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/color --split test_id --frozen_model_id base || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --frozen_model_id Qwen/Qwen3.5-4B || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_apo_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_pt_na_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_pt_na_5tok_sft_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_apo_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_pt_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_pt_na_5tok_ctm_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_pt_na_5tok_ctm_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_pt_na_5tok_ctm_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_pt_na_5tok_ctm_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0 --task color --data_dir data/coco --split test_id --frozen_model_id base || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id --frozen_model_id Qwen/Qwen3.5-4B || true

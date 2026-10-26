@@ -1,0 +1,3 @@
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvr_register_control.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 150 || true

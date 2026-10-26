@@ -1,0 +1,34 @@
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_ctm_seed0 --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0 --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0 --mode noop --dump_picks 1 --tag _noop_picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0 --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0
+[ -d runs/clevr3_f_lora_r4_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r4_seed0 || true
+[ -d runs/clevr3_f_lora_r16_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0 || true
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --mode noop --dump_picks 1 --tag _noop_picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35
+[ -d runs/clevr3_f_lora_r4_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r4_seed0_qwen35 || true
+[ -d runs/clevr3_f_lora_r16_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0_qwen35 || true
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen2b --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --mode noop --dump_picks 1 --tag _noop_picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0_qwen2b
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_apo_seed0_qwen2b
+[ -d runs/clevr3_f_lora_r4_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r4_seed0_qwen2b || true
+[ -d runs/clevr3_f_lora_r16_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0_qwen2b || true
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_ctm_seed0_gemma4e4b --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --dump_picks 1 --tag _picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --mode noop --dump_picks 1 --tag _noop_picks
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --mode instructed --dump_picks 1 --tag _instr_iv5_picks
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0_gemma4e4b
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_apo_seed0_gemma4e4b
+[ -d runs/clevr3_f_lora_r4_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r4_seed0_gemma4e4b || true
+[ -d runs/clevr3_f_lora_r16_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0_gemma4e4b || true

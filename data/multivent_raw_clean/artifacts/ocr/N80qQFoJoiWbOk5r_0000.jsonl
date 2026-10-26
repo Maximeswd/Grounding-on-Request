@@ -1,0 +1,9 @@
+{"frame": "t000000", "raw": "B B C<|LOC_69|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_69|><|LOC_193|>", "cleaned": "B B C<|LOC_69|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_69|><|LOC_193|>", "txt": "B B C"}
+{"frame": "t000005", "raw": "B B C<|LOC_67|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>\nسمنگان<|LOC_757|><|LOC_229|><|LOC_933|><|LOC_229|><|LOC_933|><|LOC_261|><|LOC_757|><|LOC_261|>", "cleaned": "B B C<|LOC_67|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>\nسمنگان<|LOC_757|><|LOC_229|><|LOC_933|><|LOC_229|><|LOC_933|><|LOC_261|><|LOC_757|><|LOC_261|>", "txt": "B B C\nسمنگان"}
+{"frame": "t000010", "raw": "B B C<|LOC_67|><|LOC_173|><|LOC_201|><|LOC_173|><|LOC_201|><|LOC_192|><|LOC_67|><|LOC_192|>", "cleaned": "B B C<|LOC_67|><|LOC_173|><|LOC_201|><|LOC_173|><|LOC_201|><|LOC_192|><|LOC_67|><|LOC_192|>", "txt": "B B C"}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "B B C<|LOC_67|><|LOC_173|><|LOC_201|><|LOC_173|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>", "cleaned": "B B C<|LOC_67|><|LOC_173|><|LOC_201|><|LOC_173|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>", "txt": "B B C"}
+{"frame": "t000035", "raw": "B B C<|LOC_67|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>", "cleaned": "B B C<|LOC_67|><|LOC_174|><|LOC_201|><|LOC_174|><|LOC_201|><|LOC_193|><|LOC_67|><|LOC_193|>", "txt": "B B C"}
+{"frame": "t000040", "raw": "B B C<|LOC_69|><|LOC_174|><|LOC_199|><|LOC_174|><|LOC_199|><|LOC_192|><|LOC_69|><|LOC_192|>", "cleaned": "B B C<|LOC_69|><|LOC_174|><|LOC_199|><|LOC_174|><|LOC_199|><|LOC_192|><|LOC_69|><|LOC_192|>", "txt": "B B C"}

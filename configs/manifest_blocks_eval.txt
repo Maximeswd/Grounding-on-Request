@@ -1,0 +1,8 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_blocks_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_blocks_seed0 --task color --data_dir data/color --split test_id
+python scripts/attention_probe2.py --run_dir runs/color_neo_ctrl_5tok_blocks_seed0 --task color --data_dir data/color --split test_id --max_n 40
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_blocksctm_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_blocksctm_seed0 --task color --data_dir data/color --split test_id
+python scripts/attention_probe2.py --run_dir runs/color_neo_ctrl_5tok_blocksctm_seed0 --task color --data_dir data/color --split test_id --max_n 40
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_blocks_seed0 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_ctrl_5tok_blocks_seed0 --task color --data_dir data/vcf --split test_id

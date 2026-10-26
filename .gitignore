@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+.venv/
+logs/
+wandb/
+.release_build_marker
+.scrub_leftovers.json
+# per-run evaluation outputs and large checkpoints come from the archives (see README.md)
+runs/*/eval/
+runs/*/ckpt/step_[1-7]00/
+runs/*/ckpt/step_800/adapter_*
+runs/*/ckpt/step_800/opt_state.pt
+# third-party media and Arrow caches are rebuilt locally (see DATA_LICENSES.md)
+data/*/train/*.arrow
+data/*/test_*/*.arrow
+data/*/dev/*.arrow
+data/multiventG/frames/
+data/multiventG/frames_dense/
+data/multiventG/videos/
+data/multiventG/multivent_g*.json
+*.tar.gz

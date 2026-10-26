@@ -1,0 +1,34 @@
+[ -d runs/mvgV2_5tok_apo_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_pt_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_pt_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_pt_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_pt_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_sftctm_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_sftctm_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_uni_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_uni_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_vgm_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvgV2_5tok_vgm_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvg_neo_ctrl_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --split test_id --step 800 --style neo --tag sel_dx || true
+[ -d runs/mvg_neo_ctrl_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --split test_ood --step 800 --style neo --tag sel_dx || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --split test_id --step 800 --style instr --tag sel_dx_instr --frozen_model_id base || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --split test_ood --step 800 --style instr --tag sel_dx_instr --frozen_model_id base || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --split test_id --step 800 --style noop --tag sel_dx_noop --frozen_model_id base || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --split test_ood --step 800 --style noop --tag sel_dx_noop --frozen_model_id base || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --split test_id --step 800 --style instr --tag sel_dx_instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --split test_ood --step 800 --style instr --tag sel_dx_instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --split test_id --step 800 --style noop --tag sel_dx_noop --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --split test_ood --step 800 --style noop --tag sel_dx_noop --frozen_model_id Qwen/Qwen3.5-4B || true

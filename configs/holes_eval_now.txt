@@ -1,0 +1,16 @@
+[ -d runs/color_neo_ctrl_5tok_vgm_seed0/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/color_neo_ctrl_5tok_vgm_seed0 --step 800 || true
+[ -d runs/color_neo_ctrl_5tok_vgm_seed0_qwen35/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/color_neo_ctrl_5tok_vgm_seed0_qwen35 --step 800 || true
+[ -d runs/vcf_neo_ctrl_5tok_vgm_seed0/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/vcf_neo_ctrl_5tok_vgm_seed0 --step 800 || true
+[ -d runs/vcf_neo_ctrl_5tok_vgm_seed0_qwen35/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/vcf_neo_ctrl_5tok_vgm_seed0_qwen35 --step 800 || true
+[ -d runs/coco_neo_ctrl_5tok_vgm_seed0/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/coco_neo_ctrl_5tok_vgm_seed0 --step 800 || true
+[ -d runs/coco_neo_ctrl_5tok_vgm_seed0_qwen35/ckpt ] && python scripts/eval_bridge_mvg.py --run_dir runs/coco_neo_ctrl_5tok_vgm_seed0_qwen35 --step 800 || true
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --mode noop --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --mode noop --split test_id --step 800
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_srconly_exp_seed0 --split test_id --step 800
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --split test_id --step 800
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_factored_exp_seed0 --split test_id --step 800
+python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --split test_id --step 800

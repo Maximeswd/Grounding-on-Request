@@ -1,0 +1,5 @@
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_gemma --split test_id --frozen_model_id base --style instr
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_gemma --split test_id --frozen_model_id base --style noop
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_gemma --split test_ood --frozen_model_id base --style instr
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_qwen --split test_id --frozen_model_id Qwen/Qwen3.5-4B --style instr
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_qwen --split test_id --frozen_model_id Qwen/Qwen3.5-4B --style noop

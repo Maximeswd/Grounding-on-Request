@@ -1,0 +1,10 @@
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_apo_seed0_qwen2b --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0_qwen2b --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r16_seed0_qwen35 --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_lora_r4_seed0_qwen2b --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0 --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35 --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0 --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0_qwen2b --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35 --mode srconly --dump_picks 1

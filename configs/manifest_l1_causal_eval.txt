@@ -1,0 +1,9 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_link_ctmtc_delimw_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_1tok_apo_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_1tok_apo_seed0 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_1tok_apo_seed0 --task counting --data_dir data/coco_cf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_1tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_1tok_ctm_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_1tok_ctm_seed0_qwen35 --task counting --data_dir data/coco_cf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_2tok_apo_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_2tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140

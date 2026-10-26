@@ -1,0 +1,8 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_sft_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_sftctm_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_apo 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_apo_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_tc 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_tc_seed0
+--method pt --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_pt_seed0
+--method lora --arm na --n_tokens 1 --seed 0 --steps 800 --lam_sft 1.0 --lr 2e-4 --lora_r 16 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_lora_r16_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --report_with_channels 1 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --run_name temporal_5tok_sftctm_compose_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task mvgtemporal --data_dir data/mvg_temporal --n_frames 4 --model_id Qwen/Qwen3.5-4B --run_name temporal_5tok_sftctm_seed0_qwen35

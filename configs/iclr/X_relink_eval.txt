@@ -1,0 +1,2 @@
+python scripts/eval_citefaith.py --run_dir runs/coco_neo_link_5tok_ctm_seed0_qwen35_v3 --task color --data_dir data/coco --split test_id --max_n 100
+python scripts/eval_citefaith.py --run_dir runs/coco_neo_link_5tok_ctm_seed0_qwen35_v3 --task color --data_dir data/coco --split test_ood --max_n 100

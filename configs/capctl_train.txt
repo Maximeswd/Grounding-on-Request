@@ -1,0 +1,5 @@
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/color --lam_sft 1 --slot_negative_frac 0.15 --disentangle_frac 0.5 --tie_rows 1 --steps 800 --seed 0 --run_name color_neo_ctrl_30tok_v3tied_seed0
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/color --lam_sft 1 --slot_negative_frac 0.15 --disentangle_frac 0.5 --tie_rows 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name color_neo_ctrl_30tok_v3tied_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --lam_apo 1 --pref_warmup 100 --tie_rows 1 --steps 800 --seed 0 --run_name color_neo_ctrl_5tok_apotied_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --pt_inserted 1 --run_name color_pti_na_5tok_sft_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --pt_inserted 1 --run_name color_pti_na_5tok_sft_seed0_qwen35

@@ -1,0 +1,3 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_apo 1.0 --task color --data_dir data/vcf --model_id Qwen/Qwen3.5-4B --run_name vcf_cmpv2_5tok_apo_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task color --data_dir data/color --model_id Qwen/Qwen3.5-4B --run_name color_cmpv2_5tok_ctm_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --compare_frac 0.34 --task mvg --data_dir data/mvg_hard --model_id Qwen/Qwen3.5-4B --run_name mvgV2_cmpv2_5tok_sftctm_seed0_qwen35

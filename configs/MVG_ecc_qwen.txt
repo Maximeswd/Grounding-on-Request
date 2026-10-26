@@ -1,0 +1,16 @@
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop --crop_bbox 0.25 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop --crop_bbox 0.25 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --split test_id --step 800 --style neo || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --split test_ood --step 800 --style neo || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop --crop_bbox 0.25 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop --crop_bbox 0.25 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --split test_id --step 800 --style neo || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --split test_ood --step 800 --style neo || true
+[ -d runs/mvgV2_5tok_sftctm_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true
+[ -d runs/mvgV2_5tok_uni_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true
+[ -d runs/mvgV2_5tok_sftctm_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id || true

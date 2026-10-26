@@ -1,0 +1,12 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen2b --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --style instr --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --style instr --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --style noop --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --style noop --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25

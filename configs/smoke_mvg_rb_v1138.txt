@@ -1,0 +1,1 @@
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 5 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _smoke_rb --crop_bbox 0.25

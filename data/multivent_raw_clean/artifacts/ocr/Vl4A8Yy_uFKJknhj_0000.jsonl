@@ -1,0 +1,15 @@
+{"frame": "t000000", "raw": "TAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_552|><|LOC_113|><|LOC_552|>", "cleaned": "TAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_552|><|LOC_113|><|LOC_552|>", "txt": "TAWIA"}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "ZAWIA<|LOC_115|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_552|><|LOC_115|><|LOC_552|>", "cleaned": "ZAWIA<|LOC_115|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_552|><|LOC_115|><|LOC_552|>", "txt": "ZAWIA"}
+{"frame": "t000030", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000035", "raw": "ZAVIA<|LOC_113|><|LOC_530|><|LOC_249|><|LOC_530|><|LOC_249|><|LOC_552|><|LOC_113|><|LOC_552|>", "cleaned": "ZAVIA<|LOC_113|><|LOC_530|><|LOC_249|><|LOC_530|><|LOC_249|><|LOC_552|><|LOC_113|><|LOC_552|>", "txt": "ZAVIA"}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000050", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000060", "raw": "ZAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_553|><|LOC_113|><|LOC_553|>", "cleaned": "ZAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_553|><|LOC_113|><|LOC_553|>", "txt": "ZAWIA"}
+{"frame": "t000065", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000070", "raw": "ZAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_554|><|LOC_113|><|LOC_554|>\nPTM<|LOC_891|><|LOC_812|><|LOC_965|><|LOC_812|><|LOC_965|><|LOC_836|><|LOC_891|><|LOC_836|>", "cleaned": "ZAWIA<|LOC_113|><|LOC_531|><|LOC_249|><|LOC_531|><|LOC_249|><|LOC_554|><|LOC_113|><|LOC_554|>\nPTM<|LOC_891|><|LOC_812|><|LOC_965|><|LOC_812|><|LOC_965|><|LOC_836|><|LOC_891|><|LOC_836|>", "txt": "ZAWIA\nPTM"}

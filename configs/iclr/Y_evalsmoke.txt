@@ -1,0 +1,1 @@
+cd release/evaluator && python groundcf_eval.py hf --data ../../data/clevr3 --split test_id --model google/gemma-3-4b-it --max_n 12 -o /tmp/hf_smoke.json || true

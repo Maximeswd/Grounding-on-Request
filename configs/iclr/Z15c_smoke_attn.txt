@@ -1,0 +1,2 @@
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id --max_n 8 --tag _smoke2
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0_gemma4e4b --split test_id --max_n 6 --tag _smoke2

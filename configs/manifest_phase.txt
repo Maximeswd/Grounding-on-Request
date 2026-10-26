@@ -1,0 +1,4 @@
+python scripts/physics_probe.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0 --mode phase --task color --data_dir data/color --max_n 40 --betas 0,0.15,0.3,0.5,0.8 --alphas 0,0.25,0.5,0.75,1.0
+python scripts/physics_probe.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0 --mode phase --task color --data_dir data/color --max_n 40 --betas 0,0.15,0.3,0.5,0.8 --alphas 0,0.25,0.5,0.75,1.0
+python scripts/physics_probe.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0 --mode phase --task color --data_dir data/vcf --max_n 40 --betas 0,0.15,0.3,0.5,0.8 --alphas 0,0.25,0.5,0.75,1.0
+python scripts/physics_probe.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --mode phase --task color --data_dir data/color --max_n 40 --betas 0,0.15,0.3,0.5,0.8 --alphas 0,0.25,0.5,0.75,1.0

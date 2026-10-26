@@ -1,0 +1,19 @@
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --slot_negative_frac 0.15 --pref_warmup 100 --steps 800 --seed 0 --run_name coco_neo_ctrl_5tok_ctmv3_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_iit 1 --iit_layer 12 --steps 800 --seed 0 --run_name coco_neo_ctrl_5tok_iitL12_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --ctrl_site decision --steps 800 --seed 0 --run_name coco_neo_ctrl_5tok_dsite_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lookread_conflict_only 1 --steps 800 --seed 0 --run_name coco_neo_ctrl_5tok_confonly_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --lookread_conflict_only 1 --steps 800 --seed 0 --run_name vcf_neo_ctrl_5tok_confonly_seed0
+--method neo --arm ctrl --n_tokens 8 --task color --data_dir data/coco --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 0 --run_name coco_neo_ctrl_8tok_v3_seed0
+--method neo --arm ctrl --n_tokens 16 --task color --data_dir data/coco --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 0 --run_name coco_neo_ctrl_16tok_v3_seed0
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/vcf --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 1 --run_name vcf_neo_ctrl_30tok_v3_seed1
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/vcf --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 2 --run_name vcf_neo_ctrl_30tok_v3_seed2
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/coco --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 1 --run_name coco_neo_ctrl_30tok_v3_seed1
+--method neo --arm ctrl --n_tokens 30 --task color --data_dir data/coco --lam_sft 1 --slot_negative_frac 0.15 --steps 800 --seed 2 --run_name coco_neo_ctrl_30tok_v3_seed2
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --lam_ctm 1 --slot_negative_frac 0.15 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name vcf_neo_ctrl_5tok_ctmv3_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --slot_negative_frac 0.15 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name coco_neo_ctrl_5tok_ctmv3_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_iit 1 --iit_layer 12 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name coco_neo_ctrl_5tok_iitL12_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --ctrl_site decision --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name coco_neo_ctrl_5tok_dsite_seed0_qwen35
+--method pt --arm na --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --steps 800 --seed 0 --run_name coco_pt_na_5tok_sft_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name coco_pt_na_5tok_sft_seed0_qwen35
+--method lora --arm na --n_tokens 1 --task color --data_dir data/coco --lam_sft 1 --steps 800 --seed 0 --run_name coco_lora_na_1tok_sft_seed0
+--method lora --arm na --n_tokens 1 --task color --data_dir data/coco --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name coco_lora_na_1tok_sft_seed0_qwen35

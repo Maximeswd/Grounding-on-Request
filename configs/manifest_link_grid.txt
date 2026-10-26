@@ -1,0 +1,6 @@
+--method neo --arm gen --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task counting --data_dir data/coco_cf --run_name coco_neo_gen_5tok_sft_seed0_v2
+--method neo --arm gen --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task counting --data_dir data/coco_cf --model_id Qwen/Qwen3.5-4B --run_name coco_neo_gen_5tok_sft_seed0_qwen35_v2
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_qwen35_v2/ckpt/step_800/neo.pt --task color --data_dir data/color --model_id Qwen/Qwen3.5-4B --run_name color_neo_link_5tok_sft_seed0_qwen35
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --gen_ckpt runs/vcf_neo_gen_5tok_sft_seed0_qwen35_v2/ckpt/step_800/neo.pt --task color --data_dir data/vcf --model_id Qwen/Qwen3.5-4B --run_name vcf_neo_link_5tok_sft_seed0_qwen35
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/color --run_name color_neo_link_5tok_ctm_seed0
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --gen_ckpt runs/vcf_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/vcf --run_name vcf_neo_link_5tok_ctm_seed0

@@ -1,0 +1,2 @@
+python scripts/eval_genconsistency.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/coco --split test_id --dump_gens 1 --max_n 40
+python scripts/eval_genconsistency.py --run_dir runs/coco_base_frozen_0tok_none_seed0 --frozen_model_id base --task color --data_dir data/coco --split test_id --dump_gens 1 --max_n 40

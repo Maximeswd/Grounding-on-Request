@@ -1,0 +1,4 @@
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --run_name color_neo_ctrl_5tok_ctm_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --run_name vcf_neo_ctrl_5tok_ctm_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --lam_ctm 1 --slot_negative_frac 0.15 --pref_warmup 100 --steps 800 --seed 0 --run_name color_neo_ctrl_5tok_ctmv3_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 1 --run_name color_neo_ctrl_5tok_ctm_seed1

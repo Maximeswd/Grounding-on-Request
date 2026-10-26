@@ -1,0 +1,18 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+SC_WORD_ALIAS=src_look=look_ctrl,src_read=read_ctrl,src_ocr=compare_ctrl python scripts/eval_flip_ll.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0 --task coco --data_dir data/coco --split test_id --max_n 140
+SC_WORD_ALIAS=look_ctrl=src_look,read_ctrl=src_read,compare_ctrl=src_ocr python scripts/eval_clevr3_flip.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+SC_WORD_ALIAS=src_look=look_ctrl,src_read=read_ctrl,src_ocr=compare_ctrl python scripts/eval_flip_ll.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35 --task coco --data_dir data/coco --split test_id --max_n 140
+SC_WORD_ALIAS=look_ctrl=src_look,read_ctrl=src_read,compare_ctrl=src_ocr python scripts/eval_clevr3_flip.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+SC_WORD_ALIAS=src_look=look_ctrl,src_read=read_ctrl,src_ocr=compare_ctrl python scripts/eval_flip_ll.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b --task coco --data_dir data/coco --split test_id --max_n 140
+SC_WORD_ALIAS=look_ctrl=src_look,read_ctrl=src_read,compare_ctrl=src_ocr python scripts/eval_clevr3_flip.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150

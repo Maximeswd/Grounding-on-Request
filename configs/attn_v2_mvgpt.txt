@@ -1,0 +1,4 @@
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_ptctm_fix_seed0 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_ptctm_fix_seed0_gemma4e4b --mode srconly

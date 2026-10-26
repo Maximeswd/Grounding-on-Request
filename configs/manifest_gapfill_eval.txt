@@ -1,0 +1,13 @@
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_apo_seed0 --split test_id
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_apo_seed0 --split test_ood
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_ctm_seed0 --split test_id
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_ctm_seed0 --split test_ood
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_vgm_seed0 --split test_id
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_vgm_seed0 --split test_ood
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_pt_seed0 --split test_id
+python scripts/eval_clevr3.py --run_dir runs/clevr3_5tok_pt_seed0 --split test_ood
+python scripts/eval_clevr3.py --run_dir runs/clevr3_lora_r16_seed0 --split test_id
+python scripts/eval_clevr3.py --run_dir runs/clevr3_lora_r16_seed0 --split test_ood
+python scripts/eval_flip_ll.py --run_dir runs/coco_5tok_pt_seed0 --task counting --data_dir data/coco_cf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_seed0 --task counting --data_dir data/coco_cf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_5tok_pt_seed0_qwen35 --task counting --data_dir data/coco_cf --split test_id --max_n 140

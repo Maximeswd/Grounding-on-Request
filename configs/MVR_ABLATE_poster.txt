@@ -1,0 +1,10 @@
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_apo_seed0c2h2lm --split test_id --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_apo_seed0c2h2lm --split test_ood --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_id --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_ood --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_sft_seed0_qwen35c2h2 --split test_id --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_sft_seed0_qwen35c2h2 --split test_ood --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_pt_5tok_seed0c2h2 --split test_id --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_pt_5tok_seed0c2h2 --split test_ood --step 800
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_ctmv3_seed0c2h2lm --split test_id --step 600
+python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_g_5tok_ctmv3_seed0c2h2lm --split test_ood --step 600

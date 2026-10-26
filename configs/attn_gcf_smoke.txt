@@ -1,0 +1,1 @@
+python scripts/attention_probe_gcf.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --max_n 6 --mode srconly

@@ -1,0 +1,5 @@
+python scripts/eval_mvg3.py --run_dir runs_archive_2026-07-21/mvg_neo_ctrl_1tok_sft_v3_seed0_qwen35
+python scripts/eval_mvg_flip.py --run_dir runs_archive_2026-07-21/mvg_neo_ctrl_1tok_sft_v3_seed0_qwen35
+python scripts/eval_mvg_report.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --assembler_ckpt runs/mvg_neo_ctrl_5tok_sftctm_seed0 --max_n 50
+python scripts/eval_mvg_report.py --run_dir runs/_frozen_gemma --frozen_model_id base --max_n 50
+python scripts/eval_mvg_report.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --max_n 50

@@ -1,0 +1,18 @@
+{"frame": "t000000", "raw": "F4<|LOC_391|><|LOC_217|><|LOC_430|><|LOC_217|><|LOC_430|><|LOC_278|><|LOC_391|><|LOC_278|>\nHD현대중공업<|LOC_34|><|LOC_450|><|LOC_120|><|LOC_450|><|LOC_120|><|LOC_478|><|LOC_34|><|LOC_478|>", "cleaned": "F4<|LOC_391|><|LOC_217|><|LOC_430|><|LOC_217|><|LOC_430|><|LOC_278|><|LOC_391|><|LOC_278|>\nHD현대중공업<|LOC_34|><|LOC_450|><|LOC_120|><|LOC_450|><|LOC_120|><|LOC_478|><|LOC_34|><|LOC_478|>", "txt": "F4\nHD현대중공업"}
+{"frame": "t000005", "raw": "F4<|LOC_391|><|LOC_217|><|LOC_430|><|LOC_217|><|LOC_430|><|LOC_278|><|LOC_391|><|LOC_278|>\nHD현대중공업<|LOC_34|><|LOC_453|><|LOC_120|><|LOC_453|><|LOC_120|><|LOC_478|><|LOC_34|><|LOC_478|>", "cleaned": "F4<|LOC_391|><|LOC_217|><|LOC_430|><|LOC_217|><|LOC_430|><|LOC_278|><|LOC_391|><|LOC_278|>\nHD현대중공업<|LOC_34|><|LOC_453|><|LOC_120|><|LOC_453|><|LOC_120|><|LOC_478|><|LOC_34|><|LOC_478|>", "txt": "F4\nHD현대중공업"}
+{"frame": "t000010", "raw": "HD<|LOC_34|><|LOC_448|><|LOC_59|><|LOC_448|><|LOC_59|><|LOC_474|><|LOC_34|><|LOC_474|>", "cleaned": "HD<|LOC_34|><|LOC_448|><|LOC_59|><|LOC_448|><|LOC_59|><|LOC_474|><|LOC_34|><|LOC_474|>", "txt": "HD"}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000035", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000050", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000060", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000065", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000070", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000075", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000080", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000085", "raw": "K/RI<|LOC_456|><|LOC_481|><|LOC_545|><|LOC_481|><|LOC_545|><|LOC_522|><|LOC_456|><|LOC_522|>\nKOREA AEROSPRIE RESEARCH INSTITUTE<|LOC_425|><|LOC_554|><|LOC_573|><|LOC_554|><|LOC_573|><|LOC_571|><|LOC_425|><|LOC_571|>", "cleaned": "K/RI<|LOC_456|><|LOC_481|><|LOC_545|><|LOC_481|><|LOC_545|><|LOC_522|><|LOC_456|><|LOC_522|>\nKOREA AEROSPRIE RESEARCH INSTITUTE<|LOC_425|><|LOC_554|><|LOC_573|><|LOC_554|><|LOC_573|><|LOC_571|><|LOC_425|><|LOC_571|>", "txt": "K/RI\nKOREA AEROSPRIE RESEARCH INSTITUTE"}

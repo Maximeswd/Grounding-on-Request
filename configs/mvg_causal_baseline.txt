@@ -1,0 +1,7 @@
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --style instr

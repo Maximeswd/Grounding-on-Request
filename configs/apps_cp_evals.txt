@@ -1,0 +1,128 @@
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+INSTR_VARIANT=5 python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+INSTR_VARIANT=5 python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode noop --tag _cp_noop
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode instructed --tag _cpai_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode noop --tag _cpai_noop
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+INSTR_VARIANT=5 python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+INSTR_VARIANT=5 python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode noop --tag _cp_noop
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode instructed --tag _cpai_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode noop --tag _cpai_noop
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+INSTR_VARIANT=5 python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+INSTR_VARIANT=5 python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode noop --tag _cp_noop
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode instructed --tag _cpai_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_qwen2b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode noop --tag _cpai_noop
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --tag _cp
+INSTR_VARIANT=5 python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_detect.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_sft_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+INSTR_VARIANT=5 python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode instructed --tag _cp_instr_iv5
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --mode noop --tag _cp_noop
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_5tok_ctm_c2_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --tag _cp
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_2s_pt_5tok_ctm_c2_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --max_n 150 --both_orders 1 --template heldout --tag _cp_heldout
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_pt_5tok_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_lora_r16_ctm_cp_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --tag _cp
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_sft_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --tag _cpai
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode instructed --tag _cp_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --mode noop --tag _cp_noop
+INSTR_VARIANT=5 python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode instructed --tag _cpai_instr_iv5
+python scripts/eval_clevr3_abstain.py --run_dir runs/clevr3_2s_5tok_apo_seed0_gemma4e4b --data_dir data/clevr3 --split test_id --step 800 --hard --lennorm --twins --abstain_instr --mode noop --tag _cpai_noop

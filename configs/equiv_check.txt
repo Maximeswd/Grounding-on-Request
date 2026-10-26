@@ -1,0 +1,3 @@
+EQ_DEV=cuda python scripts/equiv_check.py runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b
+EQ_DEV=cuda python scripts/equiv_check.py runs/vcf_neo_ctrl_5tok_ctm_seed0
+EQ_DEV=cuda python scripts/equiv_check.py runs/color_neo_ctrl_5tok_ctm_seed0_gemma4e4b

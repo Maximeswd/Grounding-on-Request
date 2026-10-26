@@ -1,0 +1,35 @@
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style instr --split test_id --n_frames 4 --max_n 200 --tag _instr
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style noop --split test_id --n_frames 4 --max_n 200 --tag _noop
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style instr --split test_ood --n_frames 4 --max_n 200 --tag _instr
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style noop --split test_ood --n_frames 4 --max_n 200 --tag _noop
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_gemma --split test_ood --frozen_model_id base --style noop
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_qwen --frozen_model_id Qwen/Qwen3.5-4B --style instr --split test_id --n_frames 4 --max_n 200 --tag _instr
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_qwen --frozen_model_id Qwen/Qwen3.5-4B --style noop --split test_id --n_frames 4 --max_n 200 --tag _noop
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_qwen --frozen_model_id Qwen/Qwen3.5-4B --style instr --split test_ood --n_frames 4 --max_n 200 --tag _instr
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_qwen --split test_ood --frozen_model_id Qwen/Qwen3.5-4B --style instr
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_qwen --frozen_model_id Qwen/Qwen3.5-4B --style noop --split test_ood --n_frames 4 --max_n 200 --tag _noop
+python scripts/eval_mvraw.py --run_dir runs/frozen_mvraw_qwen --split test_ood --frozen_model_id Qwen/Qwen3.5-4B --style noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _instr_excl_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _noop_excl_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _instr_excl_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _noop_excl_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --pairs data/mvg_ctm/pairs_vist_id.jsonl --tag _instr_vist_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --pairs data/mvg_ctm/pairs_vist_id.jsonl --tag _noop_vist_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --pairs data/mvg_ctm/pairs_vist_ood.jsonl --tag _instr_vist_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --pairs data/mvg_ctm/pairs_vist_ood.jsonl --tag _noop_vist_ood --max_per_type 150
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --split test_id --max_n 200
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --split test_id --max_n 200
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --split test_ood --max_n 113
+python scripts/eval_mvg3.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _instr_excl_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _noop_excl_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _instr_excl_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _noop_excl_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --pairs data/mvg_ctm/pairs_vist_id.jsonl --tag _instr_vist_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --pairs data/mvg_ctm/pairs_vist_id.jsonl --tag _noop_vist_id --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --pairs data/mvg_ctm/pairs_vist_ood.jsonl --tag _instr_vist_ood --max_per_type 150
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --pairs data/mvg_ctm/pairs_vist_ood.jsonl --tag _noop_vist_ood --max_per_type 150
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --split test_id --max_n 200
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --split test_id --max_n 200
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style instr --split test_ood --max_n 113
+python scripts/eval_mvg3.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --style noop --split test_ood --max_n 113

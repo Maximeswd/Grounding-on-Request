@@ -1,0 +1,3 @@
+python scripts/eval_verbalize.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0 --data_dir data/color --split test_id --step 800
+python scripts/eval_verbalize.py --run_dir runs/vcf_neo_ctrl_5tok_v3_seed0 --data_dir data/vcf --split test_id --step 800
+python scripts/eval_verbalize.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0 --data_dir data/color --split test_id --step 800 --phrases_json runs/color_neo_ctrl_5tok_sft_seed0/eval/verbalize/phrases_step_800.json --plugin_model_id Qwen/Qwen3.5-4B

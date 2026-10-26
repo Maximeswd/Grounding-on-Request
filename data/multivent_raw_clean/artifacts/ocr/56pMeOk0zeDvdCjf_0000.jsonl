@@ -1,0 +1,4 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "os<|LOC_0|><|LOC_19|><|LOC_115|><|LOC_19|><|LOC_115|><|LOC_55|><|LOC_0|><|LOC_55|>\nE22<|LOC_515|><|LOC_403|><|LOC_674|><|LOC_419|><|LOC_661|><|LOC_477|><|LOC_501|><|LOC_461|>", "cleaned": "os<|LOC_0|><|LOC_19|><|LOC_115|><|LOC_19|><|LOC_115|><|LOC_55|><|LOC_0|><|LOC_55|>\nE22<|LOC_515|><|LOC_403|><|LOC_674|><|LOC_419|><|LOC_661|><|LOC_477|><|LOC_501|><|LOC_461|>", "txt": "os\nE22"}
+{"frame": "t000010", "raw": "ROBROS<|LOC_508|><|LOC_28|><|LOC_808|><|LOC_28|><|LOC_808|><|LOC_57|><|LOC_508|><|LOC_57|>\nIGRIS<|LOC_333|><|LOC_197|><|LOC_433|><|LOC_197|><|LOC_433|><|LOC_211|><|LOC_333|><|LOC_211|>", "cleaned": "ROBROS<|LOC_508|><|LOC_28|><|LOC_808|><|LOC_28|><|LOC_808|><|LOC_57|><|LOC_508|><|LOC_57|>\nIGRIS<|LOC_333|><|LOC_197|><|LOC_433|><|LOC_197|><|LOC_433|><|LOC_211|><|LOC_333|><|LOC_211|>", "txt": "ROBROS\nIGRIS"}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}

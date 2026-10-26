@@ -1,0 +1,56 @@
+[ -d runs/mvgV2_5tok_apo_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_apo_hard_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 || true
+[ -d runs/mvgV2_5tok_sftctm_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_sftctm_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 || true
+[ -d runs/mvgV2_5tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_seed0 || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_tc_hard_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 || true
+[ -d runs/mvgV2_5tok_uni_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_uni_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 || true
+[ -d runs/mvgV2_5tok_vgm_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_vgm_hard_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 || true
+[ -d runs/mvgV2report_5tok_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2report_5tok_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2report_5tok_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2report_5tok_seed0 || true
+[ -d runs/mvgV2report_5tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2report_5tok_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2report_5tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2report_5tok_seed0_qwen35 || true
+[ -d runs/mvgV2report_channelwords_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2report_channelwords_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2report_channelwords_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2report_channelwords_seed0 || true
+[ -d runs/mvgV2report_channelwords_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2report_channelwords_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2report_channelwords_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2report_channelwords_seed0_qwen35 || true
+[ -d runs/mvgV3_5tok_pt_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_5tok_pt_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_5tok_pt_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_5tok_pt_seed0 || true
+[ -d runs/mvgV3_5tok_pt_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_5tok_pt_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_5tok_pt_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_5tok_pt_seed0_qwen35 || true
+[ -d runs/mvgV3_5tok_uni_clean_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_5tok_uni_clean_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_5tok_uni_clean_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_5tok_uni_clean_seed0 || true
+[ -d runs/mvgV3_5tok_uni_clean_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_5tok_uni_clean_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_5tok_uni_clean_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_5tok_uni_clean_seed0_qwen35 || true
+[ -d runs/mvgV3_5tok_vgm_clean_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_5tok_vgm_clean_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_5tok_vgm_clean_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_5tok_vgm_clean_seed0 || true
+[ -d runs/mvgV3_lora_r16_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_lora_r16_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_lora_r16_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_lora_r16_seed0 || true
+[ -d runs/mvgV3_lora_r16_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV3_lora_r16_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV3_lora_r16_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgV3_lora_r16_seed0_qwen35 || true
+[ -d runs/mvg_neo_ctrl_1tok_sft_seed0_cs/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_1tok_sft_seed0_cs/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs || true
+[ -d runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35 || true
+[ -d runs/mvg_neo_ctrl_1tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftctm_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_1tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sftctm_seed0 || true
+[ -d runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs || true
+[ -d runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 || true
+[ -d runs/mvg_neo_ctrl_5tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvg_neo_ctrl_5tok_sftctm_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 || true
+[ -d runs/mvgreport_neo_ctrl_5tok_sft_seed0/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgreport_neo_ctrl_5tok_sft_seed0/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0 || true
+[ -d runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_mvg3.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35 || true

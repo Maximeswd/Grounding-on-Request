@@ -1,0 +1,38 @@
+[ -d runs/color_neo_ctrl_5tok_sft_seed1/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_sft_seed1 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed1/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_sft_seed1 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed1_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed1_qwen35 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed1_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed1_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed1_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_sft_seed1_qwen35 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed1_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_sft_seed1_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed2/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed2 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed2/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed2 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed2/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_sft_seed2 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed2/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_sft_seed2 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed2_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed2_qwen35 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_ctm_seed2_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_ctm_seed2_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed2_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_sft_seed2_qwen35 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_neo_ctrl_5tok_sft_seed2_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_sft_seed2_qwen35 --task color --data_dir data/color --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed1/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed1 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed1/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed1 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed1/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed1 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed1/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed1 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed1_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed1_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed1_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed1_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed1_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed1_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed1_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed1_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed2/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed2 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed2/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed2 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed2/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed2 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed2/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed2 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed2_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed2_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_ctm_seed2_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed2_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed2_qwen35/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed2_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_neo_ctrl_5tok_sft_seed2_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_neo_ctrl_5tok_sft_seed2_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/coco_pti_na_5tok_sft_seed0/ckpt ] && PT_INSERTED=1 python scripts/eval_flip_ll.py --run_dir runs/coco_pti_na_5tok_sft_seed0 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_pti_na_5tok_sft_seed0/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_pti_na_5tok_sft_seed0 --task color --data_dir data/coco --split test_id || true
+[ -d runs/color_pti_na_5tok_sft_seed1/ckpt ] && PT_INSERTED=1 python scripts/eval_flip_ll.py --run_dir runs/color_pti_na_5tok_sft_seed1 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_pti_na_5tok_sft_seed1/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_pti_na_5tok_sft_seed1 --task color --data_dir data/color --split test_id || true
+[ -d runs/coco_pti_na_5tok_sft_seed0_qwen35/ckpt ] && PT_INSERTED=1 python scripts/eval_flip_ll.py --run_dir runs/coco_pti_na_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_pti_na_5tok_sft_seed0_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_pti_na_5tok_sft_seed0_qwen35 --task color --data_dir data/coco --split test_id || true
+[ -d runs/color_pti_na_5tok_sft_seed1_qwen35/ckpt ] && PT_INSERTED=1 python scripts/eval_flip_ll.py --run_dir runs/color_pti_na_5tok_sft_seed1_qwen35 --task color --data_dir data/color --split test_id --max_n 140 || true
+[ -d runs/color_pti_na_5tok_sft_seed1_qwen35/ckpt ] && python scripts/eval_ladder.py --run_dir runs/color_pti_na_5tok_sft_seed1_qwen35 --task color --data_dir data/color --split test_id || true

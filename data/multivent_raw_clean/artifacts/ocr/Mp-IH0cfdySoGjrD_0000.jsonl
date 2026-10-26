@@ -1,0 +1,17 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "POLICE<|LOC_413|><|LOC_825|><|LOC_443|><|LOC_825|><|LOC_443|><|LOC_853|><|LOC_413|><|LOC_853|>\n習<|LOC_704|><|LOC_815|><|LOC_723|><|LOC_815|><|LOC_723|><|LOC_856|><|LOC_704|><|LOC_856|>", "cleaned": "POLICE<|LOC_413|><|LOC_825|><|LOC_443|><|LOC_825|><|LOC_443|><|LOC_853|><|LOC_413|><|LOC_853|>\n習<|LOC_704|><|LOC_815|><|LOC_723|><|LOC_815|><|LOC_723|><|LOC_856|><|LOC_704|><|LOC_856|>", "txt": "POLICE\n習"}
+{"frame": "t000010", "raw": "POLICE<|LOC_452|><|LOC_800|><|LOC_486|><|LOC_800|><|LOC_486|><|LOC_831|><|LOC_452|><|LOC_831|>\n경찰<|LOC_780|><|LOC_785|><|LOC_839|><|LOC_785|><|LOC_839|><|LOC_836|><|LOC_780|><|LOC_836|>", "cleaned": "POLICE<|LOC_452|><|LOC_800|><|LOC_486|><|LOC_800|><|LOC_486|><|LOC_831|><|LOC_452|><|LOC_831|>\n경찰<|LOC_780|><|LOC_785|><|LOC_839|><|LOC_785|><|LOC_839|><|LOC_836|><|LOC_780|><|LOC_836|>", "txt": "POLICE\n경찰"}
+{"frame": "t000015", "raw": "POLICE<|LOC_492|><|LOC_764|><|LOC_548|><|LOC_764|><|LOC_548|><|LOC_801|><|LOC_492|><|LOC_801|>", "cleaned": "POLICE<|LOC_492|><|LOC_764|><|LOC_548|><|LOC_764|><|LOC_548|><|LOC_801|><|LOC_492|><|LOC_801|>", "txt": "POLICE"}
+{"frame": "t000020", "raw": "POLICE<|LOC_848|><|LOC_764|><|LOC_966|><|LOC_764|><|LOC_966|><|LOC_817|><|LOC_848|><|LOC_817|>", "cleaned": "POLICE<|LOC_848|><|LOC_764|><|LOC_966|><|LOC_764|><|LOC_966|><|LOC_817|><|LOC_848|><|LOC_817|>", "txt": "POLICE"}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "POLICE<|LOC_527|><|LOC_783|><|LOC_560|><|LOC_783|><|LOC_560|><|LOC_810|><|LOC_527|><|LOC_810|>", "cleaned": "POLICE<|LOC_527|><|LOC_783|><|LOC_560|><|LOC_783|><|LOC_560|><|LOC_810|><|LOC_527|><|LOC_810|>", "txt": "POLICE"}
+{"frame": "t000035", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000050", "raw": "POLICE<|LOC_402|><|LOC_821|><|LOC_488|><|LOC_821|><|LOC_488|><|LOC_919|><|LOC_402|><|LOC_919|>", "cleaned": "POLICE<|LOC_402|><|LOC_821|><|LOC_488|><|LOC_821|><|LOC_488|><|LOC_919|><|LOC_402|><|LOC_919|>", "txt": "POLICE"}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000060", "raw": "POUCE<|LOC_513|><|LOC_796|><|LOC_563|><|LOC_796|><|LOC_563|><|LOC_839|><|LOC_513|><|LOC_839|>", "cleaned": "POUCE<|LOC_513|><|LOC_796|><|LOC_563|><|LOC_796|><|LOC_563|><|LOC_839|><|LOC_513|><|LOC_839|>", "txt": "POUCE"}
+{"frame": "t000065", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000070", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000075", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000080", "raw": "", "cleaned": "", "txt": ""}

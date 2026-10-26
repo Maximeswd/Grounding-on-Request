@@ -1,0 +1,4 @@
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_apo 1.0 --delim_loss_weight 0.2 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/color --run_name color_link_apo_delimw_seed0
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --delim_loss_weight 0.2 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/color --run_name color_link_ctm_delimw_seed0
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_apo 1.0 --delim_loss_weight 0.2 --gen_ckpt runs/vcf_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/vcf --run_name vcf_link_apo_delimw_seed0
+--method neo --arm gen --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_apo 1.0 --task color --data_dir data/color --run_name color_gen_apo_seed0

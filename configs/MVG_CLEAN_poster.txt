@@ -1,0 +1,14 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_lora_r16_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_lora_r16_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_pt_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_pt_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35 --step 726 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35 --step 726 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 718 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 718 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_lora_r16_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_lora_r16_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean --crop_bbox 0.25

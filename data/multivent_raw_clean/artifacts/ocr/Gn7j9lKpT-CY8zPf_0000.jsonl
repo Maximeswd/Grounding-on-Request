@@ -1,0 +1,4 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "PR<|LOC_285|><|LOC_294|><|LOC_410|><|LOC_301|><|LOC_401|><|LOC_355|><|LOC_276|><|LOC_348|>", "cleaned": "PR<|LOC_285|><|LOC_294|><|LOC_410|><|LOC_301|><|LOC_401|><|LOC_355|><|LOC_276|><|LOC_348|>", "txt": "PR"}
+{"frame": "t000015", "raw": "8501-0<|LOC_0|><|LOC_275|><|LOC_335|><|LOC_294|><|LOC_326|><|LOC_348|><|LOC_0|><|LOC_329|>", "cleaned": "8501-0<|LOC_0|><|LOC_275|><|LOC_335|><|LOC_294|><|LOC_326|><|LOC_348|><|LOC_0|><|LOC_329|>", "txt": "8501-0"}

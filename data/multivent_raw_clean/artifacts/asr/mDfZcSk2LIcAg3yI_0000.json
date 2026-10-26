@@ -1,0 +1,1 @@
+{"source": "webdataset", "duration_s": 171.897, "language": {"hint": null, "detected": "nn", "from_dir": false}, "asr_backend": "whisperx", "vad": [], "diarization": [], "overlap": [], "embeddings": [], "transcript": {"timestamp_resolution": "word", "segments": [], "words": []}, "qc_flags": [], "chunk_id": "mDfZcSk2LIcAg3yI_0000", "video_id": "mDfZcSk2LIcAg3yI", "chunk_index": 0}

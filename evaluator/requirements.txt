@@ -1,0 +1,3 @@
+transformers>=4.50
+torch>=2.3
+Pillow

@@ -1,0 +1,3 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --ctrl_style blocks --task color --data_dir data/vcf --run_name vcf_neo_ctrl_5tok_blocks_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --ctrl_style blocks --task color --data_dir data/vcf --run_name vcf_neo_ctrl_5tok_blocksctm_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --ctrl_style blocks --task color --data_dir data/color --run_name color_neo_ctrl_5tok_blocks_seed0

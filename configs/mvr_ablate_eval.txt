@@ -1,0 +1,6 @@
+[ -d runs/mvraw_neo_ctrl_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvraw_neo_ctrl_5tok_sftctm_seed0 --split test_id --max_n 200 || true
+[ -d runs/mvraw_neo_ctrl_5tok_sftctm_seed0/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvraw_neo_ctrl_5tok_sftctm_seed0 --split test_ood --max_n 200 || true
+[ -d runs/mvraw_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvraw_neo_ctrl_5tok_sft_seed0 --split test_id --max_n 200 || true
+[ -d runs/mvraw_neo_ctrl_5tok_sft_seed0/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvraw_neo_ctrl_5tok_sft_seed0 --split test_ood --max_n 200 || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style instr --split test_id --max_n 200
+python scripts/eval_mvraw_ablate.py --run_dir runs/frozen_mvraw_gemma --frozen_model_id base --style noop --split test_id --max_n 200

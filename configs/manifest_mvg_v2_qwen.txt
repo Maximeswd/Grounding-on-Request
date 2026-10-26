@@ -1,0 +1,2 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task mvg --data_dir data/mvg_hard --model_id Qwen/Qwen3.5-4B --run_name mvgV2_5tok_sftctm_hard_seed0_qwen35
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task mvgreport --model_id Qwen/Qwen3.5-4B --run_name mvgV2report_5tok_seed0_qwen35

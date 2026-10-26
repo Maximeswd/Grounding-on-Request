@@ -1,0 +1,8 @@
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r4_seed0 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r4_seed0_qwen35 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r4_seed0_qwen2b --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r4_seed0_gemma4e4b --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r16_seed0 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r16_seed0_qwen35 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r16_seed0_qwen2b --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --run_dir runs/mvgV2_lora_r16_seed0_gemma4e4b --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb

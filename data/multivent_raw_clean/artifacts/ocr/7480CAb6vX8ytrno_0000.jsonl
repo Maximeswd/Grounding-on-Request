@@ -1,0 +1,2 @@
+{"frame": "t000000", "raw": "Vol<|LOC_550|><|LOC_865|><|LOC_944|><|LOC_865|><|LOC_944|><|LOC_964|><|LOC_550|><|LOC_964|>", "cleaned": "Vol<|LOC_550|><|LOC_865|><|LOC_944|><|LOC_865|><|LOC_944|><|LOC_964|><|LOC_550|><|LOC_964|>", "txt": "Vol"}
+{"frame": "t000005", "raw": "Vol<|LOC_934|><|LOC_942|><|LOC_0|><|LOC_942|><|LOC_0|><|LOC_0|><|LOC_934|><|LOC_0|>", "cleaned": "Vol<|LOC_934|><|LOC_942|><|LOC_0|><|LOC_942|><|LOC_0|><|LOC_0|><|LOC_934|><|LOC_0|>", "txt": "Vol"}

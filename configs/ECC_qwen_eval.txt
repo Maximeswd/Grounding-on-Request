@@ -1,0 +1,6 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean_crop --max_per_type 300 --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id --max_per_type 300
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop --max_per_type 300 --crop_bbox 0.25
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --split test_id --max_n 200
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --split test_ood --max_n 113

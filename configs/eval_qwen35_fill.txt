@@ -1,0 +1,10 @@
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_vgm_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_vgm_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_srcsyn_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_srcsyn_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id --step 800
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_ctrl_5tok_vgm_seed0_qwen35 --task color --data_dir data/vcf --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_vgm_seed0_qwen35 --task color --data_dir data/vcf --split test_id --step 800

@@ -1,0 +1,26 @@
+[ -d runs/clevr3_f_pt_1tok_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_1tok_seed0 --split test_id || true
+[ -d runs/clevr3_f_pt_1tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_1tok_seed0_qwen35 --split test_id || true
+[ -d runs/clevr3_f_pt_1tok_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_1tok_seed0_qwen2b --split test_id || true
+[ -d runs/clevr3_f_pt_1tok_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_1tok_seed0_gemma4e4b --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0 --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35 --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen2b --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0_gemma4e4b --split test_id || true
+[ -d runs/clevr3_f_pt_15tok_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_15tok_seed0 --split test_id || true
+[ -d runs/clevr3_f_pt_15tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_15tok_seed0_qwen35 --split test_id || true
+[ -d runs/clevr3_f_pt_15tok_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_15tok_seed0_qwen2b --split test_id || true
+[ -d runs/clevr3_f_pt_15tok_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_15tok_seed0_gemma4e4b --split test_id || true
+[ -d runs/clevr3_f_pt_30tok_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_30tok_seed0 --split test_id || true
+[ -d runs/clevr3_f_pt_30tok_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_30tok_seed0_qwen35 --split test_id || true
+[ -d runs/clevr3_f_pt_30tok_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_30tok_seed0_qwen2b --split test_id || true
+[ -d runs/clevr3_f_pt_30tok_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_30tok_seed0_gemma4e4b --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0 --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0 --split test_ood || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35 --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_qwen35/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35 --split test_ood || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b --split test_ood || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b --split test_id || true
+[ -d runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b/ckpt/step_800 ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b --split test_ood || true
+[ -d runs/clevr3_f_pt_5tok_seed0/ckpt/step_800 ] && for s in 100 200 300 400 500 600 700; do python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0 --split test_id --step $s || true; done || true
+[ -d runs/clevr3_f_pt_5tok_seed0_qwen35/ckpt/step_800 ] && for s in 100 200 300 400 500 600 700; do python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35 --split test_id --step $s || true; done || true

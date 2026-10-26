@@ -1,0 +1,48 @@
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_ctm_seed0_v2 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_ctm_seed0_v2 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_ctm_seed0_qwen35_v2 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_ctm_seed0_qwen35_v2 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/vcf_base_frozen_0tok_none_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r4_lr2e4_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_sft_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_apo_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_colour 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_ctrl_5tok_ctm_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_colour 1 --out_task vcf3

@@ -1,0 +1,4 @@
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2_neo_seed0 --step 8 --log $(ls -t logs/sc-*smoke_v2_neo_seed0* logs/*.out 2>/dev/null | head -1)
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2_pt_seed0 --step 8 --log $(ls -t logs/sc-*smoke_v2_pt_seed0* logs/*.out 2>/dev/null | head -1)
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2_ptslot_seed0 --step 8 --log $(ls -t logs/sc-*smoke_v2_ptslot_seed0* logs/*.out 2>/dev/null | head -1)
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2_lora_seed0 --step 8 --log $(ls -t logs/sc-*smoke_v2_lora_seed0* logs/*.out 2>/dev/null | head -1)

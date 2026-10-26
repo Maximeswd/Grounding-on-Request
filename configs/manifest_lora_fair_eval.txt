@@ -1,0 +1,6 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr1e3_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr1e3_seed0 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r4_lr2e4_seed0 --task color --data_dir data/color --split test_id --max_n 140

@@ -1,0 +1,3 @@
+[ -d runs/coco_cmpv2_5tok_apo_seed0/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_cmpv2_5tok_apo_seed0 --task color --data_dir data/coco --split test_id --max_n 140 || true
+[ -d runs/coco_cmpv2_5tok_apo_seed0/ckpt ] && python scripts/eval_flip_ll.py --run_dir runs/coco_cmpv2_5tok_apo_seed0 --task color --data_dir data/coco --split test_ood --max_n 140 || true
+[ -d runs/coco_cmpv2_5tok_apo_seed0/ckpt ] && python scripts/eval_ladder.py --run_dir runs/coco_cmpv2_5tok_apo_seed0 --task color --data_dir data/coco --split test_id || true

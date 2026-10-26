@@ -1,0 +1,1 @@
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --pref_warmup 0 --steps 12 --ckpt_every 12 --seed 0 --workers 2 --ladder_ctrl_pos postq --run_name smoke_ladpos_postq

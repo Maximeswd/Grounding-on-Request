@@ -1,0 +1,10 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_cmpv2_5tok_apo_seed0 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_cmpv2_5tok_apo_seed0 --task counting --data_dir data/coco_cf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/vcf_cmpv2_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/color_cmpv2_5tok_ctm_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_clevr3.py --run_dir runs/clevr3_cmpv2_5tok_sft_seed0 --split test_id
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_cmpv2_5tok_sftctm_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_cmpv2_5tok_sftctm_seed0
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_cmpv2_5tok_sftctm_seed0_qwen35
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_cmpv2_5tok_sftctm_seed0_qwen35

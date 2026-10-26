@@ -1,0 +1,4 @@
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2f_apo_neo_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2f_ctmsm_neo_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2f_apo_pt_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2f_ctmsm_pt_seed0 --step 12

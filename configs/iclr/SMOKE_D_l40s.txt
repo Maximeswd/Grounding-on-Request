@@ -1,0 +1,1 @@
+--config configs/base.yaml --method neo --arm ctrl --n_tokens 5 --seed 0 --steps 25 --ctrl_style blockscmp --lam_sft 1.0 --vds_weight 0 --lam_iit 0.0 --iit_layer 12 --cap_first_prob 1.0 --slot_negative_frac 0.0 --absence_frac 0.0 --run_name sm_iclr_blockscmp --task color --factor_mode factored --data_dir data/color

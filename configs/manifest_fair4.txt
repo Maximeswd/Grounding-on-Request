@@ -1,0 +1,10 @@
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0 --max_n 120 --ablate vis
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0 --max_n 120 --swap desc
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0_qwen35 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0_qwen35 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0_qwen35 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0_qwen35 --max_n 120 --ablate vis
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_channelwords_5tok_seed0_qwen35 --composed_ckpt runs/mvgreport_channelwords_5tok_seed0_qwen35 --max_n 120 --swap desc
+python scripts/eval_mvg_report.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --assembler_ckpt runs/mvg_neo_ctrl_5tok_sftctm_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/_frozen_gemma --frozen_model_id base --max_n 120

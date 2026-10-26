@@ -1,0 +1,8 @@
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop_instr --crop_bbox 0.25 --style instr --frozen_model_id base || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop_instr --crop_bbox 0.25 --style instr --frozen_model_id base || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop_noop --crop_bbox 0.25 --style noop --frozen_model_id base || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop_noop --crop_bbox 0.25 --style noop --frozen_model_id base || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop_instr --crop_bbox 0.25 --style instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop_instr --crop_bbox 0.25 --style instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --tag _visx_id_crop_noop --crop_bbox 0.25 --style noop --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_ood.jsonl --tag _visx_ood_crop_noop --crop_bbox 0.25 --style noop --frozen_model_id Qwen/Qwen3.5-4B || true

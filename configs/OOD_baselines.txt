@@ -1,0 +1,14 @@
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_gemma --frozen_model_id base --task color --data_dir data/vcf --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_gemma --frozen_model_id base --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_gemma --frozen_model_id base --task color --data_dir data/coco --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --task color --data_dir data/vcf --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --task color --data_dir data/coco --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/color_pt_na_5tok_sft_seed0 --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/color_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0 --task color --data_dir data/vcf --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/vcf_pt_na_5tok_sft_seed0_qwen35 --task color --data_dir data/vcf --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_seed0 --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r4_lr2e4_seed0 --task color --data_dir data/color --split test_ood --max_n 200
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_seed0 --task color --data_dir data/vcf --split test_ood --max_n 200

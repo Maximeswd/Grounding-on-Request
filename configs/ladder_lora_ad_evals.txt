@@ -1,0 +1,96 @@
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/coco --split test_ood --max_n 140 --third_value 1 --out_task coco3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/color_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task color --data_dir data/color --split test_ood --max_n 140 --third_value 1 --out_task color3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_look_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_gemma4e4b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen2b --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+python scripts/eval_flip_ll.py --run_dir runs/vcf_lora_r16_lr2e4_ad_ctm_cp_read_seed0_qwen35 --task vcf --data_dir data/vcf --split test_ood --max_n 140 --third_value 1 --out_task vcf3

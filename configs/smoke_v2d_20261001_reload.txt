@@ -1,0 +1,4 @@
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2d_neo_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2d_pt_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2d_ptslot_seed0 --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_v2d_lora_seed0 --step 12

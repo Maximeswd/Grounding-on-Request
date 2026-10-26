@@ -1,0 +1,5 @@
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/vcf --ctrl_style compose --lam_sft 1 --steps 30 --seed 0 --run_name vcf_neo_ctrl_5tok_sft_compose_SMOKE_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/vcf --ctrl_style compose --lam_sft 1 --steps 30 --seed 0 --run_name vcf_pt_na_5tok_sft_compose_SMOKE_seed0
+--method lora --arm na --n_tokens 1 --task color --data_dir data/vcf --ctrl_style compose --lam_sft 1.0 --lr 2e-4 --lora_r 4 --steps 30 --seed 0 --run_name vcf_lora_r4_lr2e4_compose_SMOKE_seed0
+--method neo --arm ctrl --n_tokens 5 --task clevr3 --data_dir data/clevr3 --factor_mode srconly --question_style explicit --held_cells look:spatial,read:count,ocr:object --compose_frac 0.5 --steps 30 --seed 0 --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --run_name clevr3_f_5tok_ctm_compose_SMOKE_seed0
+--method pt --arm ctrl --n_tokens 5 --task clevr3 --data_dir data/clevr3 --factor_mode srconly --question_style explicit --held_cells look:spatial,read:count,ocr:object --compose_frac 0.5 --steps 30 --seed 0 --lam_sft 1 --run_name clevr3_f_pt_5tok_compose_SMOKE_seed0

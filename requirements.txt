@@ -1,0 +1,21 @@
+# Pinned to the environment the paper's numbers were produced with (Python 3.12.3, CUDA 12.4 builds of torch).
+torch==2.6.0
+torchvision==0.21.0
+transformers==5.3.0
+tokenizers==0.22.2
+peft==0.19.1
+safetensors==0.8.0
+accelerate==1.14.0
+datasets==5.0.0
+huggingface_hub==1.21.0
+numpy==1.26.4
+scipy==1.11.4
+pandas==3.0.3
+pillow
+PyYAML
+tqdm==4.68.2
+matplotlib
+seaborn
+statsmodels
+protobuf==3.20.3
+wandb      # optional: offline run logging only

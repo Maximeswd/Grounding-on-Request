@@ -1,0 +1,3 @@
+python scripts/plugin_control.py --run_dir runs/color_neo_ctrl_1tok_sft_v3_seed0 --task color --data_dir data/color --split test_id --step 400
+python scripts/compose_eval.py --run_dir runs/color_neo_ctrl_1tok_sft_seed0 --task color --data_dir data/color --split test_id --step 400
+python scripts/compose_eval.py --run_dir runs/color_neo_ctrl_1tok_sft_v3_seed0 --task color --data_dir data/color --split test_id --step 400

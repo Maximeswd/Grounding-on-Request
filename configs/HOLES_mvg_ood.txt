@@ -1,0 +1,54 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_10tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_10tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_10tok_sftctm_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_1tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_1tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_1tok_sftctm_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_20tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_20tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_20tok_sftctm_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sft_seed0_cs_qwen35 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sftctm_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_1tok_sftv3_seed0_cs --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --split test_ood --max_n 113
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_id.jsonl --tag _excl_id --max_per_type 100
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_excl_ood.jsonl --tag _excl_ood --max_per_type 100
+python scripts/eval_mvg3.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --split test_ood --max_n 113

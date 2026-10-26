@@ -1,0 +1,33 @@
+{
+  "task": "clevr3",
+  "n_scenes": 1200,
+  "counts": {
+    "train": 4052,
+    "test_id": 748,
+    "test_ood": 800
+  },
+  "skills": [
+    "count",
+    "color",
+    "object",
+    "spatial"
+  ],
+  "sources": [
+    "look",
+    "read",
+    "ocr"
+  ],
+  "by_skill": {
+    "count": 1400,
+    "color": 1400,
+    "object": 1400,
+    "spatial": 1400
+  },
+  "n_distinct": {
+    "2": 2814,
+    "3": 2786
+  },
+  "ood": "strict holdout: shapes {triangle,star} / colors {purple,pink} / counts {7,8,9} / relation 'above' occur ONLY as look-gold of test_ood items (>=2 held values per axis where the inventory allows; spatial structurally capped at 1)",
+  "identifiability": "target = unique shape + unique color; anchor = second unique shape; spatial = dominant axis w/ margin",
+  "note": "3rd channel = extracted-text in PROMPT (MVG-twin), not pixel-OCR"
+}

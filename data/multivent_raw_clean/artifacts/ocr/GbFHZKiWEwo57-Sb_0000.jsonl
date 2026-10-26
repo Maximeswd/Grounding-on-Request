@@ -1,0 +1,6 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "CMO<|LOC_1000|><|LOC_541|><|LOC_923|><|LOC_648|><|LOC_909|><|LOC_603|><|LOC_991|><|LOC_496|>", "cleaned": "CMO<|LOC_1000|><|LOC_541|><|LOC_923|><|LOC_648|><|LOC_909|><|LOC_603|><|LOC_991|><|LOC_496|>", "txt": "CMO"}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "NO<|LOC_805|><|LOC_208|><|LOC_838|><|LOC_208|><|LOC_838|><|LOC_239|><|LOC_805|><|LOC_239|>\nCNC<|LOC_555|><|LOC_292|><|LOC_588|><|LOC_292|><|LOC_588|><|LOC_324|><|LOC_555|><|LOC_324|>", "cleaned": "NO<|LOC_805|><|LOC_208|><|LOC_838|><|LOC_208|><|LOC_838|><|LOC_239|><|LOC_805|><|LOC_239|>\nCNC<|LOC_555|><|LOC_292|><|LOC_588|><|LOC_292|><|LOC_588|><|LOC_324|><|LOC_555|><|LOC_324|>", "txt": "NO\nCNC"}

@@ -1,0 +1,2 @@
+python scripts/physics_probe.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0 --mode curve --task color --data_dir data/color --max_n 5 --betas 0,0.5,1.0
+python scripts/physics_probe.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0 --mode phase --task color --data_dir data/color --max_n 4 --betas 0,0.5,1.0 --alphas 0,1.0

@@ -1,0 +1,47 @@
+{
+ "seed": 0,
+ "n_frames": 8,
+ "videos": {
+  "total": 182,
+  "test": 36
+ },
+ "counts": {
+  "train": 708,
+  "test_id": 196
+ },
+ "by_op_cond": {
+  "train": {
+   "after|absent": 146,
+   "before|attested": 208,
+   "before|absent": 146,
+   "after|attested": 208
+  },
+  "test_id": {
+   "before|absent": 36,
+   "after|attested": 62,
+   "before|attested": 62,
+   "after|absent": 36
+  }
+ },
+ "reversible": {
+  "train": 92,
+  "test_id": 40
+ },
+ "with_far_negative": {
+  "train": 119,
+  "test_id": 48
+ },
+ "chain_len_hist": {
+  "2": 76,
+  "3": 41,
+  "4": 27,
+  "5": 9,
+  "6": 15,
+  "7": 9,
+  "8": 1,
+  "9": 1,
+  "10": 1,
+  "11": 1,
+  "12": 1
+ }
+}

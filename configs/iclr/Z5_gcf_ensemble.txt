@@ -1,0 +1,10 @@
+INSTR_VARIANT=1 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv1 || true
+INSTR_VARIANT=1 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv1 || true
+INSTR_VARIANT=2 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv2 || true
+INSTR_VARIANT=2 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv2 || true
+INSTR_VARIANT=3 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv3 || true
+INSTR_VARIANT=3 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv3 || true
+INSTR_VARIANT=4 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv4 || true
+INSTR_VARIANT=4 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv4 || true
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv5 || true
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --data_dir data/clevr3 --split test_id --step 800 --mode instructed --tag _instr_iv5 || true

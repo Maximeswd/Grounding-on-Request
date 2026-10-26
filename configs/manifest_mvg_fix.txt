@@ -1,0 +1,4 @@
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0_qwen35 --max_n 50
+python scripts/eval_mvg_report.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --assembler_ckpt runs/mvg_neo_ctrl_5tok_sftctm_seed0 --max_n 50
+python scripts/eval_mvg_report.py --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --max_n 50
+python scripts/eval_mvg_report.py --run_dir runs/mvgreport_neo_ctrl_5tok_sft_seed0 --max_n 50

@@ -1,0 +1,2 @@
+--method neo --arm link --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --run_name color_neo_link_5tok_sft_seed0_v2
+--method neo --arm link --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --seed 0 --gen_ckpt runs/vcf_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --run_name vcf_neo_link_5tok_sft_seed0_v2

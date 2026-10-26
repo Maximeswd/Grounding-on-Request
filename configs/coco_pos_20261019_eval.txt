@@ -1,0 +1,6 @@
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_posprefix_seed0 --task color --data_dir data/coco --split test_id --step 800 --max_n 400
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_posprefix_seed0 --task color --data_dir data/coco --split test_ood --step 800 --max_n 400
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_pospostq_seed0 --task color --data_dir data/coco --split test_id --step 800 --max_n 400
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_pospostq_seed0 --task color --data_dir data/coco --split test_ood --step 800 --max_n 400
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_pospostcap_seed0 --task color --data_dir data/coco --split test_id --step 800 --max_n 400
+python scripts/eval_relocation.py --run_dir runs/coco_neo_ctrl_5tok_ctm_pospostcap_seed0 --task color --data_dir data/coco --split test_ood --step 800 --max_n 400

@@ -1,0 +1,4 @@
+--method neo --arm gen --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --run_name color_neo_gen_5tok_sft_seed0_v2
+--method neo --arm gen --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --seed 0 --run_name vcf_neo_gen_5tok_sft_seed0_v2
+--method neo --arm gen --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name color_neo_gen_5tok_sft_seed0_qwen35_v2
+--method neo --arm gen --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name vcf_neo_gen_5tok_sft_seed0_qwen35_v2

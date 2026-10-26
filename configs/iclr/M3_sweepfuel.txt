@@ -1,0 +1,3 @@
+[ -d runs/clevr3_neo_ctrl_10tok_apo_seed0/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_neo_ctrl_10tok_apo_seed0 --data_dir data/clevr3 --split test_id --step 800 || true
+[ -d runs/clevr3_neo_ctrl_20tok_apo_seed0/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_neo_ctrl_20tok_apo_seed0 --data_dir data/clevr3 --split test_id --step 800 || true
+[ -d runs/clevr3_neo_ctrl_30tok_apo_seed0/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_neo_ctrl_30tok_apo_seed0 --data_dir data/clevr3 --split test_id --step 800 || true

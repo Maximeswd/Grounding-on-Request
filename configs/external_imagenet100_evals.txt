@@ -1,0 +1,48 @@
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_id --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen35 --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_qwen2b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_ctm_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_neo_ctrl_5tok_apo_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+python scripts/eval_flip_ll.py --run_dir runs/coco_lora_r4_lr2e4_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_id --max_n 140
+INSTR_VARIANT=5 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140
+NOOP_MODE=1 python scripts/eval_flip_ll.py --run_dir runs/coco_base_frozen_0tok_none_seed0_gemma4e4b --task color --data_dir data/imagenet100 --split test_ood --max_n 140

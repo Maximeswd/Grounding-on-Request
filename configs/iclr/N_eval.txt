@@ -1,0 +1,10 @@
+[ -d runs/mvgrep_sep_g27/ckpt ] && python scripts/eval_mvg_report.py --run_dir runs/mvgrep_sep_g27 --assembler_ckpt runs/mvgrep_sep_g27 --max_n 50 || true
+[ -d runs/mvgrep_word_g27/ckpt ] && python scripts/eval_mvg_report.py --run_dir runs/mvgrep_word_g27 --max_n 50 || true
+[ -d runs/mvr_sft_g27/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_sft_g27 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_sft_g27/ckpt ] && python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_sft_g27 --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_sft_g27/ckpt ] && python scripts/mvraw_report.py --run_dir runs/mvr_sft_g27 --name mvr27_g27 --n_frames 2 || true
+[ -d runs/mvgrep_sep_q27/ckpt ] && python scripts/eval_mvg_report.py --run_dir runs/mvgrep_sep_q27 --assembler_ckpt runs/mvgrep_sep_q27 --max_n 50 || true
+[ -d runs/mvgrep_word_q27/ckpt ] && python scripts/eval_mvg_report.py --run_dir runs/mvgrep_word_q27 --max_n 50 || true
+[ -d runs/mvr_sft_q27/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_sft_q27 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_sft_q27/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_mvraw_ablate.py --run_dir runs/mvr_sft_q27 --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 || true
+[ -d runs/mvr_sft_q27/ckpt ] && QWEN_MAX_TOK=256 python scripts/mvraw_report.py --run_dir runs/mvr_sft_q27 --name mvr27_q27 --n_frames 2 || true

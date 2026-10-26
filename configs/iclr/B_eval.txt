@@ -1,0 +1,3 @@
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean --max_per_type 300 || true
+[ -d runs/mvgV2_5tok_hard_ecc_seed0_qwen35/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --tag _clean_crop --max_per_type 300 --crop_bbox 0.25 || true

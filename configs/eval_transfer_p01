@@ -1,0 +1,17 @@
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_gen_seed0 --data_dir data/coco --split test_ood --task noun --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --data_dir data/vcf --split test_ood --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --data_dir data/color --split test_id --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --data_dir data/color --split test_ood --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --data_dir data/coco --split test_id --task noun --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --data_dir data/coco --split test_ood --task noun --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --data_dir data/vcf --split test_ood --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --data_dir data/color --split test_id --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --data_dir data/color --split test_ood --task color --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --data_dir data/coco --split test_id --task noun --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --data_dir data/coco --split test_ood --task noun --step 800 --caption_style clevr3
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0 --data_dir data/color --split test_id --task color --step 800 --caption_style native
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_exp_seed0 --data_dir data/coco --split test_id --task noun --step 800 --caption_style native
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0 --data_dir data/color --split test_id --task color --step 800 --caption_style native
+python scripts/eval_transfer.py --run_dir runs/clevr3_factored_exp_seed0 --data_dir data/coco --split test_id --task noun --step 800 --caption_style native
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_coloronly_seed0 --data_dir data/color --split test_id --task color --step 800 --caption_style native
+python scripts/eval_transfer.py --run_dir runs/clevr3_srconly_coloronly_seed0 --data_dir data/coco --split test_id --task noun --step 800 --caption_style native

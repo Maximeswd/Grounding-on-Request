@@ -1,0 +1,12 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "HYUNDAI TOKYO<|LOC_61|><|LOC_353|><|LOC_243|><|LOC_353|><|LOC_243|><|LOC_368|><|LOC_61|><|LOC_368|>", "cleaned": "HYUNDAI TOKYO<|LOC_61|><|LOC_353|><|LOC_243|><|LOC_353|><|LOC_243|><|LOC_368|><|LOC_61|><|LOC_368|>", "txt": "HYUNDAI TOKYO"}
+{"frame": "t000030", "raw": "HYUNDAI TOKYO<|LOC_79|><|LOC_445|><|LOC_286|><|LOC_445|><|LOC_286|><|LOC_460|><|LOC_79|><|LOC_460|>\n@salvage_ar<|LOC_36|><|LOC_479|><|LOC_561|><|LOC_479|><|LOC_561|><|LOC_528|><|LOC_36|><|LOC_528|>", "cleaned": "HYUNDAI TOKYO<|LOC_79|><|LOC_445|><|LOC_286|><|LOC_445|><|LOC_286|><|LOC_460|><|LOC_79|><|LOC_460|>\n@salvage_ar<|LOC_36|><|LOC_479|><|LOC_561|><|LOC_479|><|LOC_561|><|LOC_528|><|LOC_36|><|LOC_528|>", "txt": "HYUNDAI TOKYO\n@salvage_ar"}
+{"frame": "t000035", "raw": "HYUNDAI TOKYO<|LOC_61|><|LOC_450|><|LOC_278|><|LOC_450|><|LOC_278|><|LOC_466|><|LOC_61|><|LOC_466|>\n@salvage_a<|LOC_33|><|LOC_481|><|LOC_551|><|LOC_481|><|LOC_551|><|LOC_529|><|LOC_33|><|LOC_529|>", "cleaned": "HYUNDAI TOKYO<|LOC_61|><|LOC_450|><|LOC_278|><|LOC_450|><|LOC_278|><|LOC_466|><|LOC_61|><|LOC_466|>\n@salvage_a<|LOC_33|><|LOC_481|><|LOC_551|><|LOC_481|><|LOC_551|><|LOC_529|><|LOC_33|><|LOC_529|>", "txt": "HYUNDAI TOKYO\n@salvage_a"}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "12<|LOC_406|><|LOC_125|><|LOC_561|><|LOC_125|><|LOC_561|><|LOC_173|><|LOC_406|><|LOC_173|>", "cleaned": "12<|LOC_406|><|LOC_125|><|LOC_561|><|LOC_125|><|LOC_561|><|LOC_173|><|LOC_406|><|LOC_173|>", "txt": "12"}
+{"frame": "t000050", "raw": "@salva<|LOC_35|><|LOC_472|><|LOC_333|><|LOC_472|><|LOC_333|><|LOC_526|><|LOC_35|><|LOC_526|>", "cleaned": "@salva<|LOC_35|><|LOC_472|><|LOC_333|><|LOC_472|><|LOC_333|><|LOC_526|><|LOC_35|><|LOC_526|>", "txt": "@salva"}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}

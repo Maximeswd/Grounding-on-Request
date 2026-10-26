@@ -1,0 +1,5 @@
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id --max_n 6 --tag _smoke
+python scripts/eval_posthoc_ground.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id --max_n 6 --tag _smoke
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id --max_n 6 --tag _smoke
+python scripts/eval_compose_detect.py --run_dir runs/clevr3_f_pt_5tok_seed0 --split test_id --max_n 6 --tag _smoke
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --split test_id --max_n 6 --tag _smoke

@@ -1,0 +1,78 @@
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --frozen_model_id base --style instr --tag _visx_id_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --frozen_model_id base --style noop --tag _visx_id_noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --frozen_model_id base --style instr --tag _bboxx_id_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --frozen_model_id base --style noop --tag _bboxx_id_noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --frozen_model_id base --style instr --tag _bboxx_ood_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --frozen_model_id base --style noop --tag _bboxx_ood_noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style instr --tag _visx_id_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style noop --tag _visx_id_noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style instr --tag _bboxx_id_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style noop --tag _bboxx_id_noop
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style instr --tag _bboxx_ood_instr
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --frozen_model_id Qwen/Qwen3.5-4B --style noop --tag _bboxx_ood_noop
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_apo_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_tc_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_uni_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_vgm_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_ctm2x_s1200_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _visx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_id.jsonl --max_per_type 300 --tag _bboxx_id_crop --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood
+python scripts/eval_mvg_flip.py --run_dir runs/mvg_neo_ctrl_5tok_sftctm_seed0 --step 800 --pairs data/mvg_ctm/pairs_bboxx_ood.jsonl --max_per_type 300 --tag _bboxx_ood_crop --crop_bbox 0.25

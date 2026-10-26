@@ -1,0 +1,14 @@
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _fair || true
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0 --split test_id --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0 --split test_ood --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0_qwen35 --step 800 --pairs data/mvg_ctm/pairs_visx_id.jsonl --max_per_type 300 --tag _fair || true
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0_qwen35 --split test_id --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_sftonly_hard_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftonly_hard_seed0_qwen35 --split test_ood --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_pt_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0 --split test_id --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_pt_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0 --split test_ood --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_pt_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --split test_id --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_5tok_pt_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_pt_seed0_qwen35 --split test_ood --step 800 --style neo --tag sel_v2 || true
+[ -d runs/mvgV2_lora_r16_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_lora_r16_seed0 --split test_id --step 800 --style instr --tag sel_v2 || true
+[ -d runs/mvgV2_lora_r16_seed0/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_lora_r16_seed0 --split test_ood --step 800 --style instr --tag sel_v2 || true
+[ -d runs/mvgV2_lora_r16_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_lora_r16_seed0_qwen35 --split test_id --step 800 --style instr --tag sel_v2 || true
+[ -d runs/mvgV2_lora_r16_seed0_qwen35/ckpt ] && python scripts/eval_mvg3.py --run_dir runs/mvgV2_lora_r16_seed0_qwen35 --split test_ood --step 800 --style instr --tag sel_v2 || true

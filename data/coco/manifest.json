@@ -1,0 +1,16 @@
+{
+  "task": "coco",
+  "source": "Intel/COCO-Counterfactuals",
+  "axis": "look_vs_read (modality), open-vocab noun",
+  "pool": 3500,
+  "n_nouns": 1436,
+  "n_ood_nouns": 279,
+  "counts": {
+    "train": 2109,
+    "test_id": 381,
+    "test_ood": 1010
+  },
+  "note": "PRE-oracle-gate; run scripts/coco_oracle_gate.py next",
+  "ood_definition": "held out as ANSWER/KEY CONCEPT (changed noun); an OOD noun may still appear in the UNCHANGED context of a train caption -- the diff only tracks the swapped word",
+  "oracle_gate_note": "gate keeps pairs the frozen model reads correctly on BOTH images -> biases toward perceptually-familiar nouns BY DESIGN: tests routing CONDITIONAL on perception (row cannot conjure missing circuits)"
+}

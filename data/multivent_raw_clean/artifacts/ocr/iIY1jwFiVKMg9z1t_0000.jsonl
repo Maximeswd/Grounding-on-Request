@@ -1,0 +1,14 @@
+{"frame": "t000000", "raw": "ORIEN<|LOC_881|><|LOC_785|><|LOC_944|><|LOC_801|><|LOC_941|><|LOC_822|><|LOC_878|><|LOC_806|>\nSPACE<|LOC_881|><|LOC_806|><|LOC_941|><|LOC_821|><|LOC_938|><|LOC_841|><|LOC_878|><|LOC_826|>\n东方空间<|LOC_881|><|LOC_826|><|LOC_938|><|LOC_841|><|LOC_935|><|LOC_858|><|LOC_878|><|LOC_843|>", "cleaned": "ORIEN<|LOC_881|><|LOC_785|><|LOC_944|><|LOC_801|><|LOC_941|><|LOC_822|><|LOC_878|><|LOC_806|>\nSPACE<|LOC_881|><|LOC_806|><|LOC_941|><|LOC_821|><|LOC_938|><|LOC_841|><|LOC_878|><|LOC_826|>\n东方空间<|LOC_881|><|LOC_826|><|LOC_938|><|LOC_841|><|LOC_935|><|LOC_858|><|LOC_878|><|LOC_843|>", "txt": "ORIEN\nSPACE\n东方空间"}
+{"frame": "t000005", "raw": "HLA<|LOC_527|><|LOC_410|><|LOC_562|><|LOC_410|><|LOC_562|><|LOC_438|><|LOC_527|><|LOC_438|>\n中国数据<|LOC_899|><|LOC_777|><|LOC_991|><|LOC_785|><|LOC_989|><|LOC_810|><|LOC_897|><|LOC_802|>\nHLA<|LOC_548|><|LOC_797|><|LOC_576|><|LOC_797|><|LOC_576|><|LOC_818|><|LOC_548|><|LOC_818|>", "cleaned": "HLA<|LOC_527|><|LOC_410|><|LOC_562|><|LOC_410|><|LOC_562|><|LOC_438|><|LOC_527|><|LOC_438|>\n中国数据<|LOC_899|><|LOC_777|><|LOC_991|><|LOC_785|><|LOC_989|><|LOC_810|><|LOC_897|><|LOC_802|>\nHLA<|LOC_548|><|LOC_797|><|LOC_576|><|LOC_797|><|LOC_576|><|LOC_818|><|LOC_548|><|LOC_818|>", "txt": "HLA\n中国数据\nHLA"}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000025", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000030", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000035", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000050", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000060", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000065", "raw": "HLA<|LOC_514|><|LOC_398|><|LOC_556|><|LOC_398|><|LOC_556|><|LOC_431|><|LOC_514|><|LOC_431|>", "cleaned": "HLA<|LOC_514|><|LOC_398|><|LOC_556|><|LOC_398|><|LOC_556|><|LOC_431|><|LOC_514|><|LOC_431|>", "txt": "HLA"}

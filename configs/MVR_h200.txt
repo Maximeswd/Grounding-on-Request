@@ -1,0 +1,14 @@
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --steps 800 --seed 0 --run_name mvr_g_5tok_sft_seed0c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_5tok_sft_seed0_qwen35c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_apo 1 --pref_warmup 100 --steps 800 --seed 0 --run_name mvr_g_5tok_apo_seed0c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_apo 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_5tok_apo_seed0_qwen35c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --run_name mvr_g_5tok_ctm_seed0c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_5tok_ctm_seed0_qwen35c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_ctm 1 --lam_apo 1 --pref_warmup 100 --steps 800 --seed 0 --run_name mvr_g_5tok_ctmv3_seed0c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_ctm 1 --lam_apo 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_5tok_ctmv3_seed0_qwen35c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_tc 1 --pref_warmup 100 --steps 800 --seed 0 --run_name mvr_g_5tok_v3_seed0c2h2
+--method neo --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --lam_tc 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_5tok_v3_seed0_qwen35c2h2
+--method pt --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --steps 800 --seed 0 --run_name mvr_g_pt_5tok_seed0c2h2
+--method pt --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --n_tokens 5 --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_pt_5tok_seed0_qwen35c2h2
+--method lora --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --lora_r 4 --lr 2e-4 --lam_sft 1 --steps 800 --seed 0 --run_name mvr_g_lora_r4_seed0c2h2
+--method lora --arm ctrl --task mvraw --data_dir data/multivent_raw_clean --n_frames 2 --lora_r 4 --lr 2e-4 --lam_sft 1 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name mvr_g_lora_r4_seed0_qwen35c2h2

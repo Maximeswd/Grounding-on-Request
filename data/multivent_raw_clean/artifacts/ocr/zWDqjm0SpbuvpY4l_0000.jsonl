@@ -1,0 +1,13 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "16402<|LOC_55|><|LOC_183|><|LOC_195|><|LOC_221|><|LOC_188|><|LOC_297|><|LOC_48|><|LOC_258|>\nPR<|LOC_466|><|LOC_313|><|LOC_491|><|LOC_315|><|LOC_490|><|LOC_358|><|LOC_465|><|LOC_356|>", "cleaned": "16402<|LOC_55|><|LOC_183|><|LOC_195|><|LOC_221|><|LOC_188|><|LOC_297|><|LOC_48|><|LOC_258|>\nPR<|LOC_466|><|LOC_313|><|LOC_491|><|LOC_315|><|LOC_490|><|LOC_358|><|LOC_465|><|LOC_356|>", "txt": "16402\nPR"}
+{"frame": "t000025", "raw": "\\( 10^{-6} \\)<|LOC_16|><|LOC_210|><|LOC_127|><|LOC_215|><|LOC_126|><|LOC_286|><|LOC_15|><|LOC_281|>\nPR<|LOC_533|><|LOC_269|><|LOC_591|><|LOC_269|><|LOC_591|><|LOC_329|><|LOC_533|><|LOC_329|>\nA.C. SLEEP<|LOC_836|><|LOC_578|><|LOC_984|><|LOC_569|><|LOC_985|><|LOC_628|><|LOC_837|><|LOC_636|>", "cleaned": "\\( 10^{-6} \\)<|LOC_16|><|LOC_210|><|LOC_127|><|LOC_215|><|LOC_126|><|LOC_286|><|LOC_15|><|LOC_281|>\nPR<|LOC_533|><|LOC_269|><|LOC_591|><|LOC_269|><|LOC_591|><|LOC_329|><|LOC_533|><|LOC_329|>\nA.C. SLEEP<|LOC_836|><|LOC_578|><|LOC_984|><|LOC_569|><|LOC_985|><|LOC_628|><|LOC_837|><|LOC_636|>", "txt": "\\( 10^{-6} \\)\nPR\nA.C. SLEEP"}
+{"frame": "t000030", "raw": "PR<|LOC_440|><|LOC_485|><|LOC_566|><|LOC_485|><|LOC_566|><|LOC_588|><|LOC_440|><|LOC_588|>", "cleaned": "PR<|LOC_440|><|LOC_485|><|LOC_566|><|LOC_485|><|LOC_566|><|LOC_588|><|LOC_440|><|LOC_588|>", "txt": "PR"}
+{"frame": "t000035", "raw": "SOD22001<|LOC_458|><|LOC_751|><|LOC_570|><|LOC_751|><|LOC_570|><|LOC_792|><|LOC_458|><|LOC_792|>", "cleaned": "SOD22001<|LOC_458|><|LOC_751|><|LOC_570|><|LOC_751|><|LOC_570|><|LOC_792|><|LOC_458|><|LOC_792|>", "txt": "SOD22001"}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000050", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000055", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000060", "raw": "", "cleaned": "", "txt": ""}

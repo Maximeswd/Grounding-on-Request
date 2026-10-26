@@ -1,0 +1,5 @@
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt ] && python scripts/eval_claim_verifier.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_ood --step 800 --n_frames 2 || true
+[ -d runs/mvr_g_5tok_ctm_seed0c2h2lm/ckpt ] && python scripts/eval_claim_verifier.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_ood --step 800 --n_frames 2 || true
+[ -d runs/mvr_g_5tok_sft_seed0_qwen35c2h2/ckpt ] && QWEN_MAX_TOK=256 python scripts/eval_claim_verifier.py --run_dir runs/mvr_g_5tok_sft_seed0_qwen35c2h2 --split test_ood --step 800 --n_frames 2 || true
+[ -d runs/mvr_g_lora_r16_seed0c2h2ck/ckpt ] && python scripts/eval_claim_verifier.py --run_dir runs/mvr_g_lora_r16_seed0c2h2ck --split test_ood --step 800 --n_frames 2 || true
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt ] && python scripts/eval_claim_verifier.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_ood --step 800 --n_frames 2 --frozen_model_id base --style instr || true

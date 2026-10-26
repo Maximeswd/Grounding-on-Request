@@ -1,0 +1,25 @@
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_seed0 --crop_bbox 0.25
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --crop_bbox 0.25
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_ecc_seed0 --crop_bbox 0.25
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_hard_4frames_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_4frames_seed0
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_hard_4frames_seed0 --crop_bbox 0.25
+python scripts/eval_mvg3.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35 --crop_bbox 0.25
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0 --max_n 120 --ablate vis
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0 --max_n 120 --swap desc
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0_qwen35 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0_qwen35 --max_n 120 --ablate vis
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_5tok_seed0_qwen35 --max_n 120 --swap desc
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_channelwords_seed0 --composed_ckpt runs/mvgV2report_channelwords_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2report_channelwords_seed0 --composed_ckpt runs/mvgV2report_channelwords_seed0 --max_n 120 --ablate vis
+python scripts/eval_mvg_report.py --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --assembler_ckpt runs/mvgV2_5tok_sftctm_hard_seed0 --max_n 120
+python scripts/eval_mvg_report.py --run_dir runs/_frozen_gemma --frozen_model_id base --max_n 120

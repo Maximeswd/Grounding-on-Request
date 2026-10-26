@@ -1,0 +1,2 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_pt_na_5tok_apo_seed0_qwen35 --task color --data_dir data/color --split test_id --step 800
+python scripts/eval_flip_ll.py --run_dir runs/coco_pt_na_5tok_apo_seed0_qwen35 --task color --data_dir data/coco --split test_id --step 800

@@ -1,0 +1,4 @@
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_ple_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_ple_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rb --crop_bbox 0.25
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_ple_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rbg --generate 1 --gen_max 150
+python scripts/eval_mvg_flip.py --run_dir runs/mvgV2_5tok_ptctm_fix_ple_seed0_gemma4e4b --step 800 --pairs data/mvg_ctm/pairs_clean_rb.jsonl --max_per_type 300 --mvg ./data/multiventG/multivent_g_rebuilt.json --tag _rbg --generate 1 --gen_max 150 --crop_bbox 0.25

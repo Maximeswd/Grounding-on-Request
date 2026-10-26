@@ -1,0 +1,3 @@
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --workers 2 --ladder_ctrl_pos prefix --run_name coco_neo_ctrl_5tok_ctm_posprefix_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --workers 2 --ladder_ctrl_pos postq --run_name coco_neo_ctrl_5tok_ctm_pospostq_seed0
+--method neo --arm ctrl --n_tokens 5 --task color --data_dir data/coco --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --workers 2 --ladder_ctrl_pos postcap --run_name coco_neo_ctrl_5tok_ctm_pospostcap_seed0

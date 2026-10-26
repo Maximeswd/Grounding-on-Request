@@ -1,0 +1,56 @@
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode noop
+INSTR_VARIANT=5 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode instructed
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_5tok_ctm_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_pt_5tok_ctm_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_lora_r4_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode noop
+INSTR_VARIANT=5 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode instructed
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_5tok_ctm_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_pt_5tok_ctm_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_lora_r4_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode noop
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_gemma --frozen_model_id google/gemma-3-4b-it --mode instructed
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_sftctm_hard_seed0 --mode srconly
+python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_lora_r4_seed0 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_lora_r4_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_lora_r4_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode noop
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_qwen35 --frozen_model_id Qwen/Qwen3.5-4B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_lora_r4_seed0_qwen35 --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_lora_r4_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_lora_r4_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode noop
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_qwen2b --frozen_model_id Qwen/Qwen3.5-2B --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_lora_r4_seed0_qwen2b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_5tok_ctm_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_id --run_dir runs/clevr3_f_lora_r4_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode noop
+INSTR_VARIANT=5 QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_5tok_ctm_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_pt_5tok_ctm_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds clevr3 --data_dir data/clevr3 --ops look,read --max_n 600 --split test_ood --run_dir runs/clevr3_f_lora_r4_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode noop
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/_frozen_gemma4e4b --frozen_model_id google/gemma-4-E4B-it --mode instructed
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_5tok_sftctm_hard_seed0_gemma4e4b --mode srconly
+QWEN_MAX_TOK=256 python scripts/attention_probe_v2.py --ds mvg --split pairs_rb --max_n 400 --run_dir runs/mvgV2_lora_r4_seed0_gemma4e4b --mode srconly

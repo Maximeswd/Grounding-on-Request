@@ -1,0 +1,4 @@
+python scripts/eval_order.py --run_dir runs/color_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/color --split test_id --single 1
+python scripts/eval_order.py --run_dir runs/vcf_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/vcf --split test_id --single 1
+python scripts/eval_order.py --run_dir runs/color_neo_link_5tok_ctm_seed0 --task color --data_dir data/color --split test_id --single 1
+python scripts/eval_order.py --run_dir runs/vcf_neo_link_5tok_ctm_seed0 --task color --data_dir data/vcf --split test_id --single 1

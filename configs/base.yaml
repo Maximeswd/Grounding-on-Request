@@ -1,0 +1,36 @@
+# Default config. CLI flags in train.py override any of these.
+task: color             # color | counting | spatial | attr (slot type)
+model:
+  attn: eager            # Gemma3 is happiest with eager attention for training
+data:
+  human_only: true       # keep only caption_source == 'human'
+  use_legibility_filter: true   # train only on examples the frozen model can read per-source
+  dir: null              # processed task dir (prepare_task.py); null -> ColorSwap
+train:
+  steps: 400             # optimizer updates (embedding-only converges fast)
+  lr: 0.05               # good for soft-embedding training; OVERRIDE for lora (~2e-4)
+  grad_accum: 8          # effective batch size (forward is bs=1 due to variable image tokens)
+  ckpt_every: 100        # save + (later) evaluate at these steps -> the checkpoint curve
+  grad_clip: 1.0
+  lr_schedule: cosine    # constant | cosine | linear (warmup always applied unless constant)
+  warmup: 20             # linear warmup steps to peak lr (~5% of 400)
+  min_lr_frac: 0.1       # decay floor as fraction of peak
+  norm_clamp: 2.0        # cap new-row embedding norms at 2x mean old-row norm (0 = off)
+  init: word_mean        # word_mean (skill-neologism style) | random
+lora:
+  r: 16
+  alpha: 32
+pt:
+  n_virtual: 16          # EXPERIMENTAL (see README) -- forward-injection not wired
+tokens:
+  n_tokens: 1          # MAIN setting: one literal new word per operator; 4/8 = capacity ablation            # EQUAL across neologisms; the sweep axis
+  sweep: [1, 2, 4, 8, 16]
+wandb:
+  project: source-collapse
+objective:
+  pref_warmup: 100       # SFT-only steps before APO/VGM ramp (format first, grounding second)
+  lam_sft: 1.0           # CE on the exact target
+  lam_apo: 0.0           # anchored preference vs the laundering rejected (turn on for APO arm)
+  lam_vgm: 0.0           # OPTIONAL multimodal grounding margin (look only); see README caveat
+  beta: 0.1              # APO logistic temperature
+  gamma: 0.1             # VGM logistic temperature

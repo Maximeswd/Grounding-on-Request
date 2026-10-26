@@ -1,0 +1,47 @@
+{
+ "test_id": {
+  "new_rows": {
+   "count": 146,
+   "spatial": 187
+  },
+  "rejected": {
+   "count_k2": 41,
+   "spatial_offcanvas": 0,
+   "spatial_overlap": 0,
+   "spatial_rel": 0,
+   "no_graph": 0
+  },
+  "existing_colour_object_rows": 374,
+  "all_rows": 707
+ },
+ "test_ood": {
+  "new_rows": {
+   "count": 200,
+   "spatial": 200
+  },
+  "rejected": {
+   "count_k2": 0,
+   "spatial_offcanvas": 0,
+   "spatial_overlap": 0,
+   "spatial_rel": 0,
+   "no_graph": 0
+  },
+  "existing_colour_object_rows": 400,
+  "all_rows": 800
+ },
+ "train": {
+  "new_rows": {
+   "count": 808,
+   "spatial": 1013
+  },
+  "rejected": {
+   "count_k2": 205,
+   "spatial_offcanvas": 0,
+   "spatial_overlap": 0,
+   "spatial_rel": 0,
+   "no_graph": 0
+  },
+  "existing_colour_object_rows": 2026,
+  "all_rows": 3847
+ }
+}

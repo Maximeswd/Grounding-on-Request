@@ -1,0 +1,3 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --task mvrawcorr --data_dir data/multivent_raw --n_frames 4 --run_name corr_5tok_sft_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task mvrawcorr --data_dir data/multivent_raw --n_frames 4 --run_name corr_5tok_sftctm_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --task mvrawcorr --data_dir data/multivent_raw --n_frames 4 --model_id Qwen/Qwen3.5-4B --run_name corr_5tok_sftctm_seed0_qwen35

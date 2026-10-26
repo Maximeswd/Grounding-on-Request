@@ -1,0 +1,4 @@
+{"frame": "t000000", "raw": "NH<|LOC_534|><|LOC_213|><|LOC_591|><|LOC_213|><|LOC_591|><|LOC_254|><|LOC_534|><|LOC_254|>\nNH<|LOC_688|><|LOC_294|><|LOC_720|><|LOC_294|><|LOC_720|><|LOC_319|><|LOC_688|><|LOC_319|>", "cleaned": "NH<|LOC_534|><|LOC_213|><|LOC_591|><|LOC_213|><|LOC_591|><|LOC_254|><|LOC_534|><|LOC_254|>\nNH<|LOC_688|><|LOC_294|><|LOC_720|><|LOC_294|><|LOC_720|><|LOC_319|><|LOC_688|><|LOC_319|>", "txt": "NH\nNH"}
+{"frame": "t000005", "raw": "우리연합<|LOC_718|><|LOC_236|><|LOC_841|><|LOC_217|><|LOC_845|><|LOC_288|><|LOC_721|><|LOC_306|>", "cleaned": "우리연합<|LOC_718|><|LOC_236|><|LOC_841|><|LOC_217|><|LOC_845|><|LOC_288|><|LOC_721|><|LOC_306|>", "txt": "우리연합"}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}

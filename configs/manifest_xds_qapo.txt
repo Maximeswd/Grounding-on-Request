@@ -1,0 +1,7 @@
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/vcf --split test_id --max_n 80
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/coco --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/coco --split test_id --max_n 80
+python scripts/eval_ladder.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/color --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_verbalize.py --run_dir runs/color_neo_ctrl_5tok_apo_seed0_qwen35 --data_dir data/color

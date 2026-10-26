@@ -1,0 +1,2 @@
+--method pt --arm na --n_tokens 1 --task color --data_dir data/vcf --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name vcf_pt_na_1tok_ctm_seed0_qwen35
+--method pt --arm na --n_tokens 1 --task color --data_dir data/color --lam_sft 1 --lam_ctm 1 --pref_warmup 100 --steps 800 --seed 0 --model_id Qwen/Qwen3.5-4B --run_name color_pt_na_1tok_ctm_seed0_qwen35

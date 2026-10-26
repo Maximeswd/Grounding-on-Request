@@ -1,0 +1,17 @@
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_gen_seed0 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_gen_seed0 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_bundled_exp_seed0 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_bundled_exp_seed0 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_coloronly_seed0 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0_qwen35 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0_qwen35 --split test_ood --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0 --mode instructed --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_srconly_exp_seed0 --mode noop --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0 --mode instructed --split test_id --step 800
+python scripts/eval_clevr3.py --run_dir runs/clevr3_factored_exp_seed0 --mode noop --split test_id --step 800

@@ -1,0 +1,10 @@
+{
+  "task": "mvg3",
+  "n_items": 595,
+  "counts": {
+    "test_id": 482,
+    "test_ood": 113
+  },
+  "n_triples": 132,
+  "note": "aligned (video,role) groups w/ >=2 disagreeing channels; distractor = other-channel PRESENT value (fixes null selectivity)"
+}

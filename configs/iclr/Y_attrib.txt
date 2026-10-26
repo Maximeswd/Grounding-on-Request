@@ -1,0 +1,6 @@
+python scripts/eval_claim_attrib.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_ood --n_frames 2
+python scripts/eval_claim_attrib.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_ood --n_frames 2
+python scripts/eval_claim_attrib.py --run_dir runs/mvr_g_5tok_sft_seed0_qwen35c2h2 --split test_ood --n_frames 2
+python scripts/eval_claim_attrib.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_id --n_frames 2
+python scripts/eval_claim_attrib.py --run_dir runs/_frozen_attrib_g3 --frozen_model_id base --split test_ood --n_frames 2
+python scripts/eval_claim_attrib.py --run_dir runs/_frozen_attrib_qwen --frozen_model_id Qwen/Qwen3.5-4B --split test_ood --n_frames 2

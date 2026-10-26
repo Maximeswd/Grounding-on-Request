@@ -1,0 +1,12 @@
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/color_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/color --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_gen_5tok_sft_seed0_v2 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/color_neo_gen_5tok_sft_seed0_v2 --task color --data_dir data/color --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/color_neo_gen_5tok_sft_seed0_qwen35_v2 --task color --data_dir data/color --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/color_neo_gen_5tok_sft_seed0_qwen35_v2 --task color --data_dir data/color --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_gen_5tok_sft_seed0_v2 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_gen_5tok_sft_seed0_v2 --task color --data_dir data/vcf --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_gen_5tok_sft_seed0_qwen35_v2 --task color --data_dir data/vcf --split test_id --max_n 140
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_gen_5tok_sft_seed0_qwen35_v2 --task color --data_dir data/vcf --split test_id
+python scripts/eval_flip_ll.py --run_dir runs/vcf_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/vcf --split test_id --step 500 --max_n 140
+python scripts/eval_ladder.py --run_dir runs/vcf_neo_link_5tok_sft_seed0_v2 --task color --data_dir data/vcf --split test_id --step 500

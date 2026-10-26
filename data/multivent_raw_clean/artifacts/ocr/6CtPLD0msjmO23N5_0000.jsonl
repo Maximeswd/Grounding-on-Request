@@ -1,0 +1,11 @@
+{"frame": "t000000", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000005", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000010", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000015", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000020", "raw": "POLI<|LOC_170|><|LOC_596|><|LOC_198|><|LOC_579|><|LOC_202|><|LOC_608|><|LOC_173|><|LOC_625|>", "cleaned": "POLI<|LOC_170|><|LOC_596|><|LOC_198|><|LOC_579|><|LOC_202|><|LOC_608|><|LOC_173|><|LOC_625|>", "txt": "POLI"}
+{"frame": "t000025", "raw": "POLU<|LOC_170|><|LOC_583|><|LOC_198|><|LOC_563|><|LOC_202|><|LOC_590|><|LOC_173|><|LOC_610|>", "cleaned": "POLU<|LOC_170|><|LOC_583|><|LOC_198|><|LOC_563|><|LOC_202|><|LOC_590|><|LOC_173|><|LOC_610|>", "txt": "POLU"}
+{"frame": "t000030", "raw": "PO.<|LOC_170|><|LOC_592|><|LOC_191|><|LOC_583|><|LOC_195|><|LOC_610|><|LOC_173|><|LOC_619|>", "cleaned": "PO.<|LOC_170|><|LOC_592|><|LOC_191|><|LOC_583|><|LOC_195|><|LOC_610|><|LOC_173|><|LOC_619|>", "txt": "PO."}
+{"frame": "t000035", "raw": "POU<|LOC_162|><|LOC_619|><|LOC_191|><|LOC_597|><|LOC_195|><|LOC_625|><|LOC_166|><|LOC_647|>", "cleaned": "POU<|LOC_162|><|LOC_619|><|LOC_191|><|LOC_597|><|LOC_195|><|LOC_625|><|LOC_166|><|LOC_647|>", "txt": "POU"}
+{"frame": "t000040", "raw": "", "cleaned": "", "txt": ""}
+{"frame": "t000045", "raw": "POLIC<|LOC_148|><|LOC_640|><|LOC_177|><|LOC_621|><|LOC_180|><|LOC_648|><|LOC_152|><|LOC_667|>", "cleaned": "POLIC<|LOC_148|><|LOC_640|><|LOC_177|><|LOC_621|><|LOC_180|><|LOC_648|><|LOC_152|><|LOC_667|>", "txt": "POLIC"}
+{"frame": "t000050", "raw": "", "cleaned": "", "txt": ""}

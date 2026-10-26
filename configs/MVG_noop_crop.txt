@@ -1,0 +1,1 @@
+python scripts/eval_mvg_flip.py --run_dir runs/_frozen_gemma --step 800 --pairs data/mvg_ctm/pairs_clean.jsonl --max_per_type 300 --tag _clean_crop_noop --crop_bbox 0.25 --style noop --frozen_model_id base || true

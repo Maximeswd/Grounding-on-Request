@@ -1,0 +1,14 @@
+{
+  "task": "vcf",
+  "subset": "color",
+  "source": "mgolov/Visual-Counterfact",
+  "axis": "look_vs_read (modality); prior=covariate via img_idx",
+  "n_objects": 493,
+  "n_ood_objects": 94,
+  "counts": {
+    "train": 339,
+    "test_id": 60,
+    "test_ood": 94
+  },
+  "prompt_task": "color"
+}

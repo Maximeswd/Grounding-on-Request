@@ -1,0 +1,15 @@
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_pt_5tok_seed0 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_lora_r4_seed0 --split test_id
+INSTR_VARIANT=5 python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --mode instructed --tag _instr_iv5
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0 --split test_id --mode noop --tag _noop
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen35 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen35 --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_lora_r4_seed0_qwen35 --split test_id
+INSTR_VARIANT=5 python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id --mode instructed --tag _instr_iv5
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --split test_id --mode noop --tag _noop
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_5tok_ctm_seed0_qwen2b --split test_id
+python scripts/attn_groundcf.py --run_dir runs/clevr3_f_pt_5tok_seed0_qwen2b --split test_id

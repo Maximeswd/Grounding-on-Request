@@ -1,0 +1,5 @@
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --ctrl_style markup --task color --data_dir data/vcf --run_name vcf_markup_5tok_sft_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --ctrl_style markup --task color --data_dir data/color --run_name color_markup_5tok_sft_seed0
+--method neo --arm ctrl --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --ctrl_style blocks --delim_loss_weight 0.2 --task color --data_dir data/vcf --run_name vcf_blocks_delimw02_seed0
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --delim_loss_weight 0.2 --gen_ckpt runs/color_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/color --run_name color_link_delimw02_seed0
+--method neo --arm link --n_tokens 5 --seed 0 --steps 800 --lam_sft 1.0 --delim_loss_weight 0.2 --gen_ckpt runs/vcf_neo_gen_5tok_sft_seed0_v2/ckpt/step_800/neo.pt --task color --data_dir data/vcf --run_name vcf_link_delimw02_seed0

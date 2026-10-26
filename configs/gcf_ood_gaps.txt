@@ -1,0 +1,6 @@
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0 --mode instructed --dump_picks 1 --tag _instr_iv5
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen35 --mode instructed --dump_picks 1 --tag _instr_iv5
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --mode instructed --dump_picks 1 --tag _instr_iv5
+INSTR_VARIANT=5 python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --mode instructed --dump_picks 1 --tag _instr_iv5
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_apo_seed0 --mode srconly --dump_picks 1
+python scripts/eval_clevr3_flip.py --data_dir data/clevr3 --split test_ood --step 800 --max_n 150 --run_dir runs/clevr3_f_5tok_apo_seed0_qwen35 --mode srconly --dump_picks 1

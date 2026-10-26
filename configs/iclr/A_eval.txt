@@ -1,0 +1,8 @@
+[ -d runs/clevr3_f_5tok_sft_seed0_qwen2b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --split test_id --step 800 --mode instructed --tag _instr || true
+[ -d runs/clevr3_f_5tok_sft_seed0_qwen2b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --split test_ood --step 800 --mode instructed --tag _instr || true
+[ -d runs/clevr3_f_5tok_sft_seed0_qwen2b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --split test_id --step 800 --mode noop --tag _noop || true
+[ -d runs/clevr3_f_5tok_sft_seed0_qwen2b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_qwen2b --split test_ood --step 800 --mode noop --tag _noop || true
+[ -d runs/clevr3_f_5tok_sft_seed0_gemma4e4b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --split test_id --step 800 --mode instructed --tag _instr || true
+[ -d runs/clevr3_f_5tok_sft_seed0_gemma4e4b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --split test_ood --step 800 --mode instructed --tag _instr || true
+[ -d runs/clevr3_f_5tok_sft_seed0_gemma4e4b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --split test_id --step 800 --mode noop --tag _noop || true
+[ -d runs/clevr3_f_5tok_sft_seed0_gemma4e4b/ckpt ] && python scripts/eval_clevr3_flip.py --run_dir runs/clevr3_f_5tok_sft_seed0_gemma4e4b --split test_ood --step 800 --mode noop --tag _noop || true

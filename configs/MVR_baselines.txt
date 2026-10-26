@@ -1,0 +1,12 @@
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 --style instr --frozen_model_id base || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 --style instr --frozen_model_id base || true
+python scripts/eval_mvr_register_control.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 150 --style instr --frozen_model_id base || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 --style noop --frozen_model_id base || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 --style noop --frozen_model_id base || true
+python scripts/eval_mvr_register_control.py --run_dir runs/_frozen_gemma --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 150 --style noop --frozen_model_id base || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 --style instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 --style instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvr_register_control.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 150 --style instr --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 200 --style noop --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvraw_ablate.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_ood --step 800 --n_frames 2 --max_n 200 --style noop --frozen_model_id Qwen/Qwen3.5-4B || true
+python scripts/eval_mvr_register_control.py --run_dir runs/_frozen_qwen35 --data_dir data/multivent_raw_clean --split test_id --step 800 --n_frames 2 --max_n 150 --style noop --frozen_model_id Qwen/Qwen3.5-4B || true

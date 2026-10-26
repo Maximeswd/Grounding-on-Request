@@ -1,0 +1,2 @@
+python scripts/mvraw_report.py --run_dir runs/_frozen_gemma --frozen_model_id base --style instr --name mvr_frozen_instr --n_frames 4
+python scripts/mvraw_report.py --run_dir runs/_frozen_gemma --frozen_model_id base --style noop  --name mvr_frozen_noop  --n_frames 4

@@ -1,0 +1,8 @@
+--method pt --arm na --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --seed 0 --run_name vcf_pt_na_5tok_sft_seed0
+--method lora --arm na --n_tokens 1 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --seed 0 --run_name vcf_lora_na_1tok_sft_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --run_name color_pt_na_5tok_sft_seed0
+--method lora --arm na --n_tokens 1 --task color --data_dir data/color --lam_sft 1 --steps 800 --seed 0 --run_name color_lora_na_1tok_sft_seed0
+--method pt --arm na --n_tokens 5 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --model_id Qwen/Qwen3.5-4B --seed 0 --run_name vcf_pt_na_5tok_sft_seed0_qwen35
+--method lora --arm na --n_tokens 1 --task color --data_dir data/vcf --lam_sft 1 --steps 800 --model_id Qwen/Qwen3.5-4B --seed 0 --run_name vcf_lora_na_1tok_sft_seed0_qwen35
+--method pt --arm na --n_tokens 5 --task color --data_dir data/color --lam_sft 1 --steps 800 --model_id Qwen/Qwen3.5-4B --seed 0 --run_name color_pt_na_5tok_sft_seed0_qwen35
+--method lora --arm na --n_tokens 1 --task color --data_dir data/color --lam_sft 1 --steps 800 --model_id Qwen/Qwen3.5-4B --seed 0 --run_name color_lora_na_1tok_sft_seed0_qwen35

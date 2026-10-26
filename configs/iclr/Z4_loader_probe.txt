@@ -1,0 +1,2 @@
+python scripts/eval_flip_ll.py --run_dir runs/_probe_internvl3_8b --task color --data_dir data/vcf --split test_id --max_n 4 --frozen_model_id OpenGVLab/InternVL3-8B-hf || true
+python scripts/eval_flip_ll.py --run_dir runs/_probe_idefics3_8b --task color --data_dir data/vcf --split test_id --max_n 4 --frozen_model_id HuggingFaceM4/Idefics3-8B-Llama3 || true

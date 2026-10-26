@@ -1,0 +1,12 @@
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_ood --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_5tok_sft_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_sft_seed0c2h2 --split test_id --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_5tok_ctm_seed0c2h2lm/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_ood --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_5tok_ctm_seed0c2h2lm/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_ctm_seed0c2h2lm --split test_id --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_5tok_apo_seed0c2h2lm/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_apo_seed0c2h2lm --split test_ood --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_5tok_apo_seed0c2h2lm/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_5tok_apo_seed0c2h2lm --split test_id --step 800 --n_frames 2 --max_n 400 --style neo || true
+[ -d runs/mvr_g_pt_5tok_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_pt_5tok_seed0c2h2 --split test_ood --step 800 --n_frames 2 --max_n 400 --style pt || true
+[ -d runs/mvr_g_pt_5tok_seed0c2h2/ckpt/step_800 ] && python scripts/eval_mvraw_swap.py --run_dir runs/mvr_g_pt_5tok_seed0c2h2 --split test_id --step 800 --n_frames 2 --max_n 400 --style pt || true
+python scripts/eval_mvraw_swap.py --run_dir runs/_frozen_gemma --split test_ood --step 800 --n_frames 2 --max_n 400 --style instr --frozen_model_id base --tag _instr || true
+python scripts/eval_mvraw_swap.py --run_dir runs/_frozen_gemma --split test_id --step 800 --n_frames 2 --max_n 400 --style instr --frozen_model_id base --tag _instr || true
+python scripts/eval_mvraw_swap.py --run_dir runs/_frozen_gemma --split test_ood --step 800 --n_frames 2 --max_n 400 --style noop --frozen_model_id base --tag _noop || true
+python scripts/eval_mvraw_swap.py --run_dir runs/_frozen_gemma --split test_id --step 800 --n_frames 2 --max_n 400 --style noop --frozen_model_id base --tag _noop || true

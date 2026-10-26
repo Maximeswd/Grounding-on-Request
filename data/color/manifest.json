@@ -1,0 +1,23 @@
+{
+  "task": "color",
+  "heldout": [
+    "pink",
+    "purple"
+  ],
+  "id_frac": 0.15,
+  "source": "stanfordnlp/colorswap",
+  "splits": {
+    "train": {
+      "rows": 401,
+      "examples": 401
+    },
+    "test_id": {
+      "rows": 71,
+      "examples": 71
+    },
+    "test_ood": {
+      "rows": 104,
+      "examples": 104
+    }
+  }
+}

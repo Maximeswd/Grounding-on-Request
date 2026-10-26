@@ -1,0 +1,4 @@
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_pos_first --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_pos_pre_src --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_pos_post_src --step 12
+python scripts/smoke_v2_reload.py --run_dir runs/smoke_act_l9 --step 12

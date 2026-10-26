@@ -1,0 +1,197 @@
+#!/usr/bin/env python
+"""The core grid on one page (v1.174, 2026-09-24). CPU only, read-only; missing cells print "pending".
+3 models x {VCF, ColorSwap, COCO-CF, Ground-CF} x {no request, English, prefix L1, LoRA r16, word L1}; <look> and <read>
+Accuracy / Flip / Stay (Stay = correct and unchanged under the competing edit). Trained methods: SFT + CTM on
+conflict-preserving pairs. Ladder: corrected protocol (fixed 4 candidates, lead-in), HELD-OUT templates for the trained
+methods (the v1.159 headline) with the training-template cell alongside; frozen rows have no template split. Ground-CF:
+held-out questions for trained methods; no request / English on training questions (flagged *).
+Summaries per method: macro mean over the available (model, dataset) cells of each metric, the weaker request
+min(look, read) of the macro means, and the number of cells. Paired word vs prefix per cell: exact McNemar on <look>
+Flip over the same items. Writes results/core_grid.{md,json}. Usage: python scripts/core_grid.py
+"""
+import gzip, json, os, collections
+from math import comb
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS = [("", "Gemma-3"), ("_qwen35", "Qwen-4B"), ("_qwen2b", "Qwen-2B")]
+DS = [("vcf", "VCF"), ("color", "ColorSwap"), ("coco", "COCO-CF"), ("gcf", "Ground-CF")]
+METH = ["No request", "English", "Prefix L1", "LoRA r16", "Word L1"]
+
+
+SPLIT = "test_id"
+
+
+def J(p):
+    p = os.path.join(ROOT, p)
+    return json.load(open(p)) if os.path.exists(p) else None
+
+
+def ladder(ds, sfx, meth, ho):
+    e = f"eval/{ds}3_{SPLIT}/flip_ll"
+    fz = f"runs/{ds}_base_frozen_0tok_none_seed0{sfx}/{e}"
+    if meth == "No request":
+        return (J(f"{fz}_noop_lead_p2_step_800.json"),) * 2 if not ho else (None, None)
+    if meth == "English":
+        return (J(f"{fz}_iv5_lead_p2_step_800.json"),) * 2 if not ho else (None, None)
+    t = "_lead_p2" + ("_heldout" if ho else "") + "_step_800.json"
+    if meth == "LoRA r16":
+        b = f"runs/{ds}_lora_r16_lr2e4_ad_ctm_cp_{{}}_seed0{sfx}/{e}{t}"
+        return J(b.format("look")), J(b.format("read"))
+    r = {"Prefix L1": f"{ds}_pt_na_1tok_ctm_cp_seed0{sfx}", "Word L1": f"{ds}_neo_ctrl_1tok_ctm_cp_seed0{sfx}"}[meth]
+    d = J(f"runs/{r}/{e}{t}"); return d, d
+
+
+def gcf(sfx, meth):
+    e = f"eval/clevr3_{SPLIT}/flip_step_800"
+    if meth in ("No request", "English"):
+        k = "noop" if meth == "No request" else "instr"
+        # v1.176: prefer the held-out-question reruns (prompt-matched to the trained methods); fall back to training questions
+        d = J(f"runs/clevr3_2s_5tok_sft_seed0{sfx}/{e}_cp4_ho_fc_{k}.json") or J(f"runs/clevr3_2s_5tok_sft_seed0{sfx}/{e}_cp4_fc_{k}.json")
+        return d, d
+    if meth == "LoRA r16":
+        return (J(f"runs/clevr3_2s_lora_r16_ctm_cp_fc_look_seed0{sfx}/{e}_cp4_ho.json"),
+                J(f"runs/clevr3_2s_lora_r16_ctm_cp_fc_read_seed0{sfx}/{e}_cp4_ho.json"))
+    r = {"Prefix L1": f"clevr3_2s_pt_1tok_ctm_cp_fc_seed0{sfx}", "Word L1": f"clevr3_2s_1tok_ctm_cp_fc_seed0{sfx}"}[meth]
+    d = J(f"runs/{r}/{e}_cp4_ho.json"); return d, d
+
+
+def trip(d, req):
+    return None if d is None else tuple(d.get(f"{req}_{k}") for k in ("acc", "flip", "stay_c"))
+
+
+def mcnemar_ladder(ds, sfx):
+    def items(run):
+        f = os.path.join(ROOT, "runs", run, "eval", f"{ds}3_test_id", "flip_ll_lead_p2_heldout_step_800_items.jsonl.gz")
+        if not os.path.exists(f):
+            return None
+        by = collections.defaultdict(dict)
+        for l in gzip.open(f, "rt"):
+            a = json.loads(l)
+            if "_meta" not in a and a["request"] == "look":
+                by[a["item"]][a["ctx"]] = a["pick"]
+        return {i: int(c.get("base") == "A" and c.get("imgswap") == "B") for i, c in by.items()}
+    return items(f"{ds}_neo_ctrl_1tok_ctm_cp_seed0{sfx}"), items(f"{ds}_pt_na_1tok_ctm_cp_seed0{sfx}")
+
+
+def mcnemar_gcf(sfx):
+    def items(run):
+        d = J(f"runs/{run}/eval/clevr3_test_id/flip_step_800_cp4_ho.json")
+        if not d or not d.get("picks"):
+            return None
+        return {p["id"]: int(p.get("p0") == p["gold"]["base"] and p.get("p_twin") == p["gold"]["twin"])
+                for p in d["picks"]["look"] if p.get("p_twin") is not None}
+    return items(f"clevr3_2s_1tok_ctm_cp_fc_seed0{sfx}"), items(f"clevr3_2s_pt_1tok_ctm_cp_fc_seed0{sfx}")
+
+
+def mcn(a, b):
+    if a is None or b is None:
+        return None
+    ks = [k for k in a if k in b]
+    n01 = sum(1 for k in ks if a[k] and not b[k]); n10 = sum(1 for k in ks if b[k] and not a[k]); n = n01 + n10
+    p = min(1.0, 2 * sum(comb(n, j) for j in range(min(n01, n10) + 1)) / 2 ** n) if n else 1.0
+    return {"n": len(ks), "word_only": n01, "prefix_only": n10, "p": p}
+
+
+def f3(x):
+    return "-" if x is None else ("1.0" if round(x, 3) >= 1 else f"{x:.3f}"[1:])
+
+
+def main_split():
+    bank, md = {"cells": {}, "paired": {}, "macro": {}}, ["# Core grid", "", "Generated by `scripts/core_grid.py`. Cells: Acc/Flip/Stay. "
+               "Ladder trained methods: held-out templates [training template in brackets]. * = training questions (Ground-CF frozen rows).", ""]
+    for req in ("look", "read"):
+        md += [f"## <{req}>", "", "| model | dataset | " + " | ".join(METH) + " |", "|---|---|" + "---|" * len(METH)]
+        for sfx, ml in MODELS:
+            for ds, dn in DS:
+                row = []
+                for m in METH:
+                    if ds == "gcf":
+                        d = gcf(sfx, m)[0 if req == "look" else 1]; c = trip(d, req); ct = None
+                    else:
+                        d = ladder(ds, sfx, m, True)[0 if req == "look" else 1]; c = trip(d, req)
+                        dt = ladder(ds, sfx, m, False)[0 if req == "look" else 1]; ct = trip(dt, req)
+                        if m in ("No request", "English"):
+                            c, ct = ct, None               # frozen: one cell
+                    bank["cells"][f"{ml}|{dn}|{m}|{req}"] = {"headline": c, "train_template": ct}
+                    txt = "pending" if c is None else "/".join(f3(x) for x in c)
+                    if ct is not None:
+                        txt += f" [{'/'.join(f3(x) for x in ct)}]"
+                    if ds == "gcf" and m in ("No request", "English") and c is not None and (d or {}).get("question_style") != "heldout":
+                        txt += "*"
+                    row.append(txt)
+                md.append(f"| {ml} | {dn} | " + " | ".join(row) + " |")
+        md.append("")
+    md += ["## Macro summaries (headline cells; mean over available model x dataset cells)", "",
+           "| method | look Acc | look Flip | look Stay | read Acc | read Flip | read Stay | min(look, read) Flip | min Stay | cells |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for m in METH:
+        v = collections.defaultdict(list)
+        for sfx, ml in MODELS:
+            for ds, dn in DS:
+                for req in ("look", "read"):
+                    c = bank["cells"][f"{ml}|{dn}|{m}|{req}"]["headline"]
+                    if c is not None:
+                        for k, x in zip(("acc", "flip", "stay"), c):
+                            if x is not None:
+                                v[f"{req}_{k}"].append(x)
+        mean = {k: sum(x) / len(x) for k, x in v.items() if x}
+        n = min(len(v.get("look_flip", [])), len(v.get("read_flip", [])))
+        bank["macro"][m] = {**{k: round(x, 3) for k, x in mean.items()}, "cells": n}
+        g = lambda k: mean.get(k)
+        mn = lambda a, b: None if g(a) is None or g(b) is None else min(g(a), g(b))
+        md.append(f"| {m} | " + " | ".join(f3(g(k)) for k in ("look_acc", "look_flip", "look_stay", "read_acc", "read_flip", "read_stay"))
+                  + f" | {f3(mn('look_flip', 'read_flip'))} | {f3(mn('look_stay', 'read_stay'))} | {n} of 12 |")
+    # common cells: (model, dataset) where prefix, LoRA and word all have both requests -- the only fair macro comparison
+    TR = ("Prefix L1", "LoRA r16", "Word L1")
+    common = [(ml, dn) for _, ml in MODELS for _, dn in DS
+              if all(bank["cells"][f"{ml}|{dn}|{m}|{r}"]["headline"] is not None for m in TR for r in ("look", "read"))]
+    md += ["", f"## Macro over COMMON cells only ({len(common)}: " + ", ".join(f"{a}/{b}" for a, b in common) + ")", "",
+           "| method | look Flip | look Stay | read Flip | read Stay | min(look, read) Flip | min Stay |", "|---|---|---|---|---|---|---|"]
+    for m in METH:
+        vals = {k: [] for k in ("look_flip", "look_stay", "read_flip", "read_stay")}
+        for ml, dn in common:
+            for r in ("look", "read"):
+                c = bank["cells"][f"{ml}|{dn}|{m}|{r}"]["headline"]
+                if c is not None:
+                    vals[f"{r}_flip"].append(c[1]); vals[f"{r}_stay"].append(c[2])
+        mm = {k: (sum(x) / len(x) if x else None) for k, x in vals.items()}
+        bank["macro"][m + " (common)"] = {k: (round(x, 3) if x is not None else None) for k, x in mm.items()}
+        lo = lambda a, b: None if mm[a] is None or mm[b] is None else min(mm[a], mm[b])
+        md.append(f"| {m} | " + " | ".join(f3(mm[k]) for k in ("look_flip", "look_stay", "read_flip", "read_stay"))
+                  + f" | {f3(lo('look_flip', 'read_flip'))} | {f3(lo('look_stay', 'read_stay'))} |")
+    md += ["", "## Paired word vs prefix, <look> Flip (same items, exact McNemar)", "", "| model | dataset | word-only | prefix-only | p |", "|---|---|---|---|---|"]
+    for sfx, ml in MODELS:
+        for ds, dn in DS:
+            r = mcn(*(mcnemar_gcf(sfx) if ds == "gcf" else mcnemar_ladder(ds, sfx)))
+            bank["paired"][f"{ml}|{dn}"] = r
+            md.append(f"| {ml} | {dn} | " + ("pending | | |" if r is None else f"{r['word_only']} | {r['prefix_only']} | {r['p']:.2g} |"))
+    return bank, md
+
+
+def main():
+    global SPLIT
+    out, allmd = {}, []
+    for SPLIT in ("test_id", "test_ood"):
+        b, md = main_split(); out[SPLIT] = b
+        allmd += [f"# SPLIT {SPLIT}", ""] + md + [""]
+    # retention R = OOD / ID per cell and metric (headline cells)
+    allmd += ["# Retention OOD / ID (Flip and Stay; <look> | <read>)", "", "| model | dataset | " + " | ".join(METH) + " |", "|---|---|" + "---|" * len(METH)]
+    ret = {}
+    for _, ml in MODELS:
+        for _, dn in DS:
+            row = []
+            for m in METH:
+                cells = []
+                for req in ("look", "read"):
+                    a = out["test_id"]["cells"][f"{ml}|{dn}|{m}|{req}"]["headline"]; o = out["test_ood"]["cells"][f"{ml}|{dn}|{m}|{req}"]["headline"]
+                    r = None if not a or not o or not a[1] or not a[2] or o[1] is None or o[2] is None else (o[1] / a[1], o[2] / a[2])
+                    ret[f"{ml}|{dn}|{m}|{req}"] = r
+                    cells.append("-" if r is None else f"{r[0]:.2f}/{r[1]:.2f}")
+                row.append(" ; ".join(cells) if any(c != "-" for c in cells) else "pending")
+            allmd.append(f"| {ml} | {dn} | " + " | ".join(row) + " |")
+    out["retention"] = ret
+    json.dump(out, open(os.path.join(ROOT, "results", "core_grid.json"), "w"), indent=1)
+    open(os.path.join(ROOT, "results", "core_grid.md"), "w").write("\n".join(allmd) + "\n")
+    print("\n".join(allmd))
+
+
+if __name__ == "__main__":
+    main()
