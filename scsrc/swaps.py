@@ -5,6 +5,7 @@ caption-swap: hold image,   swap the caption -> <read> claim must FLIP, <look> s
 token-swap  : replace operator token with another / a random untrained token
               -> certifies the *token* carries the operation, not the format.
 """
+
 from .colors import valid_swap
 from . import metrics as Me
 
@@ -15,6 +16,7 @@ def conflict_examples(ds, legset, limit):
     behavior silently yielded ZERO items there). Prefers the keys stored by
     prepare_task (task-generic) over color-caption parsing (color-only)."""
     from .data import keys_from_row
+
     out = []
     for idx in range(min(limit * 3, len(ds))):
         if len(out) >= limit:
@@ -24,7 +26,7 @@ def conflict_examples(ds, legset, limit):
             continue
         k1 = k2 = None
         try:
-            k1, k2 = keys_from_row(row)          # prepared datasets store keys
+            k1, k2 = keys_from_row(row)  # prepared datasets store keys
         except Exception:
             pass
         if not k1 or not k2:

@@ -17,11 +17,14 @@ for an evidence-blind chooser is .25 per Flip. Report Flip and Stay separately; 
   python evaluator/groundcf_eval.py requests --data data/clevr3 --split test_id -o req.jsonl
   python evaluator/groundcf_eval.py score    --requests req.jsonl --answers ans.jsonl
   python evaluator/groundcf_eval.py hf       --data data/clevr3 --split test_id --model google/gemma-3-4b-it"""
+
 import argparse, json, math, os, re, sys
 
-INSTR = {"look": "Answer using only the image.",
-         "read": "Answer using only the caption.",
-         "ocr": "Answer using only the on-screen text."}
+INSTR = {
+    "look": "Answer using only the image.",
+    "read": "Answer using only the caption.",
+    "ocr": "Answer using only the on-screen text.",
+}
 
 
 def wilson(p, n, z=1.96):
@@ -38,8 +41,7 @@ def blocks_text(caption, ocr_text):
 
 
 def prompt_of(item, source):
-    return (f"{blocks_text(item['caption'], item['ocr_text'])}\n"
-            f"{item['question']} {INSTR[source]}")
+    return f"{blocks_text(item['caption'], item['ocr_text'])}\n{item['question']} {INSTR[source]}"
 
 
 def load_items(data, split):
@@ -66,10 +68,16 @@ def build_requests(a):
     reqs = []
 
     def add(rid, item, source, cands, image=None):
-        reqs.append({"request_id": rid, "channel": source,
-                     "image": image or item["image"],
-                     "prompt": prompt_of(item, source),
-                     "candidates": list(cands)})
+        reqs.append(
+            {
+                "request_id": rid,
+                "channel": source,
+                "image": image or item["image"],
+                "prompt": prompt_of(item, source),
+                "candidates": list(cands),
+            }
+        )
+
     n = 0
     for it in items:
         if a.max_n and n >= a.max_n:
@@ -86,8 +94,7 @@ def build_requests(a):
             add(f"{it['id']}|{c}|orig", it, c, cands)
             add(f"{it['id']}|{c}|edit_self", edited(it, c, alt), c, cands)
             if alt_of(ch, other) is not None:
-                add(f"{it['id']}|{c}|edit_other",
-                    edited(it, other, alt_of(ch, other)), c, cands)
+                add(f"{it['id']}|{c}|edit_other", edited(it, other, alt_of(ch, other)), c, cands)
         if used:
             n += 1
     # look: image-swap pairs
@@ -99,13 +106,15 @@ def build_requests(a):
                 break
             n_pairs += 1
             cands = (str(p["gold_a"]), str(p["gold_b"]))
-            base = {"caption": f'The answer to the question is {p["read_value"]}.',
-                    "ocr_text": f'VALUE={p["ocr_value"]}',
-                    "question": p["question"], "image": None, "channels": {}}
-            add(f"{p['id']}|look|orig", base, "look", cands,
-                image=p["ctx_a"]["image"])
-            add(f"{p['id']}|look|edit_self", base, "look", cands,
-                image=p["ctx_b"]["image"])
+            base = {
+                "caption": f"The answer to the question is {p['read_value']}.",
+                "ocr_text": f"VALUE={p['ocr_value']}",
+                "question": p["question"],
+                "image": None,
+                "channels": {},
+            }
+            add(f"{p['id']}|look|orig", base, "look", cands, image=p["ctx_a"]["image"])
+            add(f"{p['id']}|look|edit_self", base, "look", cands, image=p["ctx_b"]["image"])
     out = a.out or "requests.jsonl"
     with open(out, "w") as f:
         for r in reqs:
@@ -115,8 +124,7 @@ def build_requests(a):
 
 def parse_answer(text, cands):
     t = " " + re.sub(r"[^a-z0-9 ]", " ", str(text).lower()) + " "
-    pos = {c: t.rfind(" " + re.sub(r"[^a-z0-9 ]", " ", c.lower()) + " ")
-           for c in cands}
+    pos = {c: t.rfind(" " + re.sub(r"[^a-z0-9 ]", " ", c.lower()) + " ") for c in cands}
     hit = [c for c, p in pos.items() if p >= 0]
     if not hit:
         return None, "unmappable"
@@ -126,10 +134,8 @@ def parse_answer(text, cands):
 
 
 def score(a):
-    reqs = {r["request_id"]: r
-            for r in (json.loads(l) for l in open(a.requests))}
-    ans = {r["request_id"]: r["output"]
-           for r in (json.loads(l) for l in open(a.answers))}
+    reqs = {r["request_id"]: r for r in (json.loads(l) for l in open(a.requests))}
+    ans = {r["request_id"]: r["output"] for r in (json.loads(l) for l in open(a.answers))}
     picks, quality = {}, {"unmappable": 0, "ambiguous": 0, "n": 0}
     for rid, r in reqs.items():
         if rid not in ans:
@@ -141,8 +147,7 @@ def score(a):
         picks[rid] = v
     agg = {}
     for ch in ("look", "read", "ocr"):
-        ids = sorted({rid.split("|")[0] for rid in picks
-                      if rid.split("|")[1] == ch})
+        ids = sorted({rid.split("|")[0] for rid in picks if rid.split("|")[1] == ch})
         acc, flip, stay = [], [], []
         for i in ids:
             p0 = picks.get(f"{i}|{ch}|orig")
@@ -156,17 +161,21 @@ def score(a):
                 if p2 is not None:
                     stay.append(int(p2 == p0))
         m = lambda v: round(sum(v) / len(v), 3) if v else None
-        agg[ch] = {"routing": m(acc), "flip": m(flip), "stay": m(stay),
-                   "joint": (round(min(m(flip), m(stay)), 3)
-                             if flip and stay else None),
-                   "n": len(acc),
-                   "flip_ci": wilson(m(flip), len(flip)) if flip else None,
-                   "stay_ci": wilson(m(stay), len(stay)) if stay else None}
-    out = {"channels": agg,
-           "unmappable_rate": round(quality["unmappable"] / max(1, quality["n"]), 3),
-           "ambiguous_rate": round(quality["ambiguous"] / max(1, quality["n"]), 3),
-           "note": ("flip chance for an evidence-blind chooser = .25; "
-                    "report flip and stay separately; joint = min")}
+        agg[ch] = {
+            "routing": m(acc),
+            "flip": m(flip),
+            "stay": m(stay),
+            "joint": (round(min(m(flip), m(stay)), 3) if flip and stay else None),
+            "n": len(acc),
+            "flip_ci": wilson(m(flip), len(flip)) if flip else None,
+            "stay_ci": wilson(m(stay), len(stay)) if stay else None,
+        }
+    out = {
+        "channels": agg,
+        "unmappable_rate": round(quality["unmappable"] / max(1, quality["n"]), 3),
+        "ambiguous_rate": round(quality["ambiguous"] / max(1, quality["n"]), 3),
+        "note": ("flip chance for an evidence-blind chooser = .25; report flip and stay separately; joint = min"),
+    }
     print(json.dumps(out, indent=1))
     if a.out:
         json.dump(out, open(a.out, "w"), indent=1)
@@ -176,27 +185,34 @@ def hf(a):
     import torch
     from PIL import Image
     from transformers import AutoProcessor, AutoModelForImageTextToText
+
     proc = AutoProcessor.from_pretrained(a.model)
-    model = AutoModelForImageTextToText.from_pretrained(
-        a.model, torch_dtype=torch.bfloat16).to("cuda").eval()
+    model = AutoModelForImageTextToText.from_pretrained(a.model, torch_dtype=torch.bfloat16).to("cuda").eval()
 
     tmp_req = a.out + ".requests.jsonl" if a.out else "hf_requests.jsonl"
     a.out2, a.out = a.out, tmp_req
-    ar = argparse.Namespace(data=a.data, split=a.split, out=tmp_req,
-                            max_n=a.max_n)
+    ar = argparse.Namespace(data=a.data, split=a.split, out=tmp_req, max_n=a.max_n)
     build_requests(ar)
 
     def loglik(image, prompt, answer):
-        msgs = [{"role": "user", "content": [
-            {"type": "image", "image": Image.open(image).convert("RGB")},
-            {"type": "text", "text": prompt}]}]
+        msgs = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": Image.open(image).convert("RGB")},
+                    {"type": "text", "text": prompt},
+                ],
+            }
+        ]
         full = proc.apply_chat_template(
-            msgs + [{"role": "assistant", "content": [
-                {"type": "text", "text": answer}]}],
-            tokenize=True, return_dict=True, return_tensors="pt").to("cuda")
+            msgs + [{"role": "assistant", "content": [{"type": "text", "text": answer}]}],
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        ).to("cuda")
         pre = proc.apply_chat_template(
-            msgs, add_generation_prompt=True, tokenize=True,
-            return_dict=True, return_tensors="pt")
+            msgs, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
+        )
         n_pre = pre["input_ids"].shape[1]
         with torch.no_grad():
             logits = model(**full).logits[0]
@@ -209,8 +225,7 @@ def hf(a):
     for line in open(tmp_req):
         r = json.loads(line)
         sc = {c: loglik(r["image"], r["prompt"], c) for c in r["candidates"]}
-        answers.append({"request_id": r["request_id"],
-                        "output": max(sc, key=sc.get)})
+        answers.append({"request_id": r["request_id"], "output": max(sc, key=sc.get)})
     ans_path = (a.out2 or "hf") + ".answers.jsonl"
     with open(ans_path, "w") as f:
         for x in answers:
@@ -219,8 +234,7 @@ def hf(a):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("requests")
     r.add_argument("--data", default="data/clevr3")

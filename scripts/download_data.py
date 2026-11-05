@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """Download ColorSwap (stanfordnlp/colorswap) into the Hugging Face cache. Needs internet access."""
+
 import os
+
 os.environ["HF_HUB_OFFLINE"] = "0"
 os.environ["TRANSFORMERS_OFFLINE"] = "0"
 USER = os.environ.get("USER", "user")

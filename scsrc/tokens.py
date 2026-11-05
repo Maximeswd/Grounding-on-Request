@@ -5,16 +5,17 @@ N is configurable and EQUAL across neologisms by default; the sweep over N is
 driven entirely by config (token_count), so the same code runs every point of
 the capacity sweep.
 """
+
 from dataclasses import dataclass
 from typing import List, Dict
 
 
 @dataclass
 class NeoSpec:
-    name: str            # e.g. "look_ctrl"
-    role: str            # "ctrl" | "gen" | "fuse"
-    source: str          # "image" | "text" | "relation" | "fuse"
-    init_word: str       # word to mean-init from (skill-neologism style)
+    name: str  # e.g. "look_ctrl"
+    role: str  # "ctrl" | "gen" | "fuse"
+    source: str  # "image" | "text" | "relation" | "fuse"
+    init_word: str  # word to mean-init from (skill-neologism style)
 
 
 # The three arms share operator semantics but live on separate tokens so we can
@@ -68,6 +69,7 @@ def c3_sources():
     (image + caption; no on-screen-text block, rows or items). Default: two-source.
     Read at call time so train.py / evaluators can set it from the run's configuration after import."""
     import os as _os
+
     # the DEFAULT is now the two-source protocol; the legacy
     # three-source setup needs SC_C3_SOURCES=look,read,ocr explicitly
     want = [x for x in _os.environ.get("SC_C3_SOURCES", "look,read").split(",") if x]
@@ -79,14 +81,16 @@ def c3_init_words():
     SC_C3_INIT_WORDS="look:look,read:read" (train.py --init_words) overrides them for the initialization ablation. The
     prefix branch of train.py reads the same override, so both embedding interfaces start from identical rows."""
     import os as _os
+
     ov = dict(kv.split(":", 1) for kv in _os.environ.get("SC_C3_INIT_WORDS", "").split(",") if ":" in kv)
     return {s: ov.get(s, CLEVR3_SOURCES[s]) for s in c3_sources()}
 
 
 def c3_source_words():
     return c3_init_words()
-CLEVR3_OPERATORS = {"count": "count", "color": "color",
-                    "object": "shape", "spatial": "position"}
+
+
+CLEVR3_OPERATORS = {"count": "count", "color": "color", "object": "shape", "spatial": "position"}
 
 
 def clevr3_specs(mode: str, held_cells=()):
@@ -100,18 +104,20 @@ def clevr3_specs(mode: str, held_cells=()):
                 with explicit questions; it CANNOT work with generic ones.
     held_cells: iterable of (source, operator) tuples held out of TRAINING."""
     held = {tuple(c) for c in held_cells}
-    src_specs = [NeoSpec(f"src_{s}", "ctrl", "image" if s == "look" else "text", w)
-                 for s, w in c3_source_words().items()]
+    src_specs = [
+        NeoSpec(f"src_{s}", "ctrl", "image" if s == "look" else "text", w) for s, w in c3_source_words().items()
+    ]
     if mode == "srconly":
         return src_specs
     if mode == "factored":
-        return src_specs + [NeoSpec(f"op_{o}", "ctrl", "relation", w)
-                            for o, w in CLEVR3_OPERATORS.items()]
+        return src_specs + [NeoSpec(f"op_{o}", "ctrl", "relation", w) for o, w in CLEVR3_OPERATORS.items()]
     if mode == "bundled":
-        return [NeoSpec(f"fx_{s}_{o}", "ctrl",
-                        "image" if s == "look" else "text", CLEVR3_SOURCES[s])
-                for s in c3_sources() for o in CLEVR3_OPERATORS
-                if (s, o) not in held]
+        return [
+            NeoSpec(f"fx_{s}_{o}", "ctrl", "image" if s == "look" else "text", CLEVR3_SOURCES[s])
+            for s in c3_sources()
+            for o in CLEVR3_OPERATORS
+            if (s, o) not in held
+        ]
     raise ValueError(f"unknown clevr3 mode {mode}")
 
 
@@ -141,8 +147,7 @@ def trigger(name: str, n: int) -> str:
     return "".join(token_strings(name, n))
 
 
-def add_neologisms(tokenizer, specs: List[NeoSpec], n_tokens: int,
-                   n_by_name=None):
+def add_neologisms(tokenizer, specs: List[NeoSpec], n_tokens: int, n_by_name=None):
     """Add all tokens as additional special tokens. Returns
     (name -> [ids], all_new_ids). Caller must resize the model embeddings.
     n_by_name: optional {spec_name: n} override -- used by ctrl_style=blocks so
@@ -154,7 +159,6 @@ def add_neologisms(tokenizer, specs: List[NeoSpec], n_tokens: int,
         name_to_strings[s.name] = ts
         all_strings.extend(ts)
     tokenizer.add_special_tokens({"additional_special_tokens": all_strings})
-    name_to_ids = {n: tokenizer.convert_tokens_to_ids(ts)
-                   for n, ts in name_to_strings.items()}
+    name_to_ids = {n: tokenizer.convert_tokens_to_ids(ts) for n, ts in name_to_strings.items()}
     all_new_ids = [i for ids in name_to_ids.values() for i in ids]
     return name_to_ids, all_new_ids

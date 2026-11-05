@@ -44,9 +44,9 @@ speech or a position in time.
 ## Setup
 
 ```bash
-python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-huggingface-cli download google/gemma-3-4b-it --revision 093f9f388b31de276ce2de164bdc2081324b9767
-python tests/test_static.py && python tests/test_tasks.py && python tests/test_swap.py
+uv sync                                    # Python 3.12 and the locked environment (uv.lock) in .venv
+uv run hf download google/gemma-3-4b-it --revision 093f9f388b31de276ce2de164bdc2081324b9767
+uv run pytest                              # CPU-only checks
 ```
 
 | model | id | revision |
@@ -55,7 +55,8 @@ python tests/test_static.py && python tests/test_tasks.py && python tests/test_s
 | Qwen3.5-4B | `Qwen/Qwen3.5-4B` | `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` |
 | Qwen3.5-2B | `Qwen/Qwen3.5-2B` | `15852e8c16360a2fea060d615a32b45270f8a8fc` |
 
-Set `SC_OFFLINE=1` on machines without internet access once the models are cached.
+Set `SC_OFFLINE=1` on machines without internet access once the models are cached. Every command below runs inside
+the environment, e.g. `uv run python train.py ...`.
 
 ## Repository layout
 
@@ -68,7 +69,8 @@ configs/base.yaml     default hyperparameters
 configs/paper/        the training command of every run in the paper, one file per benchmark
 evaluator/            standalone Ground-CF scorer (no training code needed)
 data/                 Ground-CF in full; split manifests and derived annotations for the other benchmarks
-tests/                CPU-only tests
+tests/                CPU-only checks
+pyproject.toml        dependencies, ruff and mypy settings; uv.lock pins the full environment
 ```
 
 ## Ground-CF
@@ -103,6 +105,16 @@ grep -w clevr3_2s_1tok_ctm_cp_fc_seed0 configs/paper/groundcf.txt | sh
 Run names follow `{task}_{interface}_{L}tok_{objective}_seed{k}[_{model}]`; checkpoints land in `runs/<run>/ckpt/`, and a
 run stopped at a time limit resumes bitwise identically with `--resume_ckpt`.
 
+## Reproducing the paper
+
+| paper | runs | evaluation |
+|---|---|---|
+| Tables 2, 9–11; Figure 3 | `configs/paper/ladder.txt` (VCF, ColorSwap, COCO-CF), `configs/paper/groundcf.txt` | `eval_flip_ll.py`, `eval_clevr3_flip.py` |
+| Table 1, Figure 2 and the no-request / instruction rows of Tables 9–11 | the frozen models | `eval_clevr3_flip.py --mode noop` or `--mode instructed` (with a `--tag`); `eval_flip_ll.py --frozen_model_id <model>` |
+| Table 3 (news video) | `configs/paper/mvg.txt` | `eval_mvg_flip.py`, full frame and `--crop_bbox 0.25` |
+| Table 8 (placement) | `configs/paper/groundcf.txt`, runs named `*_pfirst_*` against their native-position twins | `eval_clevr3_flip.py` |
+| Figure 4 (metalinguistic probes) | the L=1 Ground-CF runs `clevr3_2s_1tok_ctm_cp_fc_seed0*` and `clevr3_2s_pt_1tok_ctm_cp_fc_seed0*` | `eval_meta_words.py` |
+
 ## Evaluation
 
 All scores are teacher-forced likelihoods over a fixed candidate set, at step 800, on `test_id` and `test_ood`:
@@ -129,6 +141,26 @@ The VCF, ColorSwap and COCO-CF images are not redistributed; rebuild them from t
 (`stanfordnlp/colorswap`), and `scripts/prepare_coco_cf.py` with `scripts/coco_oracle_gate.py` (`Intel/COCO-Counterfactuals`).
 MultiVENT-G is rebuilt with `scripts/extract_frames.py`, `scripts/prepare_multiventg.py`, `scripts/multiventg_build_items.py`
 and `scripts/prepare_mvg_ctm.py`.
+
+## Development
+
+We keep one style and one set of checks for the whole repository; CI runs the same four commands on every push.
+
+```bash
+uv run pre-commit install        # ruff check --fix and ruff format before every commit
+uv run ruff check                # every ruff rule (pyproject.toml lists the few we opt out of)
+uv run ruff format --check
+uv run mypy                      # strict mode
+uv run pytest
+```
+
+The code of the paper predates this standard. It is formatted, and the rules each file still violates are recorded as a
+baseline in `pyproject.toml` (per file for ruff, an `ignore_errors` list for mypy). A new file gets no entry, so it has
+to pass every rule; the baseline only shrinks. New code follows a few design rules: configurations and records are
+frozen dataclasses (no `dict[str, Any]` for structured data, tuples inside frozen data); functions return new values
+instead of mutating their inputs; variants are unions matched with `match` and `assert_never`, not string flags;
+distinct units (a step, an epoch) get their own `NewType`; and the behaviour is written down first, then the tests, then
+the code.
 
 ## Released checkpoints and outputs
 

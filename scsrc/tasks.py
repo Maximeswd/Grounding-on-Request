@@ -22,6 +22,7 @@ the stored keys instead of re-parsing, so integers / relations / open-vocab
 attributes all work without a value-specific parser. ColorSwap keeps its native
 path (minimal pairs); only the new tasks flow through here.
 """
+
 from __future__ import annotations
 import random
 from dataclasses import dataclass
@@ -29,26 +30,55 @@ from typing import Optional, List, Dict, Any
 
 # ---- task value vocab / config ---------------------------------------------
 NUMBER_WORDS = {
-    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
-    "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10",
-    "eleven": "11", "twelve": "12",
+    "zero": "0",
+    "one": "1",
+    "two": "2",
+    "three": "3",
+    "four": "4",
+    "five": "5",
+    "six": "6",
+    "seven": "7",
+    "eight": "8",
+    "nine": "9",
+    "ten": "10",
+    "eleven": "11",
+    "twelve": "12",
 }
 
 # A clean, well-separated spatial relation whitelist (projective + proximity) --
 # the relations with the strongest visual grounding. Kept small so exact match
 # stays meaningful (avoids near-synonyms like beside / next-to colliding).
 SPATIAL_RELATIONS = [
-    "left of", "right of", "above", "below", "in front of", "behind",
-    "on", "under", "inside", "near", "far from",
+    "left of",
+    "right of",
+    "above",
+    "below",
+    "in front of",
+    "behind",
+    "on",
+    "under",
+    "inside",
+    "near",
+    "far from",
 ]
 # common VSR phrasings -> canonical whitelist label
 SPATIAL_SYNONYMS = {
-    "to the left of": "left of", "at the left side of": "left of",
-    "to the right of": "right of", "at the right side of": "right of",
-    "on top of": "on", "beneath": "under", "below": "below", "over": "above",
-    "in front of": "in front of", "ahead of": "in front of",
-    "at the back of": "behind", "close to": "near", "next to": "near",
-    "far away from": "far from", "within": "inside", "in": "inside",
+    "to the left of": "left of",
+    "at the left side of": "left of",
+    "to the right of": "right of",
+    "at the right side of": "right of",
+    "on top of": "on",
+    "beneath": "under",
+    "below": "below",
+    "over": "above",
+    "in front of": "in front of",
+    "ahead of": "in front of",
+    "at the back of": "behind",
+    "close to": "near",
+    "next to": "near",
+    "far away from": "far from",
+    "within": "inside",
+    "in": "inside",
 }
 
 TASKS = ("color", "counting", "spatial", "attr")
@@ -57,11 +87,12 @@ TASKS = ("color", "counting", "spatial", "attr")
 @dataclass
 class SlotItem:
     """One labelled slot from a source dataset (single object or single pair)."""
-    image: Any            # PIL.Image (already resolved) or a path the writer loads
-    obj: str              # slot object label; for spatial, the pair tag "o1|o2"
-    value: str            # v_img: the image-true value, as a string
-    klass: str            # held-out-class key (usually == value)
-    group: str            # swap-pool key: items sharing `group` are swap candidates
+
+    image: Any  # PIL.Image (already resolved) or a path the writer loads
+    obj: str  # slot object label; for spatial, the pair tag "o1|o2"
+    value: str  # v_img: the image-true value, as a string
+    klass: str  # held-out-class key (usually == value)
+    group: str  # swap-pool key: items sharing `group` are swap candidates
     task: str
 
 
@@ -93,7 +124,7 @@ def caption_for(task: str, obj: str, value: str) -> str:
         else:
             o1, o2 = obj, "object"
         return f"the {o1} is {value} the {o2}"
-    return f"the {obj} is {value}"          # attr / default
+    return f"the {obj} is {value}"  # attr / default
 
 
 def caption_from_key(task: str, key: Dict[str, str]) -> str:
@@ -118,9 +149,9 @@ def conflict_value(task: str, v: str, vocab: List[str], rng: random.Random) -> O
 
 
 # ---- build examples (with swap matching) -----------------------------------
-def build_examples(items: List[SlotItem], task: str, vocab: List[str],
-                   rng: random.Random, require_swap: bool = True,
-                   start_id: int = 0) -> List[UnifiedExample]:
+def build_examples(
+    items: List[SlotItem], task: str, vocab: List[str], rng: random.Random, require_swap: bool = True, start_id: int = 0
+) -> List[UnifiedExample]:
     """Pair each item with a same-`group` item of a different value (the swap
     image). With require_swap=True (default, and the only fully-supported path),
     image_2 is always a real image so the agree/conflict pairs and the VGM swap
@@ -150,19 +181,28 @@ def build_examples(items: List[SlotItem], task: str, vocab: List[str],
             continue
         key1 = {it.obj: it.value}
         key2 = {it.obj: v2}
-        out.append(UnifiedExample(
-            image_1=it.image, image_2=img2,
-            caption_1=caption_from_key(task, key1),
-            caption_2=caption_from_key(task, key2),
-            key_1=key1, key_2=key2, task=task, klass=it.klass,
-            id=eid, has_swap=has_swap))
+        out.append(
+            UnifiedExample(
+                image_1=it.image,
+                image_2=img2,
+                caption_1=caption_from_key(task, key1),
+                caption_2=caption_from_key(task, key2),
+                key_1=key1,
+                key_2=key2,
+                task=task,
+                klass=it.klass,
+                id=eid,
+                has_swap=has_swap,
+            )
+        )
         eid += 1
     return out
 
 
 # ---- class-level split (compositional OOD) ---------------------------------
-def split_by_class(items: List[SlotItem], heldout: set, id_frac: float,
-                   rng: random.Random) -> Dict[str, List[SlotItem]]:
+def split_by_class(
+    items: List[SlotItem], heldout: set, id_frac: float, rng: random.Random
+) -> Dict[str, List[SlotItem]]:
     """Held-out CLASSES (some colors / counts / relations / attributes) go to an
     OOD test set; the rest are split into train and an in-distribution test."""
     seen, ood = [], []

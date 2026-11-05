@@ -10,6 +10,7 @@ byte-identical:
 Count and spatial twins need the scene graph and are made by clevr3_twins_count_spatial.py. With --from_pairs, the
 images of an existing pairs file are reproduced bit-exactly. Images go to --out_images
 (default data/clevr3/images_twin_clean/)."""
+
 import argparse, collections, json, os, sys
 from PIL import Image, ImageDraw
 
@@ -37,13 +38,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test_id")
     ap.add_argument("--data_dir", default="data/clevr3")
-    ap.add_argument("--out_images", default="data/clevr3/images_twin_clean")   # the corrected set; never the old dir
+    ap.add_argument("--out_images", default="data/clevr3/images_twin_clean")  # the corrected set; never the old dir
     ap.add_argument("--out_pairs", default=None)
-    ap.add_argument("--from_pairs", default="",
-                    help="regenerate the images of an EXISTING pairs file (its ids and gold_b values), so the "
-                         "released twins are reproduced bit-exactly; without it the new value is chosen by crc32")
+    ap.add_argument(
+        "--from_pairs",
+        default="",
+        help="regenerate the images of an EXISTING pairs file (its ids and gold_b values), so the "
+        "released twins are reproduced bit-exactly; without it the new value is chosen by crc32",
+    )
     a = ap.parse_args()
     import zlib
+
     forced = {}
     if a.from_pairs:
         for l in open(os.path.join(ROOT, a.from_pairs)):
@@ -51,8 +56,7 @@ def main():
             if r.get("skill") in ("color", "object"):
                 forced[r["id"]] = str(r["gold_b"])
 
-    items = [json.loads(l) for l in
-             open(os.path.join(ROOT, a.data_dir, f"{a.split}.jsonl"))]
+    items = [json.loads(l) for l in open(os.path.join(ROOT, a.data_dir, f"{a.split}.jsonl"))]
     outdir = os.path.join(ROOT, a.out_images)
     os.makedirs(outdir, exist_ok=True)
     # OOD items may legitimately use held-out values; keep the alternative inside
@@ -84,8 +88,7 @@ def main():
         # channel asserts. Otherwise the edited image agrees with the caption (or the on-screen text)
         # and the second half of Flip is free -- the failure mode the borrowed ladder benchmarks have
         # by construction. Measured before the fix: 86 of 374 test_id twins agreed with the caption.
-        _txt = {str(v).strip().lower() for k, v in (it.get("channels") or {}).items()
-                if k != "look" and v is not None}
+        _txt = {str(v).strip().lower() for k, v in (it.get("channels") or {}).items() if k != "look" and v is not None}
         im = Image.open(src).convert("RGB")
         x0, y0, x1, y1 = [int(round(v)) for v in bb]
         x0, y0 = max(0, x0), max(0, y0)
@@ -114,11 +117,13 @@ def main():
                     nm, dd = nearest(pxa[xx, yy], PALETTE)
                     if dd < 900:
                         present.add(nm)
-            pool = [c for c in PALETTE if c != gold and c not in present and c not in _txt
-                    and (c in OOD_COLORS) == (gold in OOD_COLORS)]
-            if not pool:                       # relax scene uniqueness, never the text channels
-                pool = [c for c in PALETTE if c != gold and c not in _txt
-                        and (c in OOD_COLORS) == (gold in OOD_COLORS)]
+            pool = [
+                c
+                for c in PALETTE
+                if c != gold and c not in present and c not in _txt and (c in OOD_COLORS) == (gold in OOD_COLORS)
+            ]
+            if not pool:  # relax scene uniqueness, never the text channels
+                pool = [c for c in PALETTE if c != gold and c not in _txt and (c in OOD_COLORS) == (gold in OOD_COLORS)]
                 rej["colour reused from the scene (uniqueness relaxed)"] += 1
             if not pool:
                 rej["no same-pool colour available that keeps the conflict"] += 1
@@ -131,7 +136,7 @@ def main():
             for y in range(y0, y1 + 1):
                 for x in range(x0, x1 + 1):
                     nm, d = nearest(px[x, y], PALETTE)
-                    if nm == gold and d < 900:      # the target's own fill only
+                    if nm == gold and d < 900:  # the target's own fill only
                         px[x, y] = rep
                         n += 1
             if n < 40:
@@ -139,8 +144,11 @@ def main():
                 continue
             newval = new
         else:  # object == shape
-            pool = [s for s in (SHAPES_ID + OOD_SHAPES) if s != gold and s not in _txt
-                    and (s in OOD_SHAPES) == (gold in OOD_SHAPES)]
+            pool = [
+                s
+                for s in (SHAPES_ID + OOD_SHAPES)
+                if s != gold and s not in _txt and (s in OOD_SHAPES) == (gold in OOD_SHAPES)
+            ]
             if not pool:
                 rej["no same-pool shape available that keeps the conflict"] += 1
                 continue
@@ -158,7 +166,7 @@ def main():
                 continue
             colour = cnt.most_common(1)[0][0]
             d = ImageDraw.Draw(im)
-            d.rectangle([x0, y0, x1, y1], fill=BG)   # erase INCLUSIVE, keep the rest
+            d.rectangle([x0, y0, x1, y1], fill=BG)  # erase INCLUSIVE, keep the rest
             # centre and radius exactly as before the fix (end coordinates clamped to the image size, not size - 1)
             X1, Y1 = min(im.width, int(round(bb[2]))), min(im.height, int(round(bb[3])))
             cx, cy = (x0 + X1) // 2, (y0 + Y1) // 2
@@ -168,28 +176,35 @@ def main():
 
         dst = os.path.join(outdir, f"{it['id']}_{newval}.png")
         im.save(dst)
-        pairs.append({
-            "pair_type": "look_image_swap", "channel": "look",
-            "id": it["id"], "skill": skill, "question": it.get("question"),
-            "gold_a": gold, "gold_b": newval,
-            "ctx_a": {"image": it["image"]},
-            "ctx_b": {"image": os.path.relpath(dst, ROOT)},
-            # the TEXT channels are untouched, so they still support gold_a:
-            # <read>/<ocr> must IGNORE this edit and <look> must FOLLOW it
-            "read_value": (it.get("channels") or {}).get("read"),
-            "ocr_value": (it.get("channels") or {}).get("ocr"),
-            "bbox": bb, "split": a.split,
-            "source": "in-place exact edit of our own render",
-        })
+        pairs.append(
+            {
+                "pair_type": "look_image_swap",
+                "channel": "look",
+                "id": it["id"],
+                "skill": skill,
+                "question": it.get("question"),
+                "gold_a": gold,
+                "gold_b": newval,
+                "ctx_a": {"image": it["image"]},
+                "ctx_b": {"image": os.path.relpath(dst, ROOT)},
+                # the TEXT channels are untouched, so they still support gold_a:
+                # <read>/<ocr> must IGNORE this edit and <look> must FOLLOW it
+                "read_value": (it.get("channels") or {}).get("read"),
+                "ocr_value": (it.get("channels") or {}).get("ocr"),
+                "bbox": bb,
+                "split": a.split,
+                "source": "in-place exact edit of our own render",
+            }
+        )
 
-    p = os.path.join(ROOT, a.out_pairs or
-                     f"data/clevr3/pairs_look_{a.split.replace('test_','')}_clean.jsonl")   # never the old file
+    p = os.path.join(
+        ROOT, a.out_pairs or f"data/clevr3/pairs_look_{a.split.replace('test_', '')}_clean.jsonl"
+    )  # never the old file
     with open(p, "w") as f:
         for r in pairs:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     print(f"[saved] {p}")
-    print(f"  {len(pairs)} exact image twins  "
-          f"{dict(collections.Counter(r['skill'] for r in pairs))}")
+    print(f"  {len(pairs)} exact image twins  {dict(collections.Counter(r['skill'] for r in pairs))}")
     print(f"  images in {a.out_images}")
     print(f"  declined/rejected: {dict(rej)}")
 

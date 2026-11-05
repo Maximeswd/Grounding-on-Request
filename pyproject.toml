@@ -1,0 +1,196 @@
+[project]
+name = "grounding-on-request"
+version = "0.1.0"
+description = "Code and data for Grounding on Request: Learning Modality Control in Vision-Language Models"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = "==3.12.*"
+# Pinned to the environment the paper's numbers were produced with; uv.lock pins the full tree.
+dependencies = [
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "transformers==5.3.0",
+    "tokenizers==0.22.2",
+    "peft==0.19.1",
+    "safetensors==0.8.0",
+    "accelerate==1.14.0",
+    "datasets==5.0.0",
+    "huggingface-hub==1.21.0",
+    "numpy==1.26.4",
+    "scipy==1.11.4",
+    "pandas==3.0.3",
+    "pillow",
+    "pyyaml",
+    "tqdm==4.68.2",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "protobuf==3.20.3",
+    "wandb",
+]
+
+[dependency-groups]
+dev = ["ruff==0.12.2", "mypy>=1.13", "pytest>=8", "hypothesis>=6", "pre-commit>=4"]
+
+[tool.uv]
+package = false   # scripts and a local library, not an installable package
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["data"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D",       # docstrings: module docstrings are kept, per-function ones are not required
+    "COM812",  # conflicts with the formatter
+    "T201",    # print is the logging of these scripts
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S603", "INP001"]   # asserts are the point of a test; subprocess runs our own scripts; not a package
+# Baseline (2026-11-05): the rules each file of the paper's code violated when the standard was adopted.
+"evaluate.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ARG001", "ARG005", "B007", "B023", "B905", "BLE001", "C901", "E401", "E501", "E731", "EXE001", "F401", "F841", "FURB122", "I001", "N806", "N812", "PIE810", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PLW0603", "PTH103", "PTH110", "PTH118", "PTH119", "PTH123", "PTH207", "RET504", "RUF005", "S101", "S110", "SIM105", "SIM115", "SLF001", "UP031"]
+"evaluator/groundcf_eval.py" = ["ANN001", "ANN201", "ANN202", "C901", "E401", "E731", "E741", "EXE001", "F401", "FURB122", "I001", "PLC0415", "PLR2004", "PTH110", "PTH118", "PTH123", "RUF005", "SIM113", "SIM115"]
+"scripts/clevr3_cp_eval.py" = ["ANN001", "ANN201", "C901", "E501", "E731", "EXE001", "F401", "I001", "N803", "N806", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PLW2901"]
+"scripts/clevr3_image_twins.py" = ["ANN001", "ANN201", "B905", "C901", "E401", "E402", "E501", "E741", "EXE001", "F401", "F841", "I001", "N806", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "PTH100", "PTH103", "PTH110", "PTH118", "PTH120", "PTH123", "RUF046", "SIM115"]
+"scripts/clevr3_twins_count_spatial.py" = ["ANN001", "ANN201", "ANN202", "C901", "E401", "E741", "EM101", "EM102", "EXE001", "FURB122", "I001", "PLR0912", "PLR0915", "PLR2004", "PTH100", "PTH103", "PTH110", "PTH118", "PTH119", "PTH120", "PTH123", "RUF005", "SIM115", "TRY003"]
+"scripts/coco_oracle_gate.py" = ["ANN201", "E401", "E501", "EXE001", "I001", "N812", "PLC0415", "PTH100", "PTH118", "PTH120", "UP031"]
+"scripts/detect_two_prompts.py" = ["ANN001", "ANN201", "E401", "E501", "E731", "EXE001", "I001", "N806", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "PTH207", "SIM115"]
+"scripts/download_data.py" = ["E402", "EXE001", "PTH111"]
+"scripts/eval_citefaith.py" = ["ANN001", "ANN201", "ANN202", "B007", "C901", "E401", "E731", "EXE001", "F401", "F841", "I001", "N812", "PLC0415", "PLR0912", "PLR0915", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "SIM115"]
+"scripts/eval_clevr3.py" = ["ANN001", "ANN201", "C901", "E401", "E731", "E741", "EXE001", "I001", "N806", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "PLW0603", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "RUF005", "SIM115"]
+"scripts/eval_clevr3_flip.py" = ["ANN001", "ANN201", "ANN202", "BLE001", "C901", "E401", "E402", "E501", "E731", "E741", "EM101", "EM102", "EXE001", "F401", "I001", "N806", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "PLW3301", "PTH100", "PTH103", "PTH110", "PTH118", "PTH119", "PTH120", "PTH123", "SIM115", "TRY003"]
+"scripts/eval_clevr3_generate.py" = ["ANN001", "ANN201", "ANN202", "B007", "B905", "BLE001", "C901", "E401", "E501", "E731", "E741", "EM101", "EM102", "EXE001", "F401", "F601", "FBT002", "FURB167", "I001", "N806", "PLC0415", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "RUF005", "S101", "S311", "SIM115", "TRY003"]
+"scripts/eval_flip_ll.py" = ["ANN001", "ANN201", "ANN202", "B023", "B905", "BLE001", "C901", "E401", "E402", "E501", "E731", "EM101", "EM102", "EXE001", "F401", "F541", "I001", "N806", "N812", "PLC0415", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "S110", "S311", "SIM105", "SIM115", "TRY003"]
+"scripts/eval_meta_words.py" = ["ANN001", "ANN201", "ANN202", "C901", "E401", "E501", "E731", "E741", "EM101", "EXE001", "I001", "N803", "N806", "N812", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "RUF005", "S101", "SIM115", "TRY003"]
+"scripts/eval_mvg.py" = ["ANN001", "ANN201", "E401", "E731", "E741", "EXE001", "F401", "FBT002", "I001", "PLC0415", "PLR0913", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "RUF005", "SIM115"]
+"scripts/eval_mvg_flip.py" = ["ANN001", "ANN201", "ANN202", "B023", "C901", "E401", "E402", "E501", "E731", "E741", "EXE001", "F401", "I001", "N806", "N812", "PLC0415", "PLR0911", "PLR0912", "PLR0915", "PLR2004", "PTH100", "PTH103", "PTH118", "PTH119", "PTH120", "PTH123", "S101", "SIM115"]
+"scripts/extract_frames.py" = ["E401", "E741", "F401", "I001", "INP001", "PLW1510", "PTH103", "PTH110", "PTH118", "PTH122", "PTH123", "PTH208", "S603", "S607", "SIM115"]
+"scripts/harvest.py" = ["ANN001", "ANN201", "BLE001", "C901", "E401", "E501", "E731", "EXE001", "I001", "N806", "PERF401", "PLR0912", "PLR2004", "PTH100", "PTH120", "PTH123", "PTH207", "SIM115"]
+"scripts/master_grid.py" = ["ANN001", "ANN201", "ANN202", "ARG001", "B905", "BLE001", "C901", "E401", "E501", "E741", "EXE001", "F811", "I001", "N806", "PERF403", "PIE810", "PLR0911", "PLR0912", "PLR0915", "PLR1714", "PLR2004", "PTH100", "PTH103", "PTH110", "PTH119", "PTH120", "PTH123", "PTH204", "PTH207", "SIM102", "SIM115"]
+"scripts/multiventg_build_items.py" = ["ANN001", "ANN201", "ANN202", "B007", "C901", "E401", "E501", "E741", "EXE001", "FURB122", "I001", "PLC0415", "PLR0912", "PLR0915", "PLR2004", "PTH123", "S311", "SIM115"]
+"scripts/mvg_prepare.py" = ["ANN001", "ANN002", "ANN201", "ANN202", "BLE001", "C901", "E401", "E501", "E741", "EXE001", "I001", "PLC0415", "PLR0912", "PLR0915", "PLR5501", "PTH100", "PTH103", "PTH118", "PTH120", "PTH123", "PTH207", "RUF005", "S110", "S324", "SIM108", "SIM115"]
+"scripts/prepare_clevr3.py" = ["ANN001", "ANN201", "E401", "EXE001", "FBT002", "FURB122", "I001", "PLC0415", "PLR0913", "PTH100", "PTH103", "PTH118", "PTH120", "PTH123", "S311", "S324", "SIM115"]
+"scripts/prepare_coco_cf.py" = ["ANN001", "ANN201", "ANN202", "B905", "E401", "E741", "EXE001", "I001", "PLC0415", "PTH100", "PTH103", "PTH110", "PTH118", "PTH120", "PTH123", "S311", "S324", "SIM115"]
+"scripts/prepare_multiventg.py" = ["ANN201", "C901", "E401", "E501", "EXE001", "I001", "PERF401", "PTH103", "PTH118", "PTH123", "SIM115"]
+"scripts/prepare_mvg_ctm.py" = ["ANN001", "ANN201", "ANN202", "C901", "E401", "E731", "E741", "EXE001", "F401", "I001", "N806", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PLW2901", "PTH100", "PTH103", "PTH118", "PTH120", "PTH123", "SIM110", "SIM115"]
+"scripts/prepare_task.py" = ["ANN001", "ANN201", "ANN202", "BLE001", "E401", "E741", "EM102", "EXE001", "F401", "I001", "N812", "PLC0415", "PTH100", "PTH103", "PTH110", "PTH118", "PTH120", "PTH123", "RET503", "RUF015", "RUF046", "RUF100", "S110", "S310", "S311", "SIM115", "TRY003"]
+"scripts/prepare_vcf.py" = ["ANN001", "ANN201", "E401", "EXE001", "I001", "PLC0415", "PTH100", "PTH103", "PTH118", "PTH120", "PTH123", "S324", "SIM108", "SIM115"]
+"scripts/stats_pass.py" = ["ANN001", "ANN201", "ANN202", "ARG001", "B023", "B905", "BLE001", "E401", "EXE001", "F401", "I001", "PERF401", "PIE808", "PTH100", "PTH103", "PTH118", "PTH120", "PTH123", "S311", "SIM115"]
+"scripts/tokscore.py" = ["ANN001", "ANN201", "EXE001", "N806", "PLR2004", "PT018", "S101"]
+"scsrc/act.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG001", "C901", "E501", "E741", "EM101", "EM102", "PLR0402", "PLR0913", "PLR2004", "RUF005", "SIM102", "TRY003"]
+"scsrc/clevr3.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG005", "C408", "C901", "E401", "E501", "E741", "EM101", "EM102", "F401", "FBT002", "I001", "N806", "PLC0415", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR1714", "PLR2004", "PLW0603", "PTH100", "PTH110", "PTH118", "PTH120", "PTH123", "RUF005", "S101", "S311", "SIM108", "SIM115", "TRY003"]
+"scsrc/collate.py" = ["ANN001", "ANN201", "ANN202", "C901", "EM102", "F401", "FBT002", "I001", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "RUF005", "S101", "S311", "TRY003", "UP031"]
+"scsrc/colors.py" = ["ANN001", "ANN201"]
+"scsrc/config.py" = ["ANN001", "ANN201", "E401", "F401", "I001", "PTH103", "PTH120", "PTH123", "RET504"]
+"scsrc/data.py" = ["ANN001", "ANN201", "E401", "F401", "FBT001", "FBT002", "I001", "PLC0415", "PLR0913", "PTH110", "PTH118", "PTH123", "RUF100", "UP006", "UP035", "UP045"]
+"scsrc/dataset.py" = ["ANN001", "ANN202", "ANN204", "BLE001", "C408", "C420", "C901", "E401", "EM102", "FBT002", "I001", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PT018", "S101", "S110", "S311", "TRY003"]
+"scsrc/fps.py" = ["ANN001", "ANN201", "BLE001", "E401", "I001", "PLR2004", "PLW0603", "PTH100", "PTH118", "PTH120", "PTH123", "SIM115"]
+"scsrc/headscale.py" = ["ANN001", "ANN201", "ANN202", "ARG001", "E741", "EM101", "EM102", "FBT002", "I001", "PLR2004", "PLW2901", "RUF005", "SIM102", "TRY003"]
+"scsrc/iit_train.py" = ["ANN001", "ANN003", "ANN201", "ANN202", "ANN204", "C408", "C416", "EM101", "F401", "PLC0415", "PLR0913", "RUF100", "TRY003"]
+"scsrc/infer.py" = ["ANN001", "ANN003", "ANN201", "ANN204", "ARG002", "C401", "F401", "I001", "PLC0415", "PLR0913"]
+"scsrc/metrics.py" = ["ANN001", "ANN201", "ANN202", "ARG001", "B905", "C416", "E402", "E501", "FURB167", "FURB188", "I001", "PLR0911", "PLR2004", "PLW2901", "RET504", "RUF002", "SIM103", "UP045"]
+"scsrc/model.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG001", "ARG002", "B905", "BLE001", "C416", "C901", "E401", "EM102", "FBT003", "I001", "N803", "N806", "N814", "PGH004", "PLC0415", "PLR0913", "PTH103", "PTH110", "PTH111", "PTH112", "PTH118", "PTH120", "PTH204", "PTH207", "RUF100", "S101", "S110", "TRY003", "TRY300"]
+"scsrc/mvg.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG001", "BLE001", "C901", "E501", "E741", "EM102", "F401", "FBT002", "I001", "N806", "PERF401", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PTH110", "PTH118", "PTH123", "RUF005", "S110", "S311", "SIM115", "TRY003"]
+"scsrc/mvraw.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "E731", "E741", "F401", "FBT002", "N806", "PERF401", "PLC0415", "PLR0913", "PTH110", "PTH123", "RUF005", "SIM115"]
+"scsrc/paths.py" = ["PTH100", "PTH103", "PTH111", "PTH118", "PTH120"]
+"scsrc/preference.py" = ["ANN001", "ANN201", "ANN202", "B905", "BLE001", "C416", "C901", "E401", "E402", "E501", "E731", "EM101", "ERA001", "F401", "FBT002", "FBT003", "I001", "N806", "N812", "PLC0415", "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "RET505", "RUF005", "S110", "S112", "S311", "SIM105", "TRY003"]
+"scsrc/prompts.py" = ["ANN001", "ANN201", "ANN202", "ARG001", "C901", "E501", "EM102", "FBT002", "PLC0415", "PLR0911", "PLR0913", "RUF005", "TRY003", "UP031"]
+"scsrc/recheck.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG001", "B905", "EM101", "F401", "I001", "PLC0415", "PLR0913", "RUF005", "S311", "TRY003"]
+"scsrc/score.py" = ["ANN001", "ANN201", "FBT002", "I001", "PLC0415", "PLR0913", "RUF005"]
+"scsrc/swaps.py" = ["ANN001", "ANN201", "BLE001", "I001", "N812", "PLC0415", "S110", "SIM105"]
+"scsrc/task_adapters.py" = ["ANN001", "ANN201", "FBT001", "FBT002", "FURB167", "I001", "PIE810", "PLR2004", "UP035", "UP045"]
+"scsrc/tasks.py" = ["FBT001", "FBT002", "I001", "PLR0913", "RUF046", "TC003", "UP006", "UP035", "UP045"]
+"scsrc/temporal.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "E731", "E741", "F401", "FBT002", "FBT003", "I001", "PERF401", "PLC0415", "PLR0913", "PTH123", "RUF005", "S311", "SIM115"]
+"scsrc/tokens.py" = ["ANN001", "ANN201", "EM102", "I001", "PLC0415", "TRY003", "UP006", "UP035"]
+"scsrc/verbalize.py" = ["ANN001", "ANN201", "ARG001", "I001", "N812", "PLR0913", "PLR2004"]
+"tests/test_pair_carriers.py" = ["ANN201", "ARG005", "C901", "E401", "EXE001", "I001", "N812", "PERF401", "PLC0415", "PTH100", "PTH112", "PTH118", "PTH120", "SLF001"]
+"tests/test_static.py" = ["ANN001", "ANN201", "C901", "E401", "EXE001", "FURB167", "I001", "PERF401", "PLC0415", "PLR0912", "PTH100", "PTH110", "PTH118", "PTH120", "PTH123", "PTH208", "SIM115"]
+"tests/test_swap.py" = ["ANN001", "ANN201", "ARG005", "E401", "E402", "F401", "I001", "N812", "PLW0603", "PTH100", "PTH120", "SLF001"]
+"tests/test_tasks.py" = ["ANN001", "ANN201", "ARG005", "E401", "E402", "F401", "I001", "N812", "PLR2004", "PLW0603", "PTH100", "PTH120", "RUF015", "S311"]
+"train.py" = ["ANN001", "ANN201", "ANN202", "ANN204", "ARG001", "B007", "BLE001", "C408", "C420", "C901", "E401", "E501", "E731", "E741", "EM101", "EM102", "EXE001", "F541", "FBT003", "I001", "N806", "N812", "NPY002", "PERF102", "PLC0415", "PLR0912", "PLR0913", "PLR0915", "PLR2004", "PLR5501", "PLW2901", "PT018", "PTH103", "PTH107", "PTH110", "PTH112", "PTH118", "PTH119", "PTH120", "PTH123", "PTH207", "RUF005", "S101", "S110", "SIM105", "SIM115", "SLF001", "TRY003", "UP031"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+explicit_package_bases = true
+files = ["."]
+exclude = ["^data/", "^\\.venv/"]
+
+[[tool.mypy.overrides]]
+module = ["torch.*", "torchvision.*", "transformers.*", "peft.*", "datasets.*", "safetensors.*", "accelerate.*",
+          "huggingface_hub.*", "scipy.*", "pandas.*", "PIL.*", "yaml.*", "tqdm.*", "matplotlib.*", "seaborn.*",
+          "statsmodels.*", "wandb.*", "numpy.*"]
+ignore_missing_imports = true
+
+# Baseline (2026-11-05): the paper's code is not yet annotated; new modules are checked in strict mode.
+[[tool.mypy.overrides]]
+module = [
+    "evaluate",
+    "evaluator.groundcf_eval",
+    "scripts.clevr3_cp_eval",
+    "scripts.clevr3_image_twins",
+    "scripts.clevr3_twins_count_spatial",
+    "scripts.coco_oracle_gate",
+    "scripts.detect_two_prompts",
+    "scripts.download_data",
+    "scripts.eval_citefaith",
+    "scripts.eval_clevr3",
+    "scripts.eval_clevr3_flip",
+    "scripts.eval_clevr3_generate",
+    "scripts.eval_flip_ll",
+    "scripts.eval_meta_words",
+    "scripts.eval_mvg",
+    "scripts.eval_mvg_flip",
+    "scripts.extract_frames",
+    "scripts.harvest",
+    "scripts.master_grid",
+    "scripts.multiventg_build_items",
+    "scripts.mvg_prepare",
+    "scripts.prepare_clevr3",
+    "scripts.prepare_coco_cf",
+    "scripts.prepare_multiventg",
+    "scripts.prepare_mvg_ctm",
+    "scripts.prepare_task",
+    "scripts.prepare_vcf",
+    "scripts.stats_pass",
+    "scripts.tokscore",
+    "scsrc.__init__",
+    "scsrc.act",
+    "scsrc.clevr3",
+    "scsrc.collate",
+    "scsrc.colors",
+    "scsrc.config",
+    "scsrc.data",
+    "scsrc.dataset",
+    "scsrc.fps",
+    "scsrc.headscale",
+    "scsrc.iit_train",
+    "scsrc.infer",
+    "scsrc.metrics",
+    "scsrc.model",
+    "scsrc.mvg",
+    "scsrc.mvraw",
+    "scsrc.paths",
+    "scsrc.preference",
+    "scsrc.prompts",
+    "scsrc.recheck",
+    "scsrc.score",
+    "scsrc.swaps",
+    "scsrc.task_adapters",
+    "scsrc.tasks",
+    "scsrc.temporal",
+    "scsrc.tokens",
+    "scsrc.verbalize",
+    "tests.test_pair_carriers",
+    "tests.test_static",
+    "tests.test_swap",
+    "tests.test_tasks",
+    "train",
+]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

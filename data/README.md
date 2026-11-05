@@ -15,6 +15,8 @@ whether an answer follows an edit to the requested source (Flip) and stays put u
 | `dev_scenes.txt` | scenes reserved for development |
 | `pairs_look_all_{train,dev}.jsonl` | training and development twins (colour, shape, count, spatial) |
 | `pairs_look_all_{id,ood}_clean.jsonl` | the test twins used for every reported number |
+| `pairs_look_all_{id,ood}.jsonl` | the same test twins before the correction below; the evaluators read them when no `--pairs_file` is given |
+| `pairs_look_cs_{id,ood}.jsonl` | the count and spatial twins on their own, as written by `scripts/clevr3_twins_count_spatial.py` |
 | `pairs_look_{id,ood}.jsonl` | colour and shape twins read by `evaluator/groundcf_eval.py` |
 | `evidence_boxes_{id,ood}.json` | evidence regions per item |
 | `images/`, `images_twin*/` | scene renders and twin renders |

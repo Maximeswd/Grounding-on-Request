@@ -25,14 +25,37 @@ Usage:
          data/color --frozen_model_id base
   python scripts/eval_citefaith.py --reparse runs/X/eval/color_test_id/citefaith_step_800.json
 """
+
 import argparse, json, os, re, sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-COLORS = {"red","orange","yellow","green","blue","purple","pink","brown","black",
-          "white","gray","grey","gold","silver","tan","beige","violet","cyan",
-          "maroon","navy"}
-INSTR = {"look": "Answer using ONLY what you can see in the image; ignore the caption.",
-         "read": "Answer using ONLY what the caption states; ignore the image."}
+COLORS = {
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "purple",
+    "pink",
+    "brown",
+    "black",
+    "white",
+    "gray",
+    "grey",
+    "gold",
+    "silver",
+    "tan",
+    "beige",
+    "violet",
+    "cyan",
+    "maroon",
+    "navy",
+}
+INSTR = {
+    "look": "Answer using ONLY what you can see in the image; ignore the caption.",
+    "read": "Answer using ONLY what the caption states; ignore the image.",
+}
 OPS = ("look", "read")
 # neologism markers decode either with row suffixes (<look_gen_0>) or, for the
 # 1-token cite delimiters of the blocks runs, bare (<look>); match both, and
@@ -41,8 +64,7 @@ NEO_RE = re.compile(r"<(?:look|read|ocr|asr|compare)(?:_[a-z0-9]+)*(?:_\d+)?>")
 
 
 def norm(k):
-    return {str(o).split("|")[0].strip().lower(): str(v).strip().lower()
-            for o, v in (k or {}).items()}
+    return {str(o).split("|")[0].strip().lower(): str(v).strip().lower() for o, v in (k or {}).items()}
 
 
 def cut_eos(text):
@@ -63,9 +85,12 @@ def parse_val(text, v_i, v_t, obj=None):
     Falls back to last mention (models restate the conflict, then conclude)."""
     if obj:
         low = re.sub(r"[^a-z0-9 :]", " ", text.lower())
-        hits = [(m.start(), m.group(1)) for m in re.finditer(
-            re.escape(str(obj).lower().strip()) +
-            r"\s*(?::|-|\bis\b|\bare\b|\blooks?\b)?\s+([a-z]+)", low)]
+        hits = [
+            (m.start(), m.group(1))
+            for m in re.finditer(
+                re.escape(str(obj).lower().strip()) + r"\s*(?::|-|\bis\b|\bare\b|\blooks?\b)?\s+([a-z]+)", low
+            )
+        ]
         vals = [v for _, v in hits if v in (v_i, v_t)]
         if vals:
             return "i" if vals[-1] == v_i else "t"
@@ -105,14 +130,17 @@ def claim_of(text, op, v_i, v_t, obj=None):
 
 def score_records(records):
     """Aggregate per-item raw generations into the battery metrics."""
-    agg = {c: {k: [] for k in
-               ("support", "citeflip", "citestay", "faithful",
-                "citeflip_sup", "citestay_sup", "faithful_sup")}
-           for c in ("emitted", "posthoc")}
+    agg = {
+        c: {
+            k: []
+            for k in ("support", "citeflip", "citestay", "faithful", "citeflip_sup", "citestay_sup", "faithful_sup")
+        }
+        for c in ("emitted", "posthoc")
+    }
     n_marked = 0
     for r in records:
         v_i, v_t = r["v_i"], r["v_t"]
-        gold = {"look": "i", "read": "t"}          # source -> its value id
+        gold = {"look": "i", "read": "t"}  # source -> its value id
         twin_of = {"look": "img_twin", "read": "cap_twin"}
         other = {"look": "read", "read": "look"}
         for op in OPS:
@@ -127,8 +155,7 @@ def score_records(records):
             # regenerations under the two twins, same request
             t_cited = r["gen"].get(f"{op}|{twin_of[op]}")
             t_uncited = r["gen"].get(f"{op}|{twin_of[other[op]]}")
-            conds = [("posthoc",
-                      "look" if v0 == "i" else "read")]  # support-based label
+            conds = [("posthoc", "look" if v0 == "i" else "read")]  # support-based label
             if emitted:
                 conds.append(("emitted", op))
             for cond, label in conds:
@@ -175,9 +202,11 @@ def main():
     ap.add_argument("--max_n", type=int, default=100)
     ap.add_argument("--max_new_tokens", type=int, default=64)
     ap.add_argument("--frozen_model_id", default=None)
-    ap.add_argument("--reparse", default=None,
-                    help="path to an existing citefaith json: recompute the "
-                         "metrics from its banked generations, no GPU")
+    ap.add_argument(
+        "--reparse",
+        default=None,
+        help="path to an existing citefaith json: recompute the metrics from its banked generations, no GPU",
+    )
     a = ap.parse_args()
 
     if a.reparse:
@@ -197,8 +226,8 @@ def main():
     forbid = None
     if a.frozen_model_id is not None:
         from scsrc import model as M
-        model, proc = M.load(model_id=(a.frozen_model_id or None)
-                             if a.frozen_model_id != "base" else None)
+
+        model, proc = M.load(model_id=(a.frozen_model_id or None) if a.frozen_model_id != "base" else None)
         model.eval()
         n, method = 0, "frozen"
     else:
@@ -212,16 +241,14 @@ def main():
         return f'Caption: "{cap}". {INSTR[op]}'
 
     ds = load_task(a.data_dir, a.split)
-    specs = [s for s in build_specs(ds, a.split, conditions=("conflict",))
-             if s.cond == "conflict"]
+    specs = [s for s in build_specs(ds, a.split, conditions=("conflict",)) if s.cond == "conflict"]
     is_vcf = "vcf" in a.data_dir
     records, n_seen = [], 0
     for sp in tqdm(specs, desc=f"citefaith({os.path.basename(a.run_dir or 'frozen')})"):
         ik, tk = norm(sp.image_key), norm(sp.text_key)
         if not ik or set(ik) != set(tk):
             continue
-        conf = [o for o in ik if ik[o] != tk[o]
-                and not (is_vcf and any(c in o.split() for c in COLORS))]
+        conf = [o for o in ik if ik[o] != tk[o] and not (is_vcf and any(c in o.split() for c in COLORS))]
         if not conf:
             continue
         if n_seen >= a.max_n:
@@ -234,33 +261,45 @@ def main():
         capp = ds[sp.ex_index][f"caption_{sp.img_idx}"]
         gen = {}
         for op in OPS:
-            for ctx, image, cap in (("orig", img, sp.fed_caption),
-                                    ("img_twin", imgp, sp.fed_caption),
-                                    ("cap_twin", img, capp)):
+            for ctx, image, cap in (
+                ("orig", img, sp.fed_caption),
+                ("img_twin", imgp, sp.fed_caption),
+                ("cap_twin", img, capp),
+            ):
                 gen[f"{op}|{ctx}"] = generate(
-                    model, proc, image, prompt(op, cap), "cuda",
-                    max_new_tokens=a.max_new_tokens, forbid_ids=forbid,
-                    temperature=0.0)
-        records.append({"i": sp.ex_index, "obj": obj, "v_i": v_i, "v_t": v_t,
-                        "gen": gen})
+                    model,
+                    proc,
+                    image,
+                    prompt(op, cap),
+                    "cuda",
+                    max_new_tokens=a.max_new_tokens,
+                    forbid_ids=forbid,
+                    temperature=0.0,
+                )
+        records.append({"i": sp.ex_index, "obj": obj, "v_i": v_i, "v_t": v_t, "gen": gen})
 
-    out = {"run": os.path.basename(a.run_dir or f"frozen_{a.frozen_model_id}"),
-           "split": a.split, "step": a.step, "n": n_seen, "method": method,
-           "note": ("support = claim value matches the labelled source's "
-                    "presented value; citeflip = claim tracks the labelled "
-                    "source's twin; citestay = claim survives the other "
-                    "source's twin; faithful = both. 'emitted' scores the "
-                    "model's own attribution markers; 'posthoc' scores "
-                    "support-based assignment on the same generations."),
-           "records": records}
+    out = {
+        "run": os.path.basename(a.run_dir or f"frozen_{a.frozen_model_id}"),
+        "split": a.split,
+        "step": a.step,
+        "n": n_seen,
+        "method": method,
+        "note": (
+            "support = claim value matches the labelled source's "
+            "presented value; citeflip = claim tracks the labelled "
+            "source's twin; citestay = claim survives the other "
+            "source's twin; faithful = both. 'emitted' scores the "
+            "model's own attribution markers; 'posthoc' scores "
+            "support-based assignment on the same generations."
+        ),
+        "records": records,
+    }
     out.update(score_records(records))
     print(json.dumps({k: v for k, v in out.items() if k != "records"}))
-    outd = os.path.join(a.run_dir or ".", "eval",
-                        f"{os.path.basename(a.data_dir)}_{a.split}")
+    outd = os.path.join(a.run_dir or ".", "eval", f"{os.path.basename(a.data_dir)}_{a.split}")
     os.makedirs(outd, exist_ok=True)
     tag = "_frozen" if a.frozen_model_id is not None else ""
-    json.dump(out, open(os.path.join(
-        outd, f"citefaith_step_{a.step}{tag}.json"), "w"), indent=1)
+    json.dump(out, open(os.path.join(outd, f"citefaith_step_{a.step}{tag}.json"), "w"), indent=1)
 
 
 if __name__ == "__main__":

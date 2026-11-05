@@ -4,6 +4,7 @@ imports). Images are string placeholders -- construction never decodes them.
 What this canNOT test: real dataset iteration, the forward pass, the eval matrix
 (all cluster-only). Run: python tests/test_tasks.py
 """
+
 import sys, types, os, random
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -14,8 +15,15 @@ _d.load_dataset = lambda *a, **k: None
 _d.load_from_disk = lambda *a, **k: None
 sys.modules.setdefault("datasets", _d)
 
-from scsrc.tasks import (SlotItem, build_examples, split_by_class, caption_for,
-                         conflict_value, caption_from_key, values_of)
+from scsrc.tasks import (
+    SlotItem,
+    build_examples,
+    split_by_class,
+    caption_for,
+    conflict_value,
+    caption_from_key,
+    values_of,
+)
 from scsrc import task_adapters as A
 from scsrc import metrics as Me
 from scsrc.prompts import fmt_key
@@ -38,13 +46,16 @@ check("caption attr", caption_for("attr", "apple", "shiny") == "the apple is shi
 rng = random.Random(0)
 cv = conflict_value("counting", "3", ["1", "2", "3", "4", "5"], rng)
 check("counting conflict is near & different", cv in {"1", "2", "4", "5"})
-check("spatial conflict different", conflict_value("spatial", "on", ["on", "under", "left of"], rng) in {"under", "left of"})
+check(
+    "spatial conflict different",
+    conflict_value("spatial", "on", ["on", "under", "left of"], rng) in {"under", "left of"},
+)
 
 print("== tasks: build_examples swap matching (counting) ==")
 items = [
     SlotItem("imgA", "dog", "3", "3", "dog", "counting"),
     SlotItem("imgB", "dog", "5", "5", "dog", "counting"),
-    SlotItem("imgC", "cat", "2", "2", "cat", "counting"),   # lone group -> dropped (require_swap)
+    SlotItem("imgC", "cat", "2", "2", "cat", "counting"),  # lone group -> dropped (require_swap)
 ]
 exs = build_examples(items, "counting", ["2", "3", "5"], random.Random(1), require_swap=True)
 groups = {tuple(sorted(e.key_1.items()))[0][0] for e in exs}
@@ -55,8 +66,7 @@ check("conflict is real (k1 != k2)", e0.key_1["dog"] != e0.key_2["dog"])
 check("image_2 is the swap image", e0.image_2 in {"imgA", "imgB"} and e0.image_2 != e0.image_1)
 
 print("== tasks: split_by_class (held-out classes) ==")
-big = [SlotItem(f"i{n}{k}", "dog", str(n), str(n), "dog", "counting")
-       for n in (1, 2, 3, 4) for k in range(5)]
+big = [SlotItem(f"i{n}{k}", "dog", str(n), str(n), "dog", "counting") for n in (1, 2, 3, 4) for k in range(5)]
 sp = split_by_class(big, heldout={"4"}, id_frac=0.2, rng=random.Random(2))
 check("held-out class only in test_ood", all(it.klass == "4" for it in sp["test_ood"]))
 check("held-out absent from train", all(it.klass != "4" for it in sp["train"]))
@@ -64,9 +74,15 @@ check("train+test_id+ood == all", len(sp["train"]) + len(sp["test_id"]) + len(sp
 
 print("== data.build_specs reads STORED keys (value-agnostic) ==")
 fake_ds = [
-    {"image_1": "img1", "image_2": "img2",
-     "caption_1": "there are 3 dogs", "caption_2": "there are 5 dogs",
-     "key_1": '{"dog": "3"}', "key_2": '{"dog": "5"}', "id": 7},
+    {
+        "image_1": "img1",
+        "image_2": "img2",
+        "caption_1": "there are 3 dogs",
+        "caption_2": "there are 5 dogs",
+        "key_1": '{"dog": "3"}',
+        "key_2": '{"dog": "5"}',
+        "id": 7,
+    },
 ]
 okk, k1, k2 = keys_from_row(fake_ds[0])
 check("keys_from_row decodes JSON", okk and k1 == {"dog": "3"} and k2 == {"dog": "5"})
@@ -82,10 +98,10 @@ check("get_image returns the shown image", get_image(fake_ds, c1) == "img1")
 check("agree img1 keys both 3", [s for s in agree if s.img_idx == 1][0].text_key == {"dog": "3"})
 
 print("== data.build_specs held-out-class filter (ColorSwap path) ==")
-cs_rows = [{"image_1": "i1", "image_2": "i2", "caption_1": "a red car",
-            "caption_2": "a blue car", "id": 1},
-           {"image_1": "i3", "image_2": "i4", "caption_1": "a green hat",
-            "caption_2": "a yellow hat", "id": 2}]
+cs_rows = [
+    {"image_1": "i1", "image_2": "i2", "caption_1": "a red car", "caption_2": "a blue car", "id": 1},
+    {"image_1": "i3", "image_2": "i4", "caption_1": "a green hat", "caption_2": "a yellow hat", "id": 2},
+]
 tr = build_specs(cs_rows, "train", heldout_classes={"blue"}, class_mode="exclude")
 check("exclude drops the red/blue example", all(s.example_id != 1 for s in tr))
 oo = build_specs(cs_rows, "test", heldout_classes={"blue"}, class_mode="only")
@@ -122,6 +138,7 @@ check("classify laundered", Me.classify_source("5", "3", "5") == "laundered")
 check("classify other", Me.classify_source("9", "3", "5") == "other")
 check("classify none->other", Me.classify_source(None, "3", "5") == "other")
 from scsrc.prompts import clean_q
+
 check("clean_q counting has no caption slot", "{cap}" not in clean_q("counting") and "{obj}" in clean_q("counting"))
 check("clean_q spatial", "relation" in clean_q("spatial"))
 

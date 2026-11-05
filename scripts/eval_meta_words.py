@@ -6,7 +6,9 @@ whether <look> and <read> mean the same thing (yes / no, same / different), whic
 asks the model to use (multiple choice, both option orders), two open questions, and, inside a real Ground-CF prompt,
 which source the active request asks for. Prompt tuning places its soft tokens where the word would be, English
 instructions serve as the reference, and a LoRA adapter or no request can only be asked the last question."""
+
 import argparse, json, os, re, sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.clevr3 import clevr3_token, clevr3_user_content, set_c3_vocab, heldout_question, eval_design
 from scsrc.tokens import trigger
@@ -28,17 +30,20 @@ def kw_flags(text):
     """Keyword tags for later annotation only (word-boundary matches; a heuristic, never a headline number)."""
     low = text.lower()
     fi, fc = _first(low, IMG_WORDS), _first(low, CAP_WORDS)
-    first = ("image" if fi >= 0 and (fc < 0 or fi < fc) else "caption" if fc >= 0 else None)
+    first = "image" if fi >= 0 and (fc < 0 or fi < fc) else "caption" if fc >= 0 else None
     return {"mentions_image": fi >= 0, "mentions_caption": fc >= 0, "first_mentioned": first}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--run_dir", required=True); ap.add_argument("--data_dir", default="data/clevr3")
-    ap.add_argument("--split", default="test_id"); ap.add_argument("--step", type=int, default=800)
+    ap.add_argument("--run_dir", required=True)
+    ap.add_argument("--data_dir", default="data/clevr3")
+    ap.add_argument("--split", default="test_id")
+    ap.add_argument("--step", type=int, default=800)
     ap.add_argument("--mode", default=None, help="None (the run's own interface) | instructed | noop")
     ap.add_argument("--n_items", type=int, default=40, help="conflict items for family G (balanced over skills)")
-    ap.add_argument("--max_new", type=int, default=64); ap.add_argument("--max_new_open", type=int, default=160)
+    ap.add_argument("--max_new", type=int, default=64)
+    ap.add_argument("--max_new_open", type=int, default=160)
     ap.add_argument("--tag", default="")
     a = ap.parse_args()
     if a.mode in ("instructed", "noop") and not a.tag:
@@ -48,7 +53,8 @@ def main():
     model, proc, meta, forbid = apply_checkpoint(a.run_dir, a.step, "cuda")
     if forbid is None:
         forbid = getattr(model, "_neo_all_ids", None)
-    n = meta["n_tokens"]; fm = cfg.get("factor_mode", "srconly")
+    n = meta["n_tokens"]
+    fm = cfg.get("factor_mode", "srconly")
     probe_item = {"skill": "color", "id": "meta"}
     if method == "neo":
         W = {s: clevr3_token(probe_item, s, n, fm) for s in ("look", "read")}
@@ -57,7 +63,7 @@ def main():
     elif method == "english":
         W = {s: f'"according to {SRC_NAME[s]}"' for s in ("look", "read")}
     else:
-        W = None                                          # LoRA adapter / no request: no word to talk about
+        W = None  # LoRA adapter / no request: no word to talk about
     recs = []
     forbid_holder = [forbid]
 
@@ -72,63 +78,131 @@ def main():
         um = [{"role": "user", "content": content or [{"type": "text", "text": text}]}]
         from scripts.eval_clevr3_generate import loglik_both as _lb
         from scripts.tokscore import split_spans as _ss
+
         _det = {c: _lb(model, proc, um, anchored(c), "cuda", tokens=True) for c in cands}
-        _spd = _ss({c: (d[3], d[4]) for c, d in _det.items()})              # token-level detail
-        s_anc = {c: round(float(_spd[c]["answer_sum"] if os.environ.get("SC_SCORE", "turn") == "answer" else _det[c][0]), 4) for c in cands}
+        _spd = _ss({c: (d[3], d[4]) for c, d in _det.items()})  # token-level detail
+        s_anc = {
+            c: round(float(_spd[c]["answer_sum"] if os.environ.get("SC_SCORE", "turn") == "answer" else _det[c][0]), 4)
+            for c in cands
+        }
         s_bare = {c: round(float(loglik(model, proc, um, c, "cuda")), 4) for c in cands}
-        p_anc = max(s_anc, key=s_anc.get); p_bare = max(s_bare, key=s_bare.get)
+        p_anc = max(s_anc, key=s_anc.get)
+        p_bare = max(s_bare, key=s_bare.get)
         txt, nnew = generate_free(model, proc, um[0]["content"], "cuda", a.max_new, forbid_holder[0], 6)
         if opts:
             # parse against display names, so a reply naming the source instead of the letter still parses
             disp = {k: {"look": "image", "read": "caption"}.get(v, v) for k, v in opts.items()}
-            lab, val, _route = parse_mc(txt, disp); parsed = next((k for k, v in disp.items() if v == val), None)
+            lab, val, _route = parse_mc(txt, disp)
+            parsed = next((k for k, v in disp.items() if v == val), None)
         else:
             lab, parsed = parse_answer(txt, tuple(cands))
         ptxt = " ".join("[IMAGE]" if c.get("type") == "image" else c.get("text", "") for c in um[0]["content"])
-        recs.append({"family": family, "paraphrase": para, "prompt": ptxt, "candidates": list(cands), "gold": gold,
-                     "options": opts, "scores_anchored": s_anc, "scores_bare": s_bare,
-                     "anchored_detail": {c: {"sum": round(_det[c][0], 4), **_spd[c]} for c in _det},
-                     "pick_anchored": p_anc, "pick_bare": p_bare, "raw_generation": txt, "gen_ntok": nnew,
-                     "parse_label": lab, "parsed": parsed,
-                     "correct_ll": (int(p_anc == gold) if gold is not None else None),
-                     "correct_gen": (int(parsed == gold) if gold is not None else None), **(extra or {})})
+        recs.append(
+            {
+                "family": family,
+                "paraphrase": para,
+                "prompt": ptxt,
+                "candidates": list(cands),
+                "gold": gold,
+                "options": opts,
+                "scores_anchored": s_anc,
+                "scores_bare": s_bare,
+                "anchored_detail": {c: {"sum": round(_det[c][0], 4), **_spd[c]} for c in _det},
+                "pick_anchored": p_anc,
+                "pick_bare": p_bare,
+                "raw_generation": txt,
+                "gen_ntok": nnew,
+                "parse_label": lab,
+                "parsed": parsed,
+                "correct_ll": (int(p_anc == gold) if gold is not None else None),
+                "correct_gen": (int(parsed == gold) if gold is not None else None),
+                **(extra or {}),
+            }
+        )
 
     def run_open(family, para, text, extra=None):
         um = [{"role": "user", "content": [{"type": "text", "text": text}]}]
         txt, nnew = generate_free(model, proc, um[0]["content"], "cuda", a.max_new_open, forbid_holder[0], 6)
-        recs.append({"family": family, "paraphrase": para, "prompt": text, "raw_generation": txt, "gen_ntok": nnew,
-                     **kw_flags(txt), **(extra or {})})
+        recs.append(
+            {
+                "family": family,
+                "paraphrase": para,
+                "prompt": text,
+                "raw_generation": txt,
+                "gen_ntok": nnew,
+                **kw_flags(txt),
+                **(extra or {}),
+            }
+        )
 
     def closed_families(Wd, sfx=""):
         """A-D with the given request strings; sfx names a control set."""
         combos = [("look", "read", "no"), ("read", "look", "no"), ("look", "look", "yes"), ("read", "read", "yes")]
-        for p, tpl in enumerate(["Does {x} mean the same thing as {y}? Answer yes or no.",
-                                 "Do {x} and {y} ask for the same thing? Answer yes or no."]):
+        for p, tpl in enumerate(
+            [
+                "Does {x} mean the same thing as {y}? Answer yes or no.",
+                "Do {x} and {y} ask for the same thing? Answer yes or no.",
+            ]
+        ):
             for x, y, g in combos:
-                run_closed("A_same_yn" + sfx, p, tpl.format(x=Wd[x], y=Wd[y]), ("yes", "no"), g, extra={"words": [x, y]})
-        for p, tpl in enumerate(["Are {x} and {y} the same or different? Answer same or different.",
-                                 "Is {x} the same as {y}, or different? Answer same or different."]):
+                run_closed(
+                    "A_same_yn" + sfx, p, tpl.format(x=Wd[x], y=Wd[y]), ("yes", "no"), g, extra={"words": [x, y]}
+                )
+        for p, tpl in enumerate(
+            [
+                "Are {x} and {y} the same or different? Answer same or different.",
+                "Is {x} the same as {y}, or different? Answer same or different.",
+            ]
+        ):
             for x, y, g in combos:
-                run_closed("B_same_sd" + sfx, p, tpl.format(x=Wd[x], y=Wd[y]), ("same", "different"),
-                           "same" if g == "yes" else "different", extra={"words": [x, y]})
-        for p, tpl in enumerate(["Which instruction asks you to answer from {s}?\nA. {a}\nB. {b}\nAnswer with the letter.",
-                                 "Which of these asks you to use {s}?\nA. Answer in a {a} way.\nB. Answer in a {b} way.\n"
-                                 "Answer with the letter."]):
+                run_closed(
+                    "B_same_sd" + sfx,
+                    p,
+                    tpl.format(x=Wd[x], y=Wd[y]),
+                    ("same", "different"),
+                    "same" if g == "yes" else "different",
+                    extra={"words": [x, y]},
+                )
+        for p, tpl in enumerate(
+            [
+                "Which instruction asks you to answer from {s}?\nA. {a}\nB. {b}\nAnswer with the letter.",
+                "Which of these asks you to use {s}?\nA. Answer in a {a} way.\nB. Answer in a {b} way.\n"
+                "Answer with the letter.",
+            ]
+        ):
             for target in ("look", "read"):
                 for first in ("look", "read"):
                     second = "read" if first == "look" else "look"
                     opts = {"A": first, "B": second}
-                    run_closed("C_mc_word" + sfx, p, tpl.format(s=SRC_NAME[target], a=Wd[first], b=Wd[second]), ("A", "B"),
-                               "A" if first == target else "B", opts=opts, extra={"target": target})
-        for p, tpl in enumerate(["What does {w} ask you to use when answering?\nA. {a}\nB. {b}\nAnswer with the letter.",
-                                 "If a question says \"Answer in a {w} way\", where should the answer come from?\n"
-                                 "A. {a}\nB. {b}\nAnswer with the letter."]):
+                    run_closed(
+                        "C_mc_word" + sfx,
+                        p,
+                        tpl.format(s=SRC_NAME[target], a=Wd[first], b=Wd[second]),
+                        ("A", "B"),
+                        "A" if first == target else "B",
+                        opts=opts,
+                        extra={"target": target},
+                    )
+        for p, tpl in enumerate(
+            [
+                "What does {w} ask you to use when answering?\nA. {a}\nB. {b}\nAnswer with the letter.",
+                'If a question says "Answer in a {w} way", where should the answer come from?\n'
+                "A. {a}\nB. {b}\nAnswer with the letter.",
+            ]
+        ):
             for wsrc in ("look", "read"):
                 for first in ("look", "read"):
                     second = "read" if first == "look" else "look"
                     opts = {"A": first, "B": second}
-                    run_closed("D_mc_source" + sfx, p, tpl.format(w=Wd[wsrc], a=SRC_NAME[first], b=SRC_NAME[second]),
-                               ("A", "B"), "A" if first == wsrc else "B", opts=opts, extra={"word": wsrc})
+                    run_closed(
+                        "D_mc_source" + sfx,
+                        p,
+                        tpl.format(w=Wd[wsrc], a=SRC_NAME[first], b=SRC_NAME[second]),
+                        ("A", "B"),
+                        "A" if first == wsrc else "B",
+                        opts=opts,
+                        extra={"word": wsrc},
+                    )
 
     if W is not None:
         closed_families(W)
@@ -143,19 +217,30 @@ def main():
             import torch as _t
             from scsrc import model as _M
             from scsrc.tokens import token_strings as _ts
+
             # the initialization words come from the RUN (word: Ground-CF specs image/caption;
             # prefix: image / --pt_read_init, "caption" in the protocol-v2 pilot, "text" in banked runs)
-            init_words = ({"look": "image", "read": "caption"} if method == "neo"
-                          else {"look": "image", "read": cfg.get("pt_read_init") or "text"})
+            init_words = (
+                {"look": "image", "read": "caption"}
+                if method == "neo"
+                else {"look": "image", "read": cfg.get("pt_read_init") or "text"}
+            )
             print(f"[meta] initialization-control words: {init_words}")
-            ctl = {"ctlinit_look": init_words["look"], "ctlinit_read": init_words["read"], "ctlnul_a": "thing", "ctlnul_b": "thing"}
+            ctl = {
+                "ctlinit_look": init_words["look"],
+                "ctlinit_read": init_words["read"],
+                "ctlnul_a": "thing",
+                "ctlnul_b": "thing",
+            }
             strs = [t for nm in ctl for t in _ts(nm, n)]
             proc.tokenizer.add_special_tokens({"additional_special_tokens": strs})
             _M.resize_for_new_tokens(model, proc.tokenizer, seed=0)
-            emb = model.get_input_embeddings().weight; g = _t.Generator(device="cpu").manual_seed(12345)
+            emb = model.get_input_embeddings().weight
+            g = _t.Generator(device="cpu").manual_seed(12345)
             with _t.no_grad():
                 for nm, wd in ctl.items():
-                    sub = proc.tokenizer(wd, add_special_tokens=False)["input_ids"]; base = emb[sub].mean(0)
+                    sub = proc.tokenizer(wd, add_special_tokens=False)["input_ids"]
+                    base = emb[sub].mean(0)
                     for tid in proc.tokenizer.convert_tokens_to_ids(_ts(nm, n)):
                         emb[tid] = base + 0.01 * _t.randn(emb.shape[1], generator=g).to(emb.device, emb.dtype)
             ctl_ids = proc.tokenizer.convert_tokens_to_ids(strs)
@@ -165,8 +250,12 @@ def main():
             closed_families({"look": trigger("ctlnul_a", n), "read": trigger("ctlnul_b", n)}, "_ctlnul")
     if W is not None:
         for p, (x, y) in enumerate([("look", "read"), ("read", "look")]):
-            run_open("E_open_diff", p, "To answer this question, what is the difference between answering in a "
-                     f"{W[x]} way and a {W[y]} way?", extra={"order": [x, y]})
+            run_open(
+                "E_open_diff",
+                p,
+                f"To answer this question, what is the difference between answering in a {W[x]} way and a {W[y]} way?",
+                extra={"order": [x, y]},
+            )
         for wsrc in ("look", "read"):
             run_open("F_open_mean", 0, f"What does it mean to answer in a {W[wsrc]} way?", extra={"word": wsrc})
 
@@ -174,10 +263,12 @@ def main():
     rows = [json.loads(l) for l in open(os.path.join(a.data_dir, f"{a.split}.jsonl"))]
     set_c3_vocab(rows)
     conf = sorted([r for r in rows if str(r["channels"]["look"]) != str(r["channels"]["read"])], key=lambda r: r["id"])
-    per = {}; items = []
+    per = {}
+    items = []
     for r in conf:
         if per.get(r["skill"], 0) < max(a.n_items // 4, 1):
-            per[r["skill"]] = per.get(r["skill"], 0) + 1; items.append(r)
+            per[r["skill"]] = per.get(r["skill"], 0) + 1
+            items.append(r)
     lora_src = (cfg.get("train_sources") or "").strip() if method == "lora" else None
     g_sources = [lora_src] if lora_src else ["look", "read"]
     cmode = a.mode or fm
@@ -186,24 +277,35 @@ def main():
         for src in g_sources:
             for first in ("look", "read"):
                 second = "read" if first == "look" else "look"
-                q = (f"Which source does this request ask you to use to answer? Options: A. {SRC_NAME[first]} "
-                     f"B. {SRC_NAME[second]}. Answer with the letter.")
+                q = (
+                    f"Which source does this request ask you to use to answer? Options: A. {SRC_NAME[first]} "
+                    f"B. {SRC_NAME[second]}. Answer with the letter."
+                )
                 # render the REAL item (the fact caption is derived from its question), then swap only the question
                 content = clevr3_user_content(it, src, n, cmode, k, method=meth_ct, question_style="heldout")
-                q_ho = heldout_question(it, eval_design(it, k, "heldout")[0])   # the formulation the builder used
+                q_ho = heldout_question(it, eval_design(it, k, "heldout")[0])  # the formulation the builder used
                 last = content[-1]["text"]
                 assert q_ho in last, (q_ho, last)
                 content = content[:-1] + [{"type": "text", "text": last.replace(q_ho, q, 1)}]
                 gold = None if method == "no_request" else ("A" if first == src else "B")
-                run_closed("G_self_report", 0, None, ("A", "B"), gold, opts={"A": first, "B": second},
-                           content=content, extra={"request": src, "item_id": it["id"], "skill": it["skill"]})
+                run_closed(
+                    "G_self_report",
+                    0,
+                    None,
+                    ("A", "B"),
+                    gold,
+                    opts={"A": first, "B": second},
+                    content=content,
+                    extra={"request": src, "item_id": it["id"], "skill": it["skill"]},
+                )
 
     fam = {}
     for r in recs:
         f = fam.setdefault(r["family"], {"n": 0, "ll": [], "gen": [], "parsed": [], "yes": []})
         f["n"] += 1
         if r.get("correct_ll") is not None:
-            f["ll"].append(r["correct_ll"]); f["gen"].append(r["correct_gen"])
+            f["ll"].append(r["correct_ll"])
+            f["gen"].append(r["correct_gen"])
         if "parse_label" in r:
             f["parsed"].append(int(r["parse_label"] == "cand"))
         if r["family"].startswith("A_same_yn"):
@@ -211,24 +313,45 @@ def main():
         if r["family"] == "G_self_report":
             f.setdefault("picked_image", []).append(int(r["options"][r["pick_anchored"]] == "look"))
     m = lambda v: round(sum(v) / len(v), 4) if v else None
-    summary = {k: {"n": v["n"], "acc_ll": m(v["ll"]), "acc_gen": m(v["gen"]), "parse_rate": m(v["parsed"]),
-                   **({"p_yes_ll": m(v["yes"])} if v["yes"] else {}),
-                   **({"p_pick_image_ll": m(v["picked_image"])} if v.get("picked_image") else {}),
-                   "chance": (0.5 if k[0] in "ABCDG" else None)} for k, v in fam.items()}
+    summary = {
+        k: {
+            "n": v["n"],
+            "acc_ll": m(v["ll"]),
+            "acc_gen": m(v["gen"]),
+            "parse_rate": m(v["parsed"]),
+            **({"p_yes_ll": m(v["yes"])} if v["yes"] else {}),
+            **({"p_pick_image_ll": m(v["picked_image"])} if v.get("picked_image") else {}),
+            "chance": (0.5 if k[0] in "ABCDG" else None),
+        }
+        for k, v in fam.items()
+    }
     for k in ("E_open_diff", "F_open_mean"):
         if k in summary:
             rs = [r for r in recs if r["family"] == k]
             summary[k]["keyword_first_mentioned"] = [r["first_mentioned"] for r in rs]
-    od = os.path.join(a.run_dir, "eval", f"clevr3_{a.split}"); os.makedirs(od, exist_ok=True)   # where the keeper looks
+    od = os.path.join(a.run_dir, "eval", f"clevr3_{a.split}")
+    os.makedirs(od, exist_ok=True)  # where the keeper looks
     fp = os.path.join(od, f"meta_words_step_{a.step}{a.tag}.json")
-    out = {"run": os.path.basename(a.run_dir), "model": cfg.get("model_id"), "method": method, "mode": a.mode,
-           "step": a.step, "words": W, "applicable_A_to_F": W is not None, "g_requests": g_sources,
-           "caption_style": os.environ.get("SC_CAPTION_STYLE", "template"), "summary": summary, "records": recs,
-           "cont_format": os.environ.get("SC_GCF_CONT", "leadin"), "init_control_words": (init_words if method in ("neo", "pt") else None),
-           "note": "A-D, G forced choice over the listed candidates (anchored continuation in the run's answer format, primary; bare recorded) "
-                   "plus greedy generation parsed deterministically; E-F generation only with keyword flags. Chance .5."}
+    out = {
+        "run": os.path.basename(a.run_dir),
+        "model": cfg.get("model_id"),
+        "method": method,
+        "mode": a.mode,
+        "step": a.step,
+        "words": W,
+        "applicable_A_to_F": W is not None,
+        "g_requests": g_sources,
+        "caption_style": os.environ.get("SC_CAPTION_STYLE", "template"),
+        "summary": summary,
+        "records": recs,
+        "cont_format": os.environ.get("SC_GCF_CONT", "leadin"),
+        "init_control_words": (init_words if method in ("neo", "pt") else None),
+        "note": "A-D, G forced choice over the listed candidates (anchored continuation in the run's answer format, primary; bare recorded) "
+        "plus greedy generation parsed deterministically; E-F generation only with keyword flags. Chance .5.",
+    }
     json.dump(out, open(fp, "w"), indent=1)
-    print(json.dumps(summary, indent=1)); print("[saved]", fp)
+    print(json.dumps(summary, indent=1))
+    print("[saved]", fp)
 
 
 if __name__ == "__main__":

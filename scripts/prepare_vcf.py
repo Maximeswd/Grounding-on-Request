@@ -5,15 +5,20 @@ VCF shows the same object in two colours, its usual colour and an edited one, wh
 attach captions and build the same image-versus-caption conflict as for ColorSwap. image_1 always shows the usual colour
 and image_2 the edited one, so the model's prior can be analysed per example. test_ood holds out objects.
 Writes data/vcf/{train,test_id,test_ood} and manifest.json."""
+
 import argparse, ast, hashlib, json, os, sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.tasks import UnifiedExample
 
 # to_hf lives in prepare_task; import without triggering its argparse main
 import importlib.util
+
 _spec = importlib.util.spec_from_file_location(
-    "prepare_task", os.path.join(os.path.dirname(__file__), "prepare_task.py"))
-_pt = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_pt)
+    "prepare_task", os.path.join(os.path.dirname(__file__), "prepare_task.py")
+)
+_pt = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_pt)
 to_hf = _pt.to_hf
 
 
@@ -44,9 +49,9 @@ def main():
     ap.add_argument("--id_frac", type=float, default=0.15)
     a = ap.parse_args()
 
-    os.environ.setdefault("HF_DATASETS_CACHE",
-                          "~/.cache/huggingface/datasets")
+    os.environ.setdefault("HF_DATASETS_CACHE", "~/.cache/huggingface/datasets")
     from datasets import load_dataset
+
     ds = load_dataset("mgolov/Visual-Counterfact", split=a.subset)
 
     objs = sorted({r["object"] for r in ds})
@@ -60,12 +65,18 @@ def main():
         if not prior or not cf or prior == cf:
             continue
         ex = UnifiedExample(
-            image_1=r["original_image"].convert("RGB"),      # shows prior colour
-            image_2=r["counterfact_image"].convert("RGB"),   # shows cf colour
-            caption_1=f"a {prior} {obj}", caption_2=f"a {cf} {obj}",
-            key_1={obj: prior}, key_2={obj: cf},
-            task="color", klass=prior, id=i, has_swap=True,
-            caption_source="synthetic")
+            image_1=r["original_image"].convert("RGB"),  # shows prior colour
+            image_2=r["counterfact_image"].convert("RGB"),  # shows cf colour
+            caption_1=f"a {prior} {obj}",
+            caption_2=f"a {cf} {obj}",
+            key_1={obj: prior},
+            key_2={obj: cf},
+            task="color",
+            klass=prior,
+            id=i,
+            has_swap=True,
+            caption_source="synthetic",
+        )
         if obj in ood_obj:
             s = "test_ood"
         else:
@@ -76,14 +87,21 @@ def main():
     counts = {}
     for s, exs in per_split.items():
         if not exs:
-            counts[s] = 0; continue
+            counts[s] = 0
+            continue
         hf, n = to_hf(exs)
         hf.save_to_disk(os.path.join(a.out, s))
         counts[s] = n
-    man = {"task": "vcf", "subset": a.subset, "source": "mgolov/Visual-Counterfact",
-           "axis": "look_vs_read (modality); prior=covariate via img_idx",
-           "n_objects": len(objs), "n_ood_objects": len(ood_obj),
-           "counts": counts, "prompt_task": "color"}
+    man = {
+        "task": "vcf",
+        "subset": a.subset,
+        "source": "mgolov/Visual-Counterfact",
+        "axis": "look_vs_read (modality); prior=covariate via img_idx",
+        "n_objects": len(objs),
+        "n_ood_objects": len(ood_obj),
+        "counts": counts,
+        "prompt_task": "color",
+    }
     json.dump(man, open(os.path.join(a.out, "manifest.json"), "w"), indent=2)
     print(json.dumps(man, indent=2))
 

@@ -4,17 +4,24 @@
 raw rows -> slot items (scsrc/task_adapters.py) -> held-out classes go to test_ood -> swap-matched examples
 (scsrc/tasks.py) -> <out>/{train,test_id,test_ood} and manifest.json. Each row holds image_1, image_2, caption_1,
 caption_2 (natural text stating the slot value), key_1, key_2 (JSON {object: value}), task, klass and id."""
+
 import argparse, io, json, os, random, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scsrc.tasks import (build_examples, split_by_class, values_of, SlotItem,  # noqa: E402
-                        UnifiedExample)
+from scsrc.tasks import (
+    build_examples,
+    split_by_class,
+    values_of,
+    SlotItem,  # noqa: E402
+    UnifiedExample,
+)
 from scsrc import task_adapters as A  # noqa: E402
 
 
 # ---- image helpers ---------------------------------------------------------
 def to_pil(x):
     from PIL import Image
+
     if x is None:
         return None
     if isinstance(x, Image.Image):
@@ -29,6 +36,7 @@ def to_pil(x):
 def coco_loader(image_dir, cache_dir, download):
     """Return loader(row)->PIL using a local COCO mirror first, then download."""
     from PIL import Image
+
     seen = {}
 
     def load(row):
@@ -40,10 +48,12 @@ def coco_loader(image_dir, cache_dir, download):
             for sub in ("", "train2017", "val2017", "images"):
                 p = os.path.join(image_dir, sub, name) if sub else os.path.join(image_dir, name)
                 if os.path.exists(p):
-                    img = Image.open(p).convert("RGB"); break
+                    img = Image.open(p).convert("RGB")
+                    break
         if img is None and download and row.get("image_link"):
             try:
                 import urllib.request
+
                 os.makedirs(cache_dir, exist_ok=True)
                 cp = os.path.join(cache_dir, name)
                 if not os.path.exists(cp):
@@ -53,6 +63,7 @@ def coco_loader(image_dir, cache_dir, download):
                 print(f"[vsr] image fetch failed {name}: {e}")
         seen[name] = img
         return img
+
     return load
 
 
@@ -63,12 +74,11 @@ def _load_split(source, split_name, config=None):
     The offline-miss hint fires ONLY when the whole dataset can't be loaded
     (genuinely not cached) -- a wrong split name must not trigger it."""
     from datasets import load_dataset
-    offline = (os.environ.get("HF_DATASETS_OFFLINE") == "1"
-               or os.environ.get("HF_HUB_OFFLINE") == "1")
+
+    offline = os.environ.get("HF_DATASETS_OFFLINE") == "1" or os.environ.get("HF_HUB_OFFLINE") == "1"
     # 1) try the requested split directly; ANY failure just falls through
     try:
-        return (load_dataset(source, config, split=split_name) if config
-                else load_dataset(source, split=split_name))
+        return load_dataset(source, config, split=split_name) if config else load_dataset(source, split=split_name)
     except Exception:
         pass
     # 2) load all splits and pick one. This is the only place a not-cached
@@ -81,7 +91,8 @@ def _load_split(source, split_name, config=None):
                 f"[prepare] '{source}' is not in the offline cache. Download it on "
                 f"the LOGIN node first, e.g.\n"
                 f"    python scripts/fetch_all.py --out $SC/data --hf_cache $HF_HOME --datasets <name>\n"
-                f"then re-run with --offline. (original: {type(e).__name__})") from e
+                f"then re-run with --offline. (original: {type(e).__name__})"
+            ) from e
         raise
     if hasattr(dd, "keys"):
         key = split_name if split_name in dd else list(dd.keys())[0]
@@ -89,29 +100,33 @@ def _load_split(source, split_name, config=None):
         return dd[key]
     return dd
 
+
 def load_items(args):
     if args.task == "counting":
         ds = _load_split(args.source, args.split_name)
-        items = list(A.iter_tallyqa(ds, simple_only=args.simple_only,
-                                    max_count=args.max_count))
+        items = list(A.iter_tallyqa(ds, simple_only=args.simple_only, max_count=args.max_count))
     elif args.task == "counting_ood":
         ds = _load_split(args.source, args.split_name)
         items = list(A.iter_countbench(ds, max_count=args.max_count))
     elif args.task == "spatial":
         rows = [json.loads(l) for l in open(args.vsr_jsonl) if l.strip()]
-        loader = coco_loader(args.image_dir, os.path.join(args.out, "_coco_cache"),
-                             args.download)
+        loader = coco_loader(args.image_dir, os.path.join(args.out, "_coco_cache"), args.download)
         items = list(A.iter_vsr(rows, loader))
     elif args.task == "attr":
-        instr = (_load_split(args.source, "train", config=args.gqa_instr)
-                 if args.gqa_instr else _load_split(args.source, args.split_name))
+        instr = (
+            _load_split(args.source, "train", config=args.gqa_instr)
+            if args.gqa_instr
+            else _load_split(args.source, args.split_name)
+        )
         imgs = {}
         if args.gqa_images:
             ids = _load_split(args.source, "train", config=args.gqa_images)
             for r in ids:
                 imgs[r["id"]] = r.get("image")
-            instr = [{"question": r["question"], "answer": r.get("answer", ""),
-                      "image": imgs.get(r.get("imageId"))} for r in instr]
+            instr = [
+                {"question": r["question"], "answer": r.get("answer", ""), "image": imgs.get(r.get("imageId"))}
+                for r in instr
+            ]
         items = list(A.iter_gqa(instr, by_attr=args.by_attr))
     else:
         raise SystemExit(f"unknown task {args.task}")
@@ -125,26 +140,53 @@ def load_items(args):
 # ---- HF dataset writer -----------------------------------------------------
 def to_hf(examples):
     from datasets import Dataset, Features, Image, Value
-    data = {k: [] for k in ("image_1", "image_2", "caption_1", "caption_2",
-                            "key_1", "key_2", "task", "klass", "id",
-                            "caption_source", "has_swap")}
+
+    data = {
+        k: []
+        for k in (
+            "image_1",
+            "image_2",
+            "caption_1",
+            "caption_2",
+            "key_1",
+            "key_2",
+            "task",
+            "klass",
+            "id",
+            "caption_source",
+            "has_swap",
+        )
+    }
     for e in examples:
         i1, i2 = to_pil(e.image_1), to_pil(e.image_2)
         if i1 is None or i2 is None:
             continue
-        data["image_1"].append(i1); data["image_2"].append(i2)
-        data["caption_1"].append(e.caption_1); data["caption_2"].append(e.caption_2)
-        data["key_1"].append(json.dumps(e.key_1)); data["key_2"].append(json.dumps(e.key_2))
-        data["task"].append(e.task); data["klass"].append(e.klass)
-        data["id"].append(e.id); data["caption_source"].append(e.caption_source)
+        data["image_1"].append(i1)
+        data["image_2"].append(i2)
+        data["caption_1"].append(e.caption_1)
+        data["caption_2"].append(e.caption_2)
+        data["key_1"].append(json.dumps(e.key_1))
+        data["key_2"].append(json.dumps(e.key_2))
+        data["task"].append(e.task)
+        data["klass"].append(e.klass)
+        data["id"].append(e.id)
+        data["caption_source"].append(e.caption_source)
         data["has_swap"].append(bool(e.has_swap))
-    feats = Features({
-        "image_1": Image(), "image_2": Image(),
-        "caption_1": Value("string"), "caption_2": Value("string"),
-        "key_1": Value("string"), "key_2": Value("string"),
-        "task": Value("string"), "klass": Value("string"),
-        "id": Value("int64"), "caption_source": Value("string"),
-        "has_swap": Value("bool")})
+    feats = Features(
+        {
+            "image_1": Image(),
+            "image_2": Image(),
+            "caption_1": Value("string"),
+            "caption_2": Value("string"),
+            "key_1": Value("string"),
+            "key_2": Value("string"),
+            "task": Value("string"),
+            "klass": Value("string"),
+            "id": Value("int64"),
+            "caption_source": Value("string"),
+            "has_swap": Value("bool"),
+        }
+    )
     return Dataset.from_dict(data, features=feats), len(data["id"])
 
 
@@ -155,6 +197,7 @@ def prepare_colorswap(args):
     Stored key_1/key_2 come from the color parser."""
     import json, os, random
     from scsrc.colors import valid_swap
+
     rng = random.Random(args.seed)
     ds = _load_split(args.source or "stanfordnlp/colorswap", args.split_name)
     heldout = {x.strip().lower() for x in args.heldout.split(",") if x.strip()}
@@ -171,23 +214,38 @@ def prepare_colorswap(args):
     ood = [t for t in rows if is_ood(t[1], t[2])]
     rng.shuffle(seen)
     if args.max:
-        seen = seen[:args.max]
+        seen = seen[: args.max]
     n_test = max(1, int(round(len(seen) * args.id_frac))) if seen else 0
     parts = {"train": seen[n_test:], "test_id": seen[:n_test], "test_ood": ood}
 
     os.makedirs(args.out, exist_ok=True)
-    manifest = {"task": "color", "heldout": sorted(heldout), "id_frac": args.id_frac,
-                "source": args.source or "stanfordnlp/colorswap", "splits": {}}
+    manifest = {
+        "task": "color",
+        "heldout": sorted(heldout),
+        "id_frac": args.id_frac,
+        "source": args.source or "stanfordnlp/colorswap",
+        "splits": {},
+    }
     print(f"[prepare] color: {len(rows)} valid rows, heldout={sorted(heldout)}")
     for split, items in parts.items():
         if not items:
-            print(f"[prepare] {split}: 0 rows, skipped"); continue
-        exs = [UnifiedExample(
-            image_1=r["image_1"], image_2=r["image_2"],
-            caption_1=r["caption_1"], caption_2=r["caption_2"],
-            key_1=k1, key_2=k2, task="color",
-            klass=",".join(sorted(set(k1.values()) | set(k2.values()))),
-            id=i, has_swap=True) for i, (r, k1, k2) in enumerate(items)]
+            print(f"[prepare] {split}: 0 rows, skipped")
+            continue
+        exs = [
+            UnifiedExample(
+                image_1=r["image_1"],
+                image_2=r["image_2"],
+                caption_1=r["caption_1"],
+                caption_2=r["caption_2"],
+                key_1=k1,
+                key_2=k2,
+                task="color",
+                klass=",".join(sorted(set(k1.values()) | set(k2.values()))),
+                id=i,
+                has_swap=True,
+            )
+            for i, (r, k1, k2) in enumerate(items)
+        ]
         hf, n = to_hf(exs)
         hf.save_to_disk(os.path.join(args.out, split))
         manifest["splits"][split] = {"rows": len(items), "examples": n}
@@ -199,8 +257,7 @@ def prepare_colorswap(args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--task", required=True,
-                    choices=["color", "counting", "counting_ood", "spatial", "attr"])
+    ap.add_argument("--task", required=True, choices=["color", "counting", "counting_ood", "spatial", "attr"])
     ap.add_argument("--source", default=None, help="HF dataset id (counting/attr)")
     ap.add_argument("--split_name", default="train", help="HF split to read")
     ap.add_argument("--vsr_jsonl", default=None, help="VSR jsonl path (spatial)")
@@ -216,8 +273,9 @@ def main():
     ap.add_argument("--max_count", type=int, default=12)
     ap.add_argument("--simple_only", action="store_true")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--offline", action="store_true",
-                    help="read the HF cache only (set this on compute nodes with no internet)")
+    ap.add_argument(
+        "--offline", action="store_true", help="read the HF cache only (set this on compute nodes with no internet)"
+    )
     args = ap.parse_args()
     if args.offline:
         os.environ["HF_HUB_OFFLINE"] = "1"
@@ -229,27 +287,32 @@ def main():
     items, task = load_items(args)
     rng.shuffle(items)
     if args.max:
-        items = items[:args.max]
+        items = items[: args.max]
     heldout = {x.strip() for x in args.heldout.split(",") if x.strip()}
     all_vals = values_of(items)
     print(f"[prepare] task={task} items={len(items)} values={all_vals} heldout={sorted(heldout)}")
 
     splits = split_by_class(items, heldout, args.id_frac, rng)
     os.makedirs(args.out, exist_ok=True)
-    manifest = {"task": task, "heldout": sorted(heldout), "id_frac": args.id_frac,
-                "all_values": all_vals, "source": args.source or args.vsr_jsonl,
-                "splits": {}}
+    manifest = {
+        "task": task,
+        "heldout": sorted(heldout),
+        "id_frac": args.id_frac,
+        "all_values": all_vals,
+        "source": args.source or args.vsr_jsonl,
+        "splits": {},
+    }
     for split, sitems in splits.items():
         if not sitems:
-            print(f"[prepare] {split}: 0 items, skipped"); continue
+            print(f"[prepare] {split}: 0 items, skipped")
+            continue
         # train/test_id draw conflict values from their own (no-heldout) pool;
         # test_ood may use any value (held-out classes appear as v_img there).
         vocab = all_vals if split == "test_ood" else values_of(sitems)
         exs = build_examples(sitems, task, vocab, rng, require_swap=True)
         ds, n = to_hf(exs)
         ds.save_to_disk(os.path.join(args.out, split))
-        manifest["splits"][split] = {"items": len(sitems), "examples": n,
-                                     "values": values_of(sitems)}
+        manifest["splits"][split] = {"items": len(sitems), "examples": n, "values": values_of(sitems)}
         print(f"[prepare] {split}: {len(sitems)} items -> {n} examples")
     with open(os.path.join(args.out, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=2)

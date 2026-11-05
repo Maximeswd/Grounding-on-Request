@@ -17,6 +17,7 @@ prefill: stale reasoning + trigger, then continue; flip-to-correct = vB. The
 trigger conditions are the missing rows of their Appendix H table: <recheck>
 (trained) vs natural-language phrase vs clean filler vs high-PPL string.
 """
+
 import json
 import os
 import random
@@ -39,8 +40,7 @@ def _common_prefix_len(a, b):
     return n
 
 
-def build_recheck_example(processor, image, obj, v_stale, v_true, device,
-                          trigger_str, n_tokens=1):
+def build_recheck_example(processor, image, obj, v_stale, v_true, device, trigger_str, n_tokens=1):
     """assistant = stale-reasoning + trigger + target; loss ONLY on the target,
     so the trigger row learns to override the stale conclusion using the current
     image. The mask boundary is found tokenization-safely: encode WITH and
@@ -51,20 +51,16 @@ def build_recheck_example(processor, image, obj, v_stale, v_true, device,
     target = f"final answer: {obj}: {v_true}"
     pre = f"{stale} {trigger_str}"
     umsg = [{"role": "user", "content": _user_content(image, q)}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": pre + " " + target}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": pre + " " + target}]}]
     pmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": pre}]}]
     enc = _encode(processor, fmsg, device)
     enc_pre = _encode(processor, pmsg, device)
-    start = _common_prefix_len(enc["input_ids"][0].tolist(),
-                               enc_pre["input_ids"][0].tolist())
+    start = _common_prefix_len(enc["input_ids"][0].tolist(), enc_pre["input_ids"][0].tolist())
     labels = enc["input_ids"].clone()
     labels[:, :start] = -100
-    out = {"input_ids": enc["input_ids"],
-           "attention_mask": enc["attention_mask"], "labels": labels}
+    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"], "labels": labels}
     for k in enc:
-        if k not in ("input_ids", "attention_mask", "token_type_ids") \
-                and k not in out:
+        if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
     return out
 
@@ -73,9 +69,9 @@ class RecheckDataset:
     """Twin pairs (default VCF, single-object) -> recheck training triples,
     both swap directions. Trains the <recheck_ctrl> row only."""
 
-    def __init__(self, data_dir, split, processor, device, n_tokens=1,
-                 slot_negative_frac=0.0):
+    def __init__(self, data_dir, split, processor, device, n_tokens=1, slot_negative_frac=0.0):
         from .data import load_task, build_specs
+
         ds = load_task(data_dir, split)
         self.ds = ds
         self.processor, self.device, self.n = processor, device, n_tokens
@@ -91,10 +87,8 @@ class RecheckDataset:
             img = row.get(f"image_{sp.img_idx}")
             if img is None:
                 continue
-            ik = {str(o).split("|")[0].strip().lower(): str(v).strip().lower()
-                  for o, v in (sp.image_key or {}).items()}
-            tk = {str(o).split("|")[0].strip().lower(): str(v).strip().lower()
-                  for o, v in (sp.text_key or {}).items()}
+            ik = {str(o).split("|")[0].strip().lower(): str(v).strip().lower() for o, v in (sp.image_key or {}).items()}
+            tk = {str(o).split("|")[0].strip().lower(): str(v).strip().lower() for o, v in (sp.text_key or {}).items()}
             if not ik or set(ik) != set(tk):
                 continue
             obj = next(iter(ik))
@@ -115,6 +109,5 @@ class RecheckDataset:
         if isinstance(img, str):
             img = Image.open(img).convert("RGB")
         trg = _trig("recheck_ctrl", self.n)
-        ex = build_recheck_example(self.processor, img, obj, v_stale, v_true,
-                                   self.device, trg, self.n)
+        ex = build_recheck_example(self.processor, img, obj, v_stale, v_true, self.device, trg, self.n)
         return {"op": "recheck", "sft": ex}

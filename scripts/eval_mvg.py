@@ -14,7 +14,9 @@ away when mismatched.
 Multi-block MVG prompt (3 sources + frame, perm6 order) scored with a local
 loglik (score.loglik assumes single image+text). Primary = LL forced-choice.
 """
+
 import argparse, itertools, json, os, sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 from PIL import Image
@@ -28,25 +30,35 @@ _PERMS = list(itertools.permutations(("desc", "ocr", "vis")))
 
 
 def blocks(item):
-    return {"desc": f'Description: "{item["desc_text"]}"',
-            "ocr": ("On-screen text: " + " | ".join(f'"{s}"' for s in item["ocr_strings"])
-                    if item["ocr_strings"] else "On-screen text: (none)"),
-            "vis": None}
+    return {
+        "desc": f'Description: "{item["desc_text"]}"',
+        "ocr": (
+            "On-screen text: " + " | ".join(f'"{s}"' for s in item["ocr_strings"])
+            if item["ocr_strings"]
+            else "On-screen text: (none)"
+        ),
+        "vis": None,
+    }
 
 
 def user_content(item, op_trig):
-    b = blocks(item); order = _PERMS[item["perm6"] % 6]
+    b = blocks(item)
+    order = _PERMS[item["perm6"] % 6]
     img = Image.open(item["vis_frame"]).convert("RGB")
     content, buf = [], []
     for x in order:
         if x == "vis":
             if buf:
-                content.append({"type": "text", "text": "\n".join(buf)}); buf = []
+                content.append({"type": "text", "text": "\n".join(buf)})
+                buf = []
             content.append({"type": "image", "image": img})
         else:
             buf.append(b[x])
-    q = (f'{item["role_question"]} Give me a {op_trig} answer.'
-         if item["role_question"] else f"Give me a {op_trig} answer.")
+    q = (
+        f"{item['role_question']} Give me a {op_trig} answer."
+        if item["role_question"]
+        else f"Give me a {op_trig} answer."
+    )
     buf.append(q)
     content.append({"type": "text", "text": "\n".join(buf)})
     return [{"role": "user", "content": content}]
@@ -55,19 +67,21 @@ def user_content(item, op_trig):
 @torch.no_grad()
 def loglik_mvg(model, proc, umsg, candidate, device, with_n=False, tokens=False):
     fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": candidate}]}]
-    enc = _encode(proc, fmsg, device); plen = _prompt_len(proc, umsg, device)
-    ids = enc["input_ids"]; n = ids.shape[1] - plen
+    enc = _encode(proc, fmsg, device)
+    plen = _prompt_len(proc, umsg, device)
+    ids = enc["input_ids"]
+    n = ids.shape[1] - plen
     if n <= 0:
         return -1e9
     kw = {k: v for k, v in enc.items() if k != "token_type_ids"}
     lg = model(**kw, use_cache=False).logits.float()
     tgt = ids[0, plen:]
-    lp = torch.log_softmax(lg[0, plen - 1:ids.shape[1] - 1, :], -1)
+    lp = torch.log_softmax(lg[0, plen - 1 : ids.shape[1] - 1, :], -1)
     tl = lp.gather(-1, tgt.unsqueeze(-1)).squeeze(-1)
     total = float(tl.sum())
-    if tokens:   # ids + per-token log-probs of the whole assistant turn
+    if tokens:  # ids + per-token log-probs of the whole assistant turn
         return total, int(n), tgt.tolist(), [round(float(x), 4) for x in tl]
-    return (total, int(n)) if with_n else total   # token count for the per-token mean
+    return (total, int(n)) if with_n else total  # token count for the per-token mean
 
 
 def cand(v):
@@ -86,13 +100,19 @@ def main():
     model, proc, meta, forbid = apply_checkpoint(a.run_dir, a.step, "cuda")
     n = meta["n_tokens"]
     items = [json.loads(l) for l in open(os.path.join(a.data_dir, f"{a.split}.jsonl"))]
-    items = [it for it in items if it["cond"] == "conflict"
-             and str(it["gold"]).strip().lower() != str(it["answer_raw"]).strip().lower()][:a.max_n]
+    items = [
+        it
+        for it in items
+        if it["cond"] == "conflict" and str(it["gold"]).strip().lower() != str(it["answer_raw"]).strip().lower()
+    ][: a.max_n]
     ch = {"DESC": "desc_ctrl", "OCR": "ocr_ctrl", "VIS": "vis_ctrl"}
     from collections import defaultdict
-    matched = defaultdict(list); mism = defaultdict(list)
+
+    matched = defaultdict(list)
+    mism = defaultdict(list)
     for it in tqdm(items, desc="mvg"):
-        gold = str(it["gold"]).strip().lower(); dist = str(it["answer_raw"]).strip().lower()
+        gold = str(it["gold"]).strip().lower()
+        dist = str(it["answer_raw"]).strip().lower()
         c = it["channel"]
         # matched token
         um = user_content(it, mvg_word(ch[c], n))
@@ -107,10 +127,10 @@ def main():
         mism[c].append(int(og > od))
 
     m = lambda v: round(sum(v) / max(len(v), 1), 3)
-    out = {"run": os.path.basename(a.run_dir), "split": a.split, "step": a.step,
-           "n_tokens": n, "n": len(items)}
+    out = {"run": os.path.basename(a.run_dir), "split": a.split, "step": a.step, "n_tokens": n, "n": len(items)}
     for c in ("DESC", "OCR", "VIS"):
-        out[f"matched_{c}"] = m(matched[c]); out[f"mismatched_{c}"] = m(mism[c])
+        out[f"matched_{c}"] = m(matched[c])
+        out[f"mismatched_{c}"] = m(mism[c])
         out[f"selectivity_{c}"] = round(m(matched[c]) - m(mism[c]), 3)
         out[f"n_{c}"] = len(matched[c])
     out["matched_overall"] = m([x for c in matched for x in matched[c]])

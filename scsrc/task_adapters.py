@@ -6,6 +6,7 @@ pure parsing helpers (object extraction, relation canonicalization) are unit
 tested in tests/test_tasks.py on synthetic strings; the dataset iteration itself
 is only exercised on the real data during prepare.
 """
+
 from __future__ import annotations
 import re
 from typing import Iterator, Optional
@@ -29,7 +30,9 @@ def singularize(word: str) -> str:
 
 _HOWMANY = re.compile(
     r"how many\s+(.+?)\s*(?:are there|are pictured|are in|are shown|are|is|do|does|can|"
-    r"in the image|in the picture)\b", re.I)
+    r"in the image|in the picture)\b",
+    re.I,
+)
 _HOWMANY_FALLBACK = re.compile(r"how many\s+(.+?)\s*[\?\.]?$", re.I)
 
 
@@ -41,7 +44,7 @@ def count_object(question: str) -> Optional[str]:
     phrase = re.sub(r"[^a-z\s]", "", m.group(1).lower()).strip()
     if not phrase:
         return None
-    head = phrase.split()[-1]          # last word of the noun phrase
+    head = phrase.split()[-1]  # last word of the noun phrase
     return singularize(head) or None
 
 
@@ -69,7 +72,7 @@ def parse_vsr_pair(caption: str, relation: str):
     if idx < 0:
         return None
     left = cap[:idx].strip()
-    right = cap[idx + len(rel):].strip()
+    right = cap[idx + len(rel) :].strip()
     o1 = re.sub(r"^the\s+", "", left, flags=re.I).strip().lower()
     o1 = re.sub(r"\s+is$", "", o1).strip()
     o2 = re.sub(r"^the\s+", "", right, flags=re.I).strip().lower()
@@ -79,8 +82,7 @@ def parse_vsr_pair(caption: str, relation: str):
 
 
 # ---- counting: TallyQA -----------------------------------------------------
-def iter_tallyqa(ds, simple_only: bool = True, min_count: int = 1,
-                 max_count: int = 12) -> Iterator[SlotItem]:
+def iter_tallyqa(ds, simple_only: bool = True, min_count: int = 1, max_count: int = 12) -> Iterator[SlotItem]:
     """vikhyatk/tallyqa-test rows: {image, qa:[{question,answer,is_simple,...}]}."""
     for row in ds:
         img = row.get("image")
@@ -93,8 +95,7 @@ def iter_tallyqa(ds, simple_only: bool = True, min_count: int = 1,
                 continue
             if not (min_count <= int(val) <= max_count):
                 continue
-            yield SlotItem(image=img, obj=obj, value=val, klass=val,
-                           group=obj, task="counting")
+            yield SlotItem(image=img, obj=obj, value=val, klass=val, group=obj, task="counting")
 
 
 # ---- counting OOD eval: CountBenchQA ---------------------------------------
@@ -109,8 +110,7 @@ def iter_countbench(ds, max_count: int = 12) -> Iterator[SlotItem]:
         val = str(int(num))
         if not (0 <= int(val) <= max_count):
             continue
-        yield SlotItem(image=row.get("image"), obj=obj, value=val, klass=val,
-                       group=obj, task="counting")
+        yield SlotItem(image=row.get("image"), obj=obj, value=val, klass=val, group=obj, task="counting")
 
 
 # ---- spatial: VSR ----------------------------------------------------------
@@ -133,8 +133,7 @@ def iter_vsr(rows, image_loader) -> Iterator[SlotItem]:
         if img is None:
             continue
         tag = f"{o1}|{o2}"
-        yield SlotItem(image=img, obj=tag, value=rel, klass=rel,
-                       group=tag, task="spatial")
+        yield SlotItem(image=img, obj=tag, value=rel, klass=rel, group=tag, task="spatial")
 
 
 # ---- attributes: GQA -------------------------------------------------------
@@ -174,5 +173,6 @@ def iter_gqa(ds, by_attr: str = "color") -> Iterator[SlotItem]:
         val = re.sub(r"[^a-z]", "", str(row.get("answer", "")).lower())
         if not val:
             continue
-        yield SlotItem(image=row.get("image"), obj=obj, value=val,
-                       klass=f"{attr}:{val}", group=f"{attr}:{obj}", task="attr")
+        yield SlotItem(
+            image=row.get("image"), obj=obj, value=val, klass=f"{attr}:{val}", group=f"{attr}:{obj}", task="attr"
+        )

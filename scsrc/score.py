@@ -15,6 +15,7 @@ Encoding mirrors infer.generate / collate exactly (same chat template, same
 assistant-turn construction), so a candidate scored here is the same string
 the model would be trained/evaluated to produce.
 """
+
 import torch
 
 from .collate import _user_content, _encode, _prompt_len
@@ -25,8 +26,7 @@ def loglik(model, processor, image, user_text, candidate, device="cuda", tokens=
     """Length-normalized log P(candidate | prompt) under teacher forcing.
     Returns (mean_token_logprob, n_scored_tokens)."""
     umsg = [{"role": "user", "content": _user_content(image, user_text)}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": candidate}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": candidate}]}]
     enc = _encode(processor, fmsg, device)
     plen = _prompt_len(processor, umsg, device)
     ids = enc["input_ids"]
@@ -37,10 +37,10 @@ def loglik(model, processor, image, user_text, candidate, device="cuda", tokens=
     logits = model(**kw, use_cache=False).logits.float()
     # predict token t from position t-1; score the answer span [plen, end)
     tgt = ids[0, plen:]
-    lp = torch.log_softmax(logits[0, plen - 1:ids.shape[1] - 1, :], dim=-1)
+    lp = torch.log_softmax(logits[0, plen - 1 : ids.shape[1] - 1, :], dim=-1)
     tok_lp = lp.gather(-1, tgt.unsqueeze(-1)).squeeze(-1)
     total = float(tok_lp.sum())
-    if tokens:   # ids + per-token log-probs of the whole assistant turn (lead-in, answer, end of turn)
+    if tokens:  # ids + per-token log-probs of the whole assistant turn (lead-in, answer, end of turn)
         return total, total / n_ans, int(n_ans), tgt.tolist(), [round(float(x), 4) for x in tok_lp]
     return total, total / n_ans, int(n_ans)
 
@@ -57,15 +57,15 @@ def forced_choice(model, processor, image, user_text, candidates, device="cuda")
 
     Do NOT pass bare values here -- scoring "cat: white" as the whole turn is
     out-of-distribution and diverges from generation."""
-    tots = [loglik(model, processor, image, user_text, c, device)[0]
-            for c in candidates]
+    tots = [loglik(model, processor, image, user_text, c, device)[0] for c in candidates]
     best = max(range(len(tots)), key=lambda i: tots[i])
     return best, tots
 
 
 @torch.no_grad()
-def forced_choice_per_object(model, processor, image, user_text, obj_keys,
-                            img_key, txt_key, task, device="cuda", base_src="img"):
+def forced_choice_per_object(
+    model, processor, image, user_text, obj_keys, img_key, txt_key, task, device="cuda", base_src="img"
+):
     """Multi-object forced choice (ColorSwap fix). A conjunction answer like
     'butterfly: blue, spots: orange' routes PER OBJECT, so a single pure-vs-pure
     choice is confounded. For each object, score two
@@ -79,15 +79,16 @@ def forced_choice_per_object(model, processor, image, user_text, obj_keys,
     the shared prefix cancels, and only object o's value is under test.
     Atomic answers (VCF/COCO, one object) reduce to the ordinary forced choice."""
     from .prompts import fmt_key_task
+
     out = {}
     base = dict(img_key if base_src == "img" else txt_key)
     for o in obj_keys:
-        cand_i = dict(base); cand_i[o] = img_key[o]
-        cand_t = dict(base); cand_t[o] = txt_key[o]
-        si = loglik(model, processor, image, user_text,
-                    fmt_key_task(cand_i, task), device)[0]
-        st = loglik(model, processor, image, user_text,
-                    fmt_key_task(cand_t, task), device)[0]
+        cand_i = dict(base)
+        cand_i[o] = img_key[o]
+        cand_t = dict(base)
+        cand_t[o] = txt_key[o]
+        si = loglik(model, processor, image, user_text, fmt_key_task(cand_i, task), device)[0]
+        st = loglik(model, processor, image, user_text, fmt_key_task(cand_t, task), device)[0]
         out[o] = ("img" if si >= st else "txt", si - st)
     return out
 

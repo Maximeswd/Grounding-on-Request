@@ -5,17 +5,39 @@ Since 17,042 single-noun pairs is far more than embedding-only training needs, w
 pair changes (no column holds it), and split by held-out noun vocabulary, so a test_ood pair always changes a noun that
 was never seen in training. The conflict is built as for ColorSwap, with the key {"object": noun}. Writes
 data/coco/{train,test_id,test_ood}; coco_oracle_gate.py then filters the test splits."""
+
 import argparse, difflib, hashlib, json, os, random, re, sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.tasks import UnifiedExample
 import importlib.util
+
 _spec = importlib.util.spec_from_file_location(
-    "prepare_task", os.path.join(os.path.dirname(__file__), "prepare_task.py"))
-_pt = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_pt)
+    "prepare_task", os.path.join(os.path.dirname(__file__), "prepare_task.py")
+)
+_pt = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_pt)
 to_hf = _pt.to_hf
 
-STOP = {"a", "an", "the", "is", "are", "of", "on", "in", "with", "and", "to",
-        "that", "this", "some", "their", "his", "her"}
+STOP = {
+    "a",
+    "an",
+    "the",
+    "is",
+    "are",
+    "of",
+    "on",
+    "in",
+    "with",
+    "and",
+    "to",
+    "that",
+    "this",
+    "some",
+    "their",
+    "his",
+    "her",
+}
 
 
 def toks(s):
@@ -24,27 +46,33 @@ def toks(s):
 
 def changed(a, b):
     ta, tb = toks(a), toks(b)
-    blocks = [op for op in difflib.SequenceMatcher(a=ta, b=tb, autojunk=False)
-              .get_opcodes() if op[0] != "equal"]
+    blocks = [op for op in difflib.SequenceMatcher(a=ta, b=tb, autojunk=False).get_opcodes() if op[0] != "equal"]
     if len(blocks) != 1 or blocks[0][0] != "replace":
         return None
     _, i1, i2, j1, j2 = blocks[0]
     sa, sb = ta[i1:i2], tb[j1:j2]
-    if len(sa) != 1 or len(sb) != 1:      # keep 1-word swaps (2-word were artifacts)
+    if len(sa) != 1 or len(sb) != 1:  # keep 1-word swaps (2-word were artifacts)
         return None
     return sa[0], sb[0]
 
 
 def synlike(x, y):
-    return (x in y or y in x or x.rstrip("s") == y.rstrip("s")
-            or (abs(len(x) - len(y)) <= 1 and sum(c1 != c2 for c1, c2 in zip(x, y)) <= 1))
+    return (
+        x in y
+        or y in x
+        or x.rstrip("s") == y.rstrip("s")
+        or (abs(len(x) - len(y)) <= 1 and sum(c1 != c2 for c1, c2 in zip(x, y)) <= 1)
+    )
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--examples", default="~/.cache/huggingface/hub/"
-                    "datasets--Intel--COCO-Counterfactuals/snapshots/"
-                    "958a3e0b32421b9f07c4c3f78aecbf98019a3402/data/examples.jsonl")
+    ap.add_argument(
+        "--examples",
+        default="~/.cache/huggingface/hub/"
+        "datasets--Intel--COCO-Counterfactuals/snapshots/"
+        "958a3e0b32421b9f07c4c3f78aecbf98019a3402/data/examples.jsonl",
+    )
     ap.add_argument("--images", default="data/coco_cf/images")
     ap.add_argument("--out", default="data/coco")
     ap.add_argument("--pool", type=int, default=3500, help="pre-gate sample size")
@@ -70,14 +98,18 @@ def main():
 
     rng = random.Random(a.seed)
     rng.shuffle(pairs)
-    pool = pairs[:a.pool]
+    pool = pairs[: a.pool]
 
     # held-out NOUN vocabulary -> OOD (pairs whose changed noun is held out)
     nouns = sorted({n for _, _, _, n0, n1, _, _ in pool for n in (n0, n1)})
-    def h(s): return int(hashlib.sha1(("noun|" + s).encode()).hexdigest()[:8], 16)
+
+    def h(s):
+        return int(hashlib.sha1(("noun|" + s).encode()).hexdigest()[:8], 16)
+
     ood_nouns = {n for n in nouns if (h(n) % 100) < int(a.ood_noun_frac * 100)}
 
     from PIL import Image
+
     per = {"train": [], "test_id": [], "test_ood": []}
     for idx, (rid, c0, c1, n0, n1, i0, i1) in enumerate(pool):
         if n0 in ood_nouns or n1 in ood_nouns:
@@ -85,27 +117,39 @@ def main():
         else:
             split = "test_id" if (h(f"row|{rid}") % 100) < int(a.id_frac * 100) else "train"
         ex = UnifiedExample(
-            image_1=Image.open(i0).convert("RGB"),   # shows n0
-            image_2=Image.open(i1).convert("RGB"),   # shows n1
-            caption_1=c0, caption_2=c1,
-            key_1={"object": n0}, key_2={"object": n1},
-            task="coco", klass=f"{n0},{n1}", id=idx, has_swap=True,
-            caption_source="diffusion")
+            image_1=Image.open(i0).convert("RGB"),  # shows n0
+            image_2=Image.open(i1).convert("RGB"),  # shows n1
+            caption_1=c0,
+            caption_2=c1,
+            key_1={"object": n0},
+            key_2={"object": n1},
+            task="coco",
+            klass=f"{n0},{n1}",
+            id=idx,
+            has_swap=True,
+            caption_source="diffusion",
+        )
         per[split].append(ex)
 
     os.makedirs(a.out, exist_ok=True)
     counts = {}
     for s, exs in per.items():
         if not exs:
-            counts[s] = 0; continue
+            counts[s] = 0
+            continue
         hf, nn = to_hf(exs)
         hf.save_to_disk(os.path.join(a.out, s))
         counts[s] = nn
-    man = {"task": "coco", "source": "Intel/COCO-Counterfactuals",
-           "axis": "look_vs_read (modality), open-vocab noun",
-           "pool": len(pool), "n_nouns": len(nouns),
-           "n_ood_nouns": len(ood_nouns), "counts": counts,
-           "note": "PRE-oracle-gate; run scripts/coco_oracle_gate.py next"}
+    man = {
+        "task": "coco",
+        "source": "Intel/COCO-Counterfactuals",
+        "axis": "look_vs_read (modality), open-vocab noun",
+        "pool": len(pool),
+        "n_nouns": len(nouns),
+        "n_ood_nouns": len(ood_nouns),
+        "counts": counts,
+        "note": "PRE-oracle-gate; run scripts/coco_oracle_gate.py next",
+    }
     json.dump(man, open(os.path.join(a.out, "manifest.json"), "w"), indent=2)
     print(json.dumps(man, indent=2))
 

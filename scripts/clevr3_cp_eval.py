@@ -14,6 +14,7 @@ Chance is 1/|Y|. Denominators: Accuracy over all items; Flip/Stay of <look> and 
 The presence diagnostic (gray image) is kept when a callable is supplied. Detector margins are the log-likelihood
 of the gold minus the alternative (w for the caption, B for the image) in the original and the edited context.
 """
+
 import collections
 from scsrc.clevr3 import _edited_item, cp_text_edit_value, cp_fix_look_collision, set_c3_vocab, eval_design
 from scsrc.tokens import c3_sources
@@ -26,6 +27,7 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
     # Flip), next to look_flip (conflict-preserving: caption still says B). SC_GCF_LOOK_ONLY=1 skips the caption request
     # (the diagnostic needs only the image request). Tag these files _agree: master_grid.py never harvests them.
     import os as _os
+
     AGREE = _os.environ.get("SC_GCF_AGREE_TWIN", "0") == "1"
     LOOK_ONLY = _os.environ.get("SC_GCF_LOOK_ONLY", "0") == "1"
     """Fills R (dict of lists), SK (skill -> dict of lists) and PK (picks) in place; returns the item count."""
@@ -44,13 +46,16 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
         if tv is not None and tv in {ch[k] for k in ch if k in act and k != "look"}:
             fixed, _moved = cp_fix_look_collision(it, tv)
             if fixed is None:
-                R.setdefault("look_cp_unfixable", []).append(1); tv, pr = None, None
+                R.setdefault("look_cp_unfixable", []).append(1)
+                tv, pr = None, None
             else:
-                R.setdefault("look_cp_moved", []).append(1); it = fixed
+                R.setdefault("look_cp_moved", []).append(1)
+                it = fixed
                 ch = {k: str(v) for k, v in it["channels"].items()}
         w, fb = cp_text_edit_value(it, "read")
         if w is None:
-            R.setdefault("cp_skipped", []).append(1); continue
+            R.setdefault("cp_skipped", []).append(1)
+            continue
         R.setdefault("cp_fallback_read", []).append(int(fb))
         seen += 1
         A, B = ch["look"], ch["read"]
@@ -60,6 +65,7 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
             # shape / count / relation -- with the item's own values first so the twin candidates keep their order.
             # chance = 1/|V| (cand_n records it). Opt-in: eval_clevr3_flip.py --cands full (needs --tag).
             from scsrc.clevr3 import _C3_VOCAB as _V
+
             Y = tuple(dict.fromkeys(list(Y) + [str(x) for x in _V.get(it.get("skill"), [])]))
         R.setdefault("cand_n", []).append(len(Y))
         sk = it.get("skill", "?")
@@ -67,70 +73,105 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
         cap_edit = _edited_item(it, "read", w)
         img_twin = None
         if pr:
-            img_twin = dict(it); img_twin["image"] = pr["ctx_b"]["image"]
-            chx = dict(img_twin["channels"]); chx["look"] = tv; img_twin["channels"] = chx
+            img_twin = dict(it)
+            img_twin["image"] = pr["ctx_b"]["image"]
+            chx = dict(img_twin["channels"])
+            chx["look"] = tv
+            img_twin["channels"] = chx
         # ---- image request
-        pick.ctx = "base"   # context label for the item log
+        pick.ctx = "base"  # context label for the item log
         p0, s0 = pick(base, "look", Y, i)
-        pick.ctx = "capedit"   # context label for the item log
+        pick.ctx = "capedit"  # context label for the item log
         pc, s_c = pick(cap_edit, "look", Y, i)
         acc = int(p0 == A)
-        R["look_acc"].append(acc); SK[sk]["look_acc"].append(acc)
-        R["look_stay"].append(int(pc == p0)); SK[sk]["look_stay"].append(int(pc == p0))
-        R["look_stay_c"].append(int(acc and pc == A)); SK[sk]["look_stay_c"].append(int(acc and pc == A))
+        R["look_acc"].append(acc)
+        SK[sk]["look_acc"].append(acc)
+        R["look_stay"].append(int(pc == p0))
+        SK[sk]["look_stay"].append(int(pc == p0))
+        R["look_stay_c"].append(int(acc and pc == A))
+        SK[sk]["look_stay_c"].append(int(acc and pc == A))
         R["look_leak_text"].append(int(p0 in (B, w)))
         R.setdefault("look_margin", []).append(float(s0[A] - s0[B]))
-        _r4 = lambda d: {str(k): round(float(v), 4) for k, v in d.items()}   # keep every candidate score
-        rec_look = {"id": it["id"], "skill": sk, "p0": p0, "p_capedit": pc, "A": A, "B": B, "w": w, "Y": list(Y),
-                    "scores": {"base": _r4(s0), "capedit": _r4(s_c)}}
+        _r4 = lambda d: {str(k): round(float(v), 4) for k, v in d.items()}  # keep every candidate score
+        rec_look = {
+            "id": it["id"],
+            "skill": sk,
+            "p0": p0,
+            "p_capedit": pc,
+            "A": A,
+            "B": B,
+            "w": w,
+            "Y": list(Y),
+            "scores": {"base": _r4(s0), "capedit": _r4(s_c)},
+        }
         if img_twin is not None:
-            pick.ctx = "twin"   # context label for the item log
+            pick.ctx = "twin"  # context label for the item log
             pt_, s_t = pick(img_twin, "look", Y, i)
-            R["look_twin_acc"].append(acc); SK[sk]["look_twin_acc"].append(acc)
-            R["look_flip"].append(int(acc and pt_ == tv)); SK[sk]["look_flip"].append(int(acc and pt_ == tv))
-            rec_look.update({"p_twin": pt_, "twin": tv}); rec_look["scores"]["twin"] = _r4(s_t)
+            R["look_twin_acc"].append(acc)
+            SK[sk]["look_twin_acc"].append(acc)
+            R["look_flip"].append(int(acc and pt_ == tv))
+            SK[sk]["look_flip"].append(int(acc and pt_ == tv))
+            rec_look.update({"p_twin": pt_, "twin": tv})
+            rec_look["scores"]["twin"] = _r4(s_t)
             if AGREE:
-                agree = _edited_item(img_twin, "read", tv)          # image AND caption now say tv
+                agree = _edited_item(img_twin, "read", tv)  # image AND caption now say tv
                 pick.ctx = "twin_agree"
                 pa_, s_a = pick(agree, "look", Y, i)
                 R.setdefault("look_flip_agree", []).append(int(acc and pa_ == tv))
                 SK[sk].setdefault("look_flip_agree", []).append(int(acc and pa_ == tv))
-                rec_look.update({"p_twin_agree": pa_}); rec_look["scores"]["twin_agree"] = _r4(s_a)
+                rec_look.update({"p_twin_agree": pa_})
+                rec_look["scores"]["twin_agree"] = _r4(s_a)
         # each context's source values, gold and the gold's score, explicit per record
         rec_look["values"] = {"base": {"image": A, "caption": B}, "capedit": {"image": A, "caption": w}}
         rec_look["gold"] = {"base": A, "capedit": A}
         if img_twin is not None:
-            rec_look["values"]["twin"] = {"image": tv, "caption": B}; rec_look["gold"]["twin"] = tv
+            rec_look["values"]["twin"] = {"image": tv, "caption": B}
+            rec_look["gold"]["twin"] = tv
             if AGREE:
-                rec_look["values"]["twin_agree"] = {"image": tv, "caption": tv}; rec_look["gold"]["twin_agree"] = tv
+                rec_look["values"]["twin_agree"] = {"image": tv, "caption": tv}
+                rec_look["gold"]["twin_agree"] = tv
         rec_look["lp_gold"] = {c: rec_look["scores"][c].get(g) for c, g in rec_look["gold"].items()}
-        rec_look["cap_first"] = eval_design(it, i)[1]                  # block order of this item's prompts
+        rec_look["cap_first"] = eval_design(it, i)[1]  # block order of this item's prompts
         PK["look"].append(rec_look)
         if LOOK_ONLY:
             continue
         # ---- caption request
-        pick.ctx = "base"   # context label for the item log
+        pick.ctx = "base"  # context label for the item log
         r0, t0 = pick(base, "read", Y, i)
-        pick.ctx = "capedit"   # context label for the item log
+        pick.ctx = "capedit"  # context label for the item log
         rc, tc = pick(cap_edit, "read", Y, i)
         racc = int(r0 == B)
-        R["read_acc"].append(racc); SK[sk]["read_acc"].append(racc)
-        R["read_flip"].append(int(racc and rc == w)); SK[sk]["read_flip"].append(int(racc and rc == w))
+        R["read_acc"].append(racc)
+        SK[sk]["read_acc"].append(racc)
+        R["read_flip"].append(int(racc and rc == w))
+        SK[sk]["read_flip"].append(int(racc and rc == w))
         R.setdefault("read_margin", []).append(float(t0[B] - t0[w]))
         R.setdefault("read_margin_edit", []).append(float(tc[B] - tc[w]))
-        rec_read = {"id": it["id"], "skill": sk, "p0": r0, "p1": rc, "old": B, "new": w, "Y": list(Y),
-                    "scores": {"base": _r4(t0), "capedit": _r4(tc)}}
+        rec_read = {
+            "id": it["id"],
+            "skill": sk,
+            "p0": r0,
+            "p1": rc,
+            "old": B,
+            "new": w,
+            "Y": list(Y),
+            "scores": {"base": _r4(t0), "capedit": _r4(tc)},
+        }
         if img_twin is not None:
-            pick.ctx = "twin"   # context label for the item log
+            pick.ctx = "twin"  # context label for the item log
             rt, t_t = pick(img_twin, "read", Y, i)
-            R["read_stay"].append(int(rt == r0)); SK[sk]["read_stay"].append(int(rt == r0))
-            R["read_stay_c"].append(int(racc and rt == B)); SK[sk]["read_stay_c"].append(int(racc and rt == B))
+            R["read_stay"].append(int(rt == r0))
+            SK[sk]["read_stay"].append(int(rt == r0))
+            R["read_stay_c"].append(int(racc and rt == B))
+            SK[sk]["read_stay_c"].append(int(racc and rt == B))
             R.setdefault("read_stay_img", []).append(int(rt == r0))
-            rec_read.update({"p_twin": rt}); rec_read["scores"]["twin"] = _r4(t_t)
+            rec_read.update({"p_twin": rt})
+            rec_read["scores"]["twin"] = _r4(t_t)
         rec_read["values"] = {"base": {"image": A, "caption": B}, "capedit": {"image": A, "caption": w}}
         rec_read["gold"] = {"base": B, "capedit": w}
         if img_twin is not None:
-            rec_read["values"]["twin"] = {"image": tv, "caption": B}; rec_read["gold"]["twin"] = B
+            rec_read["values"]["twin"] = {"image": tv, "caption": B}
+            rec_read["gold"]["twin"] = B
         rec_read["lp_gold"] = {c: rec_read["scores"][c].get(g) for c, g in rec_read["gold"].items()}
         rec_read["cap_first"] = rec_look["cap_first"]
         if len(PK["read"]) < 50 and getattr(pick, "last_prompts", None):

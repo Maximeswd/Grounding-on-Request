@@ -8,11 +8,11 @@ the evidence for 32% of annotations by >1s and 24% by >3s (max 61s) -- and in
 news footage a >1s error is frequently a different shot. Affected: 39% of VIS
 claims and 39% of the mined vis_value_swap twin pairs.
 """
+
 import json, os
 
 _MAP = None
-_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                     "data", "multiventG", "fps_map.json")
+_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "multiventG", "fps_map.json")
 
 
 def load_fps_map(path=None):

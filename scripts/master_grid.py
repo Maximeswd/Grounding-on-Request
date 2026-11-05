@@ -8,6 +8,7 @@ Rows are dataset x model x method x L, with routing (accuracy) and grounding (Fl
 The method of a run is read from its config.json, never from its name. Re-run it whenever new evaluations land.
 
 Usage: python scripts/master_grid.py"""
+
 import re, glob, json, os, re, sys, collections
 
 # split selector: `--ood` harvests the *_test_ood eval dirs into
@@ -27,7 +28,6 @@ def load(p):
         return None
 
 
-
 def stay_c(d, ch):
     """Conjunctive stay for channel ch: the evaluator's summary field when present, else the mean of
     (acc_i AND stay_i) over the banked per-item records, else None (older Ground-CF files store no
@@ -36,17 +36,26 @@ def stay_c(d, ch):
     if v is not None:
         return v
     r = d.get("records")
-    if isinstance(r, dict) and r.get(f"{ch}_acc") and r.get(f"{ch}_stay") \
-            and len(r[f"{ch}_acc"]) == len(r[f"{ch}_stay"]):
+    if (
+        isinstance(r, dict)
+        and r.get(f"{ch}_acc")
+        and r.get(f"{ch}_stay")
+        and len(r[f"{ch}_acc"]) == len(r[f"{ch}_stay"])
+    ):
         return round(sum(int(a and s) for a, s in zip(r[f"{ch}_acc"], r[f"{ch}_stay"])) / len(r[f"{ch}_acc"]), 3)
     return None
 
+
 def model_of(run, args):
     mid = (args or {}).get("model_id") or ""
-    if "27" in mid: return "qwen27b" if "wen" in mid else "gemma27b"
-    if "3.5-4B" in mid or "_qwen35" in run: return "qwen4b"
-    if "3.5-2B" in mid or "_qwen2b" in run: return "qwen2b"
-    if "E4B" in mid or "gemma4e4b" in run: return "e4b"
+    if "27" in mid:
+        return "qwen27b" if "wen" in mid else "gemma27b"
+    if "3.5-4B" in mid or "_qwen35" in run:
+        return "qwen4b"
+    if "3.5-2B" in mid or "_qwen2b" in run:
+        return "qwen2b"
+    if "E4B" in mid or "gemma4e4b" in run:
+        return "e4b"
     return "gemma3"
 
 
@@ -64,9 +73,9 @@ def method_of(run, args):
     if m is not None and a.get("word_first"):
         m = m + "+wf"
     if m is not None and a.get("gcf_word_pos") in ("mix", "first"):
-        m = m + ("+pmix" if a.get("gcf_word_pos") == "mix" else "+pfirst")   # placement ablations
+        m = m + ("+pmix" if a.get("gcf_word_pos") == "mix" else "+pfirst")  # placement ablations
     if m is not None and a.get("train_sources"):
-        m = m + "+ad"          # one adapter per request; the Ground-CF loop merges the look/read halves into one cell
+        m = m + "+ad"  # one adapter per request; the Ground-CF loop merges the look/read halves into one cell
     # a Ground-CF run trained under the two-modality protocol is its own cell
     # Ground-CF only. Since OCR went off by default every new run records
     # c3_sources=look,read, so the 48 resubmitted ladder runs got +2s and fell outside cpgrid's ladder keys.
@@ -96,32 +105,44 @@ def _method_of_inner(run, a):
         # LoRA trained with a counterfactual objective is its own cell: without the
         # suffix a LoRA+CTM run would overwrite the SFT LoRA row through the newer-file-wins rule.
         lam = {k[4:] for k in a if k.startswith("lam_") and float(a.get(k) or 0) > 0}
-        lam.discard("sft"); lam.discard("iit"); lam.discard("aat")
+        lam.discard("sft")
+        lam.discard("iit")
+        lam.discard("aat")
         base = f"lora_r{a.get('lora_r') or '?'}"
         if a.get("ctrl_style") == "request":
-            base += "+req"      # request-conditioned recipe, never the historical row
-        rsfx = "+rot" if a.get("instr_rotate") else ""   # trained on rotated INSTR variants
+            base += "+req"  # request-conditioned recipe, never the historical row
+        rsfx = "+rot" if a.get("instr_rotate") else ""  # trained on rotated INSTR variants
         return ((base + "+" + "+".join(sorted(lam))) if lam else base) + rsfx, None
     if m == "pt":
         # wave O gave PT the causal arms: attribute them, or they'd collide
         # with (and overwrite) the plain-PT baseline row via the max-G keep.
         lam = {k[4:] for k in a if k.startswith("lam_") and float(a.get(k) or 0) > 0}
-        lam.discard("sft"); lam.discard("iit"); lam.discard("aat")
+        lam.discard("sft")
+        lam.discard("iit")
+        lam.discard("aat")
         base = "pti" if "_pti_" in (a.get("run_name") or "") else "pt"
         # the same data-recipe axes as the word branch below. Without them the
         # Ground-CF PT run trained with 30% absence items (clevr3_f_pt_5tok_apoabs_seed0*) mapped to
         # the plain "pt+apo" key and, being newer, overwrote the plain APO run in the ID grid while
         # the OOD grid held the plain run -- Table 1's PT+APO Ground-CF cell was the abs recipe.
         v3 = float(a.get("slot_negative_frac") or 0) > 0
-        img = bool(a.get("clevr3_image_twins")); ab = bool(a.get("clevr3_absence"))
-        sfx = ("+v3" if v3 else "") + ("+img" if img else "") + ("+abs" if ab else "") + ("+cp" if a.get("cp_pairs") else "")
+        img = bool(a.get("clevr3_image_twins"))
+        ab = bool(a.get("clevr3_absence"))
+        sfx = (
+            ("+v3" if v3 else "")
+            + ("+img" if img else "")
+            + ("+abs" if ab else "")
+            + ("+cp" if a.get("cp_pairs") else "")
+        )
         if lam:
             return base + "+" + "+".join(sorted(lam)) + sfx, int(a.get("n_tokens") or 0) or None
         return base + sfx, int(a.get("n_tokens") or 0) or None
     if m == "neo":
         L = int(a.get("n_tokens") or 0) or None
         lam = {k[4:] for k in a if k.startswith("lam_") and float(a.get(k) or 0) > 0}
-        lam.discard("sft"); lam.discard("iit"); lam.discard("aat")
+        lam.discard("sft")
+        lam.discard("iit")
+        lam.discard("aat")
         style = a.get("ctrl_style", "neutral")
         arm = a.get("arm", "ctrl")
         if arm != "ctrl" or style not in ("neutral",):
@@ -136,7 +157,7 @@ def _method_of_inner(run, a):
         # and must not overwrite it in the cell.
         img = bool(a.get("clevr3_image_twins"))
         ab = bool(a.get("clevr3_absence"))
-        cp = bool(a.get("cp_pairs"))      # conflict-preserving training pairs: a separate recipe
+        cp = bool(a.get("cp_pairs"))  # conflict-preserving training pairs: a separate recipe
         # the gamma-sensitivity runs differ from the reference ONLY in --gamma, which no
         # other part of the key records, so their evaluations would have replaced the reference
         # `word+ctm+img+cp+2s` cell through the newer-file-wins rule. Off-default gamma gets its own suffix.
@@ -146,7 +167,9 @@ def _method_of_inner(run, a):
         # `<question> <tokens>` form; they must never share a cell.
         tsfx = "+tpl" if a.get("neo_template") == "hewitt" else ""
         if lam:
-            return "word+" + "+".join(sorted(lam)) + ("+v3" if v3 else "") + ("+img" if img else "") + ("+abs" if ab else "") + ("+cp" if cp else "") + gsfx + tsfx, L
+            return "word+" + "+".join(sorted(lam)) + ("+v3" if v3 else "") + ("+img" if img else "") + (
+                "+abs" if ab else ""
+            ) + ("+cp" if cp else "") + gsfx + tsfx, L
         if v3:
             return "word+v3" + tsfx, L
         return "word_sft" + tsfx, L
@@ -154,6 +177,8 @@ def _method_of_inner(run, a):
 
 
 CFG = {}
+
+
 def cfg(run):
     if run not in CFG:
         d = load(f"{ROOT}/runs/{run}/config.json") or {}
@@ -174,14 +199,17 @@ def fmt(v):
 
 
 _VOID_FILE = f"{ROOT}/results/void_run_patterns.txt"
-_VOID = [re.compile(l.strip()) for l in open(_VOID_FILE) if l.strip() and not l.startswith("#")] \
-    if os.path.exists(_VOID_FILE) else []
+_VOID = (
+    [re.compile(l.strip()) for l in open(_VOID_FILE) if l.strip() and not l.startswith("#")]
+    if os.path.exists(_VOID_FILE)
+    else []
+)
 
 
 def _void(run):
     """Runs listed in results/void_run_patterns.txt (regex per line) never enter the grid. Added
-for the ladder PT+CTM / LoRA+CTM runs whose CTM pairs carried no trainable request;
-    their fixed reruns carry a _v2_ marker that the patterns do not match. Demotion, not deletion."""
+    for the ladder PT+CTM / LoRA+CTM runs whose CTM pairs carried no trainable request;
+        their fixed reruns carry a _v2_ marker that the patterns do not match. Demotion, not deletion."""
     return any(p.search(run) for p in _VOID)
 
 
@@ -205,28 +233,36 @@ def seed_of(args):
 
 
 def main():
-    grid = collections.defaultdict(dict)   # (ds, model, method, L) -> {metric: v}
-    meta = {}                               # key -> (seed, file mtime)
+    grid = collections.defaultdict(dict)  # (ds, model, method, L) -> {metric: v}
+    meta = {}  # key -> (seed, file mtime)
 
     # ---------------- ladder
     # vcf3 = the third-colour VCF battery, written by VCF-trained runs into eval/vcf3_<split>/
     # *3 = the conflict-preserving (third-value) battery of a ladder benchmark, written by that benchmark's
     # own runs into eval/<ds>3_<split>/
-    for ds, dname in (("vcf", "vcf"), ("color", "color"), ("coco", "coco"),
-                      ("vcf3", "vcf3"), ("color3", "color3"), ("coco3", "coco3")):
+    for ds, dname in (
+        ("vcf", "vcf"),
+        ("color", "color"),
+        ("coco", "coco"),
+        ("vcf3", "vcf3"),
+        ("color3", "color3"),
+        ("coco3", "coco3"),
+    ):
         _prefix = {"vcf3": "vcf", "color3": "color", "coco3": "coco"}.get(dname, dname)
-        for f in (glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_step_800.json")
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_step_800.json")
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_step_800.json")
-                  # HELD-OUT request template evaluations (SC_TEMPLATE=heldout) -- the
-                  # paper's headline for every learned interface; keyed `+ho`, the in-template file stays as is
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_heldout_step_800.json")
-                  # the FIXED ladder protocol (SC_LADDER_PROTO=2: one candidate set per example in
-                  # every version, one template per example). Its own cells (`+p2`), never merged with protocol 1.
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_step_800.json")
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_heldout_step_800.json")
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_p2_step_800.json")
-                  + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_p2_step_800.json")):
+        for f in (
+            glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_step_800.json")
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_step_800.json")
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_step_800.json")
+            # HELD-OUT request template evaluations (SC_TEMPLATE=heldout) -- the
+            # paper's headline for every learned interface; keyed `+ho`, the in-template file stays as is
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_heldout_step_800.json")
+            # the FIXED ladder protocol (SC_LADDER_PROTO=2: one candidate set per example in
+            # every version, one template per example). Its own cells (`+p2`), never merged with protocol 1.
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_step_800.json")
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_heldout_step_800.json")
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_p2_step_800.json")
+            + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_p2_step_800.json")
+        ):
             # the grid is the IN-DISTRIBUTION reference. A run trained on another task and
             # evaluated here (the word-aliasing transfer evals of 654686 write into foreign run dirs) is
             # a transfer measurement, not a grid cell, and must never compete for the same key.
@@ -262,27 +298,33 @@ def main():
             # cfg-less frozen vehicles are in-domain by construction: their
             # eval dir name IS the dataset the eval ran on
             meth, L = method_of(run, args)
-            if meth is None:                     # frozen rows carry method in the json
-                meth = {"frozen": "instr", "instr": "instr", "noop": "noop"}.get(
-                    str(d.get("method")), None)
+            if meth is None:  # frozen rows carry method in the json
+                meth = {"frozen": "instr", "instr": "instr", "noop": "noop"}.get(str(d.get("method")), None)
                 if meth is None:
                     continue
                 if meth == "instr":
-                    meth = ("instr" if _ivm and _ivm.group(1) == "5" else
-                            f"instr_iv{_ivm.group(1)}" if _ivm else "instr_v0")
+                    meth = (
+                        "instr" if _ivm and _ivm.group(1) == "5" else f"instr_iv{_ivm.group(1)}" if _ivm else "instr_v0"
+                    )
                 L = None
             if "heldout" in os.path.basename(f):
                 meth = meth + "+ho"
             if "_p2_" in os.path.basename(f):
-                meth = meth + "+p2"          # protocol 2, last suffix
+                meth = meth + "+p2"  # protocol 2, last suffix
             key = (ds, model_of(run, args), meth, L)
-            row = {"R.look": d.get("look_acc"), "G.look": d.get("look_flip"),
-                   "R.read": d.get("read_acc"), "G.read": d.get("read_flip"),
-                   "S.look": d.get("look_stay"), "S.read": d.get("read_stay"),
-                   # Sc = conjunctive stay (correct before AND unchanged under the competing edit),
-                   # the mirror of flip; summary field since, derived from the per-item
-                   # records for older files.
-                   "Sc.look": stay_c(d, "look"), "Sc.read": stay_c(d, "read")}
+            row = {
+                "R.look": d.get("look_acc"),
+                "G.look": d.get("look_flip"),
+                "R.read": d.get("read_acc"),
+                "G.read": d.get("read_flip"),
+                "S.look": d.get("look_stay"),
+                "S.read": d.get("read_stay"),
+                # Sc = conjunctive stay (correct before AND unchanged under the competing edit),
+                # the mirror of flip; summary field since, derived from the per-item
+                # records for older files.
+                "Sc.look": stay_c(d, "look"),
+                "Sc.read": stay_c(d, "read"),
+            }
             nm = (seed_of(args), os.path.getmtime(f))
             _ts = (args or {}).get("train_sources")
             if _ts:
@@ -290,13 +332,20 @@ def main():
                 _src = _ts.split(",")[0]
                 row = {k: v for k, v in row.items() if k.endswith("." + _src)}
                 if key in grid and RUNS.get(key) and run not in str(RUNS[key]):
-                    merged = dict(grid[key]); merged.update(row); grid[key] = merged
-                    RUNS[key] = f"{RUNS[key]}+{run}"; meta[key] = nm
+                    merged = dict(grid[key])
+                    merged.update(row)
+                    grid[key] = merged
+                    RUNS[key] = f"{RUNS[key]}+{run}"
+                    meta[key] = nm
                 elif key not in grid or better(nm, meta[key]):
-                    grid[key] = row; meta[key] = nm; RUNS[key] = run
+                    grid[key] = row
+                    meta[key] = nm
+                    RUNS[key] = run
                 continue
             if key not in grid or better(nm, meta[key]):
-                grid[key] = row; meta[key] = nm; RUNS[key] = run
+                grid[key] = row
+                meta[key] = nm
+                RUNS[key] = run
 
     # ---------------- Ground-CF
     # SC_GCF_TAG=_cp4 restricts Ground-CF to the conflict-preserving four-skill
@@ -310,18 +359,18 @@ def main():
         if _gcf_tag and _gcf_tag not in base:
             continue
         if "_probe_" in base:
-            continue          # interface-probe evaluations are read by the tracker, never grid cells
+            continue  # interface-probe evaluations are read by the tracker, never grid cells
         if "_picks" in base or "_smoke" in base:
             continue
         if "_agree" in base:
-            continue          # old-vs-new (agreement-twin) diagnostic, never a grid cell
+            continue  # old-vs-new (agreement-twin) diagnostic, never a grid cell
         if "_trcar" in base:
-            continue          # held-out question + TRAINING carriers (wording-shift diagnostic), never a grid cell
+            continue  # held-out question + TRAINING carriers (wording-shift diagnostic), never a grid cell
         if "_reloc" in base:
-            continue          # control relocated to an untrained position (SC_GCF_CTRL_POS), never a grid cell
+            continue  # control relocated to an untrained position (SC_GCF_CTRL_POS), never a grid cell
         if "_ctw" in base or "_restwin" in base:
-            continue          # clean-twin reruns are PROMOTED into the canonical name (scripts/promote_clean_twins.py);
-                              # the _ctw source copy and the demoted residue-twin version (_restwin) are never grid cells
+            continue  # clean-twin reruns are PROMOTED into the canonical name (scripts/promote_clean_twins.py);
+            # the _ctw source copy and the demoted residue-twin version (_restwin) are never grid cells
         # same guard. 654686 evaluated COCO- and ColorSwap-trained words on Ground-CF via
         # word aliasing and wrote flip_step_800.json into runs/coco_*/eval/clevr3_test_id/. method_of
         # mapped those to the SAME key as the genuine Ground-CF word and the newer mtime WON, so Table 1
@@ -374,7 +423,7 @@ def main():
         # the backbone, so its run config need not carry the protocol; the file always does.
         _srcs = d.get("sources")
         _two = (_srcs == ["look", "read"]) or ((args or {}).get("c3_sources") == "look,read")
-        if meth.startswith("noop") or meth.startswith("instr"):     # "noop+fc" missed +2s (fact-caption tag came first)
+        if meth.startswith("noop") or meth.startswith("instr"):  # "noop+fc" missed +2s (fact-caption tag came first)
             if _two:
                 meth = meth + "+2s"
         # PT_INSERTED is only wired into the two-source request template; on
@@ -408,26 +457,41 @@ def main():
             # modality-specific adapter -- keep only THIS request's fields (the other
             # request was scored with the wrong adapter loaded) and merge with the other half; provenance = both runs.
             _src = _ts.split(",")[0]
-            row = {k: v for k, v in row.items() if k.endswith("." + _src) or (k.endswith(".looktwin") and _src == "look") or k == "n_skills"}
+            row = {
+                k: v
+                for k, v in row.items()
+                if k.endswith("." + _src) or (k.endswith(".looktwin") and _src == "look") or k == "n_skills"
+            }
             if key in grid and RUNS.get(key) and run not in str(RUNS[key]):
-                merged = dict(grid[key]); merged.update(row); grid[key] = merged
-                RUNS[key] = f"{RUNS[key]}+{run}"; meta[key] = nm
+                merged = dict(grid[key])
+                merged.update(row)
+                grid[key] = merged
+                RUNS[key] = f"{RUNS[key]}+{run}"
+                meta[key] = nm
             elif key not in grid or better(nm, meta[key]):
-                grid[key] = row; meta[key] = nm; RUNS[key] = run
+                grid[key] = row
+                meta[key] = nm
+                RUNS[key] = run
             continue
         _prev = grid.get(key)
         if _prev is not None and (_prev.get("n_skills") or 0) != _nsk:
             if _nsk < (_prev.get("n_skills") or 0):
-                continue                      # keep the richer evaluation
-            grid[key] = row; meta[key] = nm; RUNS[key] = run; continue
+                continue  # keep the richer evaluation
+            grid[key] = row
+            meta[key] = nm
+            RUNS[key] = run
+            continue
         if key not in grid or better(nm, meta[key]):
-            grid[key] = row; meta[key] = nm; RUNS[key] = run
+            grid[key] = row
+            meta[key] = nm
+            RUNS[key] = run
 
     # ---------------- MVG (grounding battery; <ocr> is an ablation, starred)
     # the rebuilt-metadata evaluation (pairs_clean_rb, tag _rb) is banked under its OWN
     # dataset key "mvgrb", never mixed with the _clean cells: different pairs file, different numbers.
-    for f in (glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_clean.json")
-              + glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_rb.json")):
+    for f in glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_clean.json") + glob.glob(
+        f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_rb.json"
+    ):
         run = f.split("/runs/")[1].split("/")[0]
         _dskey = "mvgrb" if f.endswith("_rb.json") else "mvg"
         d = load(f)
@@ -437,36 +501,50 @@ def main():
         if vis is None:
             continue
         args = cfg(run)
-        if "mvg" not in str(args.get("task") or "") and \
-           "mvg" not in str(args.get("data_dir") or ""):
-            continue                              # exclude transfer evals (in-domain only)
+        if "mvg" not in str(args.get("task") or "") and "mvg" not in str(args.get("data_dir") or ""):
+            continue  # exclude transfer evals (in-domain only)
         meth, L = method_of(run, args)
         if meth is None:
             continue
         key = (_dskey, model_of(run, args), meth, L)
-        row = {"G.look": vis, "G.read": (d.get("desc_swap") or {}).get("flip"),
-               "G.ocr*": (d.get("ocr_ablate") or {}).get("drop_pos")}
+        row = {
+            "G.look": vis,
+            "G.read": (d.get("desc_swap") or {}).get("flip"),
+            "G.ocr*": (d.get("ocr_ablate") or {}).get("drop_pos"),
+        }
         nm = (seed_of(args), os.path.getmtime(f))
         if key not in grid or better(nm, meta[key]):
-            grid[key] = row; meta[key] = nm; RUNS[key] = run
+            grid[key] = row
+            meta[key] = nm
+            RUNS[key] = run
     for style in ("instr", "noop"):
         # Qwen-2B/E4B frozen files are tagged `_clean_noop_noop.json` / `_clean_instr_instr.json`
         # (style AND tag appended), so the exact-name glob only ever matched Gemma-3 -- the MVG grid had baselines
         # for one model. `clean_{style}*` still excludes the crop files (`clean_crop0.25_...`).
-        for f in glob.glob(f"{ROOT}/runs/_frozen_*/eval/mvg_flip/flip_step_800_clean_{style}*.json") + \
-                 glob.glob(f"{ROOT}/runs/frozen_*/eval/mvg_flip/flip_step_800_clean_{style}*.json"):
+        for f in glob.glob(f"{ROOT}/runs/_frozen_*/eval/mvg_flip/flip_step_800_clean_{style}*.json") + glob.glob(
+            f"{ROOT}/runs/frozen_*/eval/mvg_flip/flip_step_800_clean_{style}*.json"
+        ):
             run = f.split("/runs/")[1].split("/")[0]
             d = load(f)
             if not d:
                 continue
-            model = ("qwen4b" if "qwen35" in run else "qwen2b" if "qwen2b" in run
-                     else "e4b" if "e4b" in run or "gemma4" in run else "gemma3")
+            model = (
+                "qwen4b"
+                if "qwen35" in run
+                else "qwen2b"
+                if "qwen2b" in run
+                else "e4b"
+                if "e4b" in run or "gemma4" in run
+                else "gemma3"
+            )
             vis = (d.get("vis_value_swap") or {}).get("flip")
             if vis is None:
                 continue
             grid[("mvg", model, style, None)] = {
-                "G.look": vis, "G.read": (d.get("desc_swap") or {}).get("flip"),
-                "G.ocr*": (d.get("ocr_ablate") or {}).get("drop_pos")}
+                "G.look": vis,
+                "G.read": (d.get("desc_swap") or {}).get("flip"),
+                "G.ocr*": (d.get("ocr_ablate") or {}).get("drop_pos"),
+            }
 
     # ---------------- MVR (JOINT per channel, ood)
     for f in glob.glob(f"{ROOT}/runs/*/eval/mvraw_test_ood/ablate*_step_800.json"):
@@ -490,8 +568,15 @@ def main():
             meth = "instr" if "instr" in base else "noop" if "noop" in base else None
             if meth is None:
                 continue
-            model = ("qwen4b" if "qwen35" in run else "qwen2b" if "qwen2b" in run
-                     else "e4b" if "e4b" in run or "gemma4" in run else "gemma3")
+            model = (
+                "qwen4b"
+                if "qwen35" in run
+                else "qwen2b"
+                if "qwen2b" in run
+                else "e4b"
+                if "e4b" in run or "gemma4" in run
+                else "gemma3"
+            )
             L = None
         else:
             args = cfg(run)
@@ -502,53 +587,80 @@ def main():
         key = ("mvr", model, meth, L)
         nm = (seed_of(cfg(run)), os.path.getmtime(f))
         if key not in grid or better(nm, meta[key]):
-            grid[key] = row; meta[key] = nm; RUNS[key] = run
+            grid[key] = row
+            meta[key] = nm
+            RUNS[key] = run
 
     # ---------------- render
-    ORDER = ["noop", "instr", "pt", "lora_r1", "lora_r4", "lora_r16", "lora_r64",
-             "word_sft", "word+v3", "word+apo", "word+ctm", "word+ctm+tc", "word+ecc"]
+    ORDER = [
+        "noop",
+        "instr",
+        "pt",
+        "lora_r1",
+        "lora_r4",
+        "lora_r16",
+        "lora_r64",
+        "word_sft",
+        "word+v3",
+        "word+apo",
+        "word+ctm",
+        "word+ctm+tc",
+        "word+ecc",
+    ]
+
     def mkey(m):
-        return (ORDER.index(m), ) if m in ORDER else (len(ORDER), m)
+        return (ORDER.index(m),) if m in ORDER else (len(ORDER), m)
 
     out_json = {}
-    lines = ["# MASTER GRID — routing (R) / grounding (G) per channel",
-             "Generated by scripts/master_grid.py; '--' = not measured; L blank = "
-             "not applicable (baselines) ; G.ocr* on MVG = deletion-ablation, not a flip.",
-             ""]
+    lines = [
+        "# MASTER GRID — routing (R) / grounding (G) per channel",
+        "Generated by scripts/master_grid.py; '--' = not measured; L blank = "
+        "not applicable (baselines) ; G.ocr* on MVG = deletion-ablation, not a flip.",
+        "",
+    ]
     for ds, label, cols in (
-            ("vcf", "VCF", ["R.look", "G.look", "R.read", "G.read"]),
-            ("color", "ColorSwap", ["R.look", "G.look", "R.read", "G.read"]),
-            ("coco", "COCO-CF", ["R.look", "G.look", "R.read", "G.read"]),
-            # the conflict-preserving (third-value) ladder batteries. They were
-            # harvested into `grid` from the first day (the loop above reads eval/<ds>3_<split>/) but this
-            # output list did not name them, so every *3 row was silently dropped from master_grid.{md,json}
-            # and no corrected ladder cell could ever reach a table or figure.
-            ("vcf3", "VCF (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
-            ("color3", "ColorSwap (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
-            ("coco3", "COCO-CF (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
-            ("groundcf", "Ground-CF", ["R.look", "G.look", "R.read", "G.read", "R.ocr", "G.ocr"]),
-            ("mvg", "MultiVENT-G", ["G.look", "G.read", "G.ocr*"]),
-            ("mvr", "MultiVENT-Raw (JOINT, ood)", ["J.look", "J.ocr", "J.asr"])):
-        lines += [f"\n## {label}", "",
-                  "| model | method | L | " + " | ".join(cols) + " |",
-                  "|---|---|---|" + "---|" * len(cols)]
+        ("vcf", "VCF", ["R.look", "G.look", "R.read", "G.read"]),
+        ("color", "ColorSwap", ["R.look", "G.look", "R.read", "G.read"]),
+        ("coco", "COCO-CF", ["R.look", "G.look", "R.read", "G.read"]),
+        # the conflict-preserving (third-value) ladder batteries. They were
+        # harvested into `grid` from the first day (the loop above reads eval/<ds>3_<split>/) but this
+        # output list did not name them, so every *3 row was silently dropped from master_grid.{md,json}
+        # and no corrected ladder cell could ever reach a table or figure.
+        ("vcf3", "VCF (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
+        ("color3", "ColorSwap (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
+        ("coco3", "COCO-CF (conflict-preserving)", ["R.look", "G.look", "R.read", "G.read"]),
+        ("groundcf", "Ground-CF", ["R.look", "G.look", "R.read", "G.read", "R.ocr", "G.ocr"]),
+        ("mvg", "MultiVENT-G", ["G.look", "G.read", "G.ocr*"]),
+        ("mvr", "MultiVENT-Raw (JOINT, ood)", ["J.look", "J.ocr", "J.asr"]),
+    ):
+        lines += [
+            f"\n## {label}",
+            "",
+            "| model | method | L | " + " | ".join(cols) + " |",
+            "|---|---|---|" + "---|" * len(cols),
+        ]
         for model in ("gemma3", "qwen4b", "qwen2b", "e4b"):
-            rows = sorted(((m, L, v) for (d2, mo, m, L), v in grid.items()
-                           if d2 == ds and mo == model),
-                          key=lambda x: (mkey(x[0]), x[1] or 0))
+            rows = sorted(
+                ((m, L, v) for (d2, mo, m, L), v in grid.items() if d2 == ds and mo == model),
+                key=lambda x: (mkey(x[0]), x[1] or 0),
+            )
             for m, L, v in rows:
                 out_json[f"{ds}|{model}|{m}|{L}"] = v
-                lines.append(f"| {model} | {m} | {L or ''} | " +
-                             " | ".join(fmt(v.get(c)) for c in cols) + " |")
+                lines.append(f"| {model} | {m} | {L or ''} | " + " | ".join(fmt(v.get(c)) for c in cols) + " |")
     os.makedirs(f"{ROOT}/results", exist_ok=True)
     open(f"{ROOT}/results/master_grid{SUFFIX}.md", "w").write("\n".join(lines) + "\n")
     json.dump(out_json, open(f"{ROOT}/results/master_grid{SUFFIX}.json", "w"), indent=1)
-    json.dump({f"{d}|{mo}|{m}|{L}": r for (d, mo, m, L), r in RUNS.items()},
-              open(f"{ROOT}/results/master_grid{SUFFIX}_runs.json", "w"), indent=1)
+    json.dump(
+        {f"{d}|{mo}|{m}|{L}": r for (d, mo, m, L), r in RUNS.items()},
+        open(f"{ROOT}/results/master_grid{SUFFIX}_runs.json", "w"),
+        indent=1,
+    )
     n = len(out_json)
     per_ds = collections.Counter(k.split("|")[0] for k in out_json)
-    print(f"[master_grid:{SPLIT}] {n} rows -> results/master_grid{SUFFIX}.md   " +
-          " ".join(f"{k}={v}" for k, v in sorted(per_ds.items())))
+    print(
+        f"[master_grid:{SPLIT}] {n} rows -> results/master_grid{SUFFIX}.md   "
+        + " ".join(f"{k}={v}" for k, v in sorted(per_ds.items()))
+    )
 
 
 if __name__ == "__main__":

@@ -1,16 +1,16 @@
 """Cluster paths + HF offline env. Import this FIRST (it sets env vars) before
 transformers/datasets so the local cache is used and no network is hit on
 compute nodes."""
+
 import os
 
 USER = os.environ.get("USER", "user")
 # canonical HF cache: ./.cache/huggingface (most datasets+models live here)
-HF_CACHE = (os.environ.get("SC_HF_CACHE") or os.environ.get("HF_HOME")
-            or os.path.expanduser("~/.cache/huggingface"))
+HF_CACHE = os.environ.get("SC_HF_CACHE") or os.environ.get("HF_HOME") or os.path.expanduser("~/.cache/huggingface")
 # one cache root: hub snapshots -> $HF_CACHE/hub, processed Arrow -> $HF_CACHE/datasets
 os.environ["HF_HOME"] = HF_CACHE
 os.environ["HF_HUB_CACHE"] = os.path.join(HF_CACHE, "hub")
-os.environ["HUGGINGFACE_HUB_CACHE"] = os.path.join(HF_CACHE, "hub")   # legacy alias
+os.environ["HUGGINGFACE_HUB_CACHE"] = os.path.join(HF_CACHE, "hub")  # legacy alias
 os.environ["HF_DATASETS_CACHE"] = os.path.join(HF_CACHE, "datasets")
 # offline on compute nodes (download happens on the login node via download_data.py)
 os.environ.setdefault("HF_HUB_OFFLINE", os.environ.get("SC_OFFLINE", "1"))

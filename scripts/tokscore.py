@@ -26,21 +26,27 @@ def split_spans(cands):
     out = {}
     for k, (ids, lps) in cands.items():
         a0, a1 = pre, len(ids) - suf
-        if len(cands) == 1:           # nothing to compare against: whole turn is the "answer"
+        if len(cands) == 1:  # nothing to compare against: whole turn is the "answer"
             a0, a1 = 0, len(ids)
         ans = lps[a0:a1]
-        out[k] = {"lead_sum": round(sum(lps[:a0]), 4), "lead_ntok": a0,
-                  "answer_sum": round(sum(ans), 4), "answer_ntok": len(ans),
-                  "answer_mean": round(sum(ans) / max(len(ans), 1), 4),
-                  "end_sum": round(sum(lps[a1:]), 4), "end_ntok": len(ids) - a1,
-                  "token_ids": ids, "token_lps": lps}
+        out[k] = {
+            "lead_sum": round(sum(lps[:a0]), 4),
+            "lead_ntok": a0,
+            "answer_sum": round(sum(ans), 4),
+            "answer_ntok": len(ans),
+            "answer_mean": round(sum(ans) / max(len(ans), 1), 4),
+            "end_sum": round(sum(lps[a1:]), 4),
+            "end_ntok": len(ids) - a1,
+            "token_ids": ids,
+            "token_lps": lps,
+        }
     return out
 
 
 if __name__ == "__main__":
-    a = ([1, 2, 3, 10, 11, 90, 91], [-.1, -.2, -.3, -1.0, -2.0, -.5, -.01])
-    b = ([1, 2, 3, 12, 90, 91], [-.1, -.2, -.3, -.7, -.9, -.02])
+    a = ([1, 2, 3, 10, 11, 90, 91], [-0.1, -0.2, -0.3, -1.0, -2.0, -0.5, -0.01])
+    b = ([1, 2, 3, 12, 90, 91], [-0.1, -0.2, -0.3, -0.7, -0.9, -0.02])
     r = split_spans({"a": a, "b": b})
     assert r["a"]["lead_ntok"] == 3 and r["a"]["answer_ntok"] == 2 and r["a"]["end_ntok"] == 2, r["a"]
-    assert r["b"]["answer_ntok"] == 1 and abs(r["b"]["answer_mean"] + .7) < 1e-9, r["b"]
+    assert r["b"]["answer_ntok"] == 1 and abs(r["b"]["answer_mean"] + 0.7) < 1e-9, r["b"]
     print("[selftest] tokscore ok")

@@ -4,19 +4,75 @@ Because caption_i is the aligned description of image_i, the ground-truth colors
 of image_i ARE the parse of caption_i -- no vision labeller needed. That is what
 makes ColorSwap a clean conflict generator with exact, string-matchable truth.
 """
+
 import re
 
 COLORS = {
-    "red","orange","yellow","green","blue","purple","pink","brown","black",
-    "white","gray","grey","cyan","magenta","violet","gold","silver","beige",
-    "tan","turquoise","teal","maroon","navy","olive","lime","indigo","crimson",
-    "scarlet","azure",
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "purple",
+    "pink",
+    "brown",
+    "black",
+    "white",
+    "gray",
+    "grey",
+    "cyan",
+    "magenta",
+    "violet",
+    "gold",
+    "silver",
+    "beige",
+    "tan",
+    "turquoise",
+    "teal",
+    "maroon",
+    "navy",
+    "olive",
+    "lime",
+    "indigo",
+    "crimson",
+    "scarlet",
+    "azure",
 }
 FUNCTION = {
-    "a","an","the","and","or","with","in","on","of","at","to","is","are","be",
-    "being","emitting","wearing","holding","carrying","near","next","by","while",
-    "that","this","who","someone","something","person","behind","front",
-    "against","over","under",
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "with",
+    "in",
+    "on",
+    "of",
+    "at",
+    "to",
+    "is",
+    "are",
+    "be",
+    "being",
+    "emitting",
+    "wearing",
+    "holding",
+    "carrying",
+    "near",
+    "next",
+    "by",
+    "while",
+    "that",
+    "this",
+    "who",
+    "someone",
+    "something",
+    "person",
+    "behind",
+    "front",
+    "against",
+    "over",
+    "under",
 }
 SYNONYMS = {"grey": "gray"}  # spelling only; fancy colors stay distinct
 
@@ -31,7 +87,7 @@ def normalize_color(c):
     if c in COLORS:
         return c
     words = c.replace("-", " ").split()
-    for w in reversed(words):                      # head color usually last
+    for w in reversed(words):  # head color usually last
         w2 = SYNONYMS.get(w, w)
         if w2 in COLORS:
             return w2

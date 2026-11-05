@@ -7,14 +7,28 @@
 T1 compares the interfaces (words, prompt tuning, LoRA, instructions) per dataset and model, and T2 the objectives
 (plain SFT versus the counterfactual objectives). The remaining tables are filled when the corresponding evaluations are
 present."""
+
 import argparse, glob, json, os
 from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DS = ("color", "vcf", "coco")
 MODELS = (("", "gemma"), ("_qwen35", "qwen"))
-NEO = ("sft", "v3", "ctm", "ctmv3", "apo", "vgm", "srcsyn", "iitL12", "dsite",
-       "confonly", "ctmcmp", "blocks", "blocksctm")
+NEO = (
+    "sft",
+    "v3",
+    "ctm",
+    "ctmv3",
+    "apo",
+    "vgm",
+    "srcsyn",
+    "iitL12",
+    "dsite",
+    "confonly",
+    "ctmcmp",
+    "blocks",
+    "blocksctm",
+)
 CAUSAL = ("ctm", "ctmv3", "apo")
 OUT = []
 
@@ -53,8 +67,10 @@ def t1():
     say("=" * 104)
     say("T1  METHOD COMPARISON -- causal flip/stay (own dataset, test_id). THE headline table.")
     say("=" * 104)
-    say(f"{'dataset/model':14s} {'best neo (arm)':>20s} {'pt':>7s} {'LoRA':>7s} {'frozen+instr':>13s} "
-        f"| {'READ neo':>9s} {'pt':>7s} {'frozen':>7s}")
+    say(
+        f"{'dataset/model':14s} {'best neo (arm)':>20s} {'pt':>7s} {'LoRA':>7s} {'frozen+instr':>13s} "
+        f"| {'READ neo':>9s} {'pt':>7s} {'frozen':>7s}"
+    )
     agg = defaultdict(list)
     for ds in DS:
         for sfx, m in MODELS:
@@ -64,32 +80,44 @@ def t1():
                 continue
             ba, bd = max(cand, key=lambda t: t[1]["look_flip"])
             ra, rd = max(cand, key=lambda t: t[1]["read_flip"])
-            pt = (flip(f"{ds}_pt_na_5tok_sft_seed0{sfx}", ds)
-                  or flip(f"{ds}_pt_na_4tok_sft_seed0{sfx}", ds))
+            pt = flip(f"{ds}_pt_na_5tok_sft_seed0{sfx}", ds) or flip(f"{ds}_pt_na_4tok_sft_seed0{sfx}", ds)
             lo = flip(f"{ds}_lora_na_1tok_sft_seed0{sfx}", ds)
             fr = flip("_frozen_gemma" if m == "gemma" else "_frozen_qwen35", ds)
             g = lambda d, k: None if not d else d[k]
-            say(f"{ds+'/'+m:14s} {bd['look_flip']:.3f} ({ba:9s}) {f3(g(pt,'look_flip')):>7s} "
-                f"{f3(g(lo,'look_flip')):>7s} {f3(g(fr,'look_flip')):>13s} | "
-                f"{rd['read_flip']:9.3f} {f3(g(pt,'read_flip')):>7s} {f3(g(fr,'read_flip')):>7s}")
-            agg["neo"].append(bd["look_flip"]); agg["neoR"].append(rd["read_flip"])
-            agg["pt"].append(g(pt, "look_flip")); agg["ptR"].append(g(pt, "read_flip"))
+            say(
+                f"{ds + '/' + m:14s} {bd['look_flip']:.3f} ({ba:9s}) {f3(g(pt, 'look_flip')):>7s} "
+                f"{f3(g(lo, 'look_flip')):>7s} {f3(g(fr, 'look_flip')):>13s} | "
+                f"{rd['read_flip']:9.3f} {f3(g(pt, 'read_flip')):>7s} {f3(g(fr, 'read_flip')):>7s}"
+            )
+            agg["neo"].append(bd["look_flip"])
+            agg["neoR"].append(rd["read_flip"])
+            agg["pt"].append(g(pt, "look_flip"))
+            agg["ptR"].append(g(pt, "read_flip"))
             agg["lora"].append(g(lo, "look_flip"))
-            agg["fr"].append(g(fr, "look_flip")); agg["frR"].append(g(fr, "read_flip"))
-    say(f"{'MEAN':14s} {f3(mean(agg['neo'])):>20s} {f3(mean(agg['pt'])):>7s} "
+            agg["fr"].append(g(fr, "look_flip"))
+            agg["frR"].append(g(fr, "read_flip"))
+    say(
+        f"{'MEAN':14s} {f3(mean(agg['neo'])):>20s} {f3(mean(agg['pt'])):>7s} "
         f"{f3(mean(agg['lora'])):>7s} {f3(mean(agg['fr'])):>13s} | "
-        f"{f3(mean(agg['neoR'])):>9s} {f3(mean(agg['ptR'])):>7s} {f3(mean(agg['frR'])):>7s}")
+        f"{f3(mean(agg['neoR'])):>9s} {f3(mean(agg['ptR'])):>7s} {f3(mean(agg['frR'])):>7s}"
+    )
     if mean(agg["neo"]) and mean(agg["fr"]):
-        say(f"  -> LOOK advantage over English instructions: {mean(agg['neo'])-mean(agg['fr']):+.3f}"
-            f"   READ advantage: {(mean(agg['neoR']) or 0)-(mean(agg['frR']) or 0):+.3f}")
+        say(
+            f"  -> LOOK advantage over English instructions: {mean(agg['neo']) - mean(agg['fr']):+.3f}"
+            f"   READ advantage: {(mean(agg['neoR']) or 0) - (mean(agg['frR']) or 0):+.3f}"
+        )
     # matched-parameter LoRA controls
     say("\n  LoRA capacity controls (is the gap budget or conditionality?)")
-    for r, lbl in (("color_lora_r1_matched_seed0", "r=1  ~181k params (matched to a 30-token word)"),
-                   ("color_lora_na_1tok_sft_seed0", "r=16 2.9M params"),
-                   ("color_lora_r64_big_seed0", "r=64 11.6M params")):
+    for r, lbl in (
+        ("color_lora_r1_matched_seed0", "r=1  ~181k params (matched to a 30-token word)"),
+        ("color_lora_na_1tok_sft_seed0", "r=16 2.9M params"),
+        ("color_lora_r64_big_seed0", "r=64 11.6M params"),
+    ):
         d = flip(r, "color")
-        say(f"    {lbl:48s} look_flip={f3(None if not d else d['look_flip'])} "
-            f"read_flip={f3(None if not d else d['read_flip'])}")
+        say(
+            f"    {lbl:48s} look_flip={f3(None if not d else d['look_flip'])} "
+            f"read_flip={f3(None if not d else d['read_flip'])}"
+        )
 
 
 # ---------------------------------------------------------------- T2
@@ -106,9 +134,11 @@ def t2():
                 continue
             ba, bd = max(c, key=lambda t: t[1]["look_flip"])
             twins = bd.get("twins", "?")
-            say(f"  {ds}/{m:6s} sft={s['look_flip']:.3f} -> {ba}={bd['look_flip']:.3f} "
-                f"(delta {bd['look_flip']-s['look_flip']:+.3f})  margins {s['look_margin']:.1f}->"
-                f"{bd['look_margin']:.1f}  twins={twins}")
+            say(
+                f"  {ds}/{m:6s} sft={s['look_flip']:.3f} -> {ba}={bd['look_flip']:.3f} "
+                f"(delta {bd['look_flip'] - s['look_flip']:+.3f})  margins {s['look_margin']:.1f}->"
+                f"{bd['look_margin']:.1f}  twins={twins}"
+            )
 
 
 # ---------------------------------------------------------------- T3
@@ -119,8 +149,10 @@ def t3():
     Ls = (1, 2, 4, 5, 8, 10, 15, 16, 20, 25, 30)
     for sfx, m in MODELS:
         for ds in DS:
-            row = [(L, route(f"{ds}_neo_ctrl_{L}tok_v3_seed0{sfx}", ds),
-                    flip(f"{ds}_neo_ctrl_{L}tok_v3_seed0{sfx}", ds)) for L in Ls]
+            row = [
+                (L, route(f"{ds}_neo_ctrl_{L}tok_v3_seed0{sfx}", ds), flip(f"{ds}_neo_ctrl_{L}tok_v3_seed0{sfx}", ds))
+                for L in Ls
+            ]
             row = [(L, a, b) for L, a, b in row if a or b]
             if not row:
                 continue
@@ -160,10 +192,14 @@ def t4():
                         row[a] = d["look_flip"]
                 if len(row) >= 2:
                     if not printed:
-                        say(f"  {ds}/{m}"); printed = True
+                        say(f"  {ds}/{m}")
+                        printed = True
                     best = max(row, key=row.get)
-                    say(f"    L={L:2d}: " + " ".join(f"{a}={v:.3f}" for a, v in sorted(row.items()))
-                        + f"   -> BEST={best}")
+                    say(
+                        f"    L={L:2d}: "
+                        + " ".join(f"{a}={v:.3f}" for a, v in sorted(row.items()))
+                        + f"   -> BEST={best}"
+                    )
 
 
 # ---------------------------------------------------------------- T5
@@ -183,15 +219,19 @@ def t5():
                     a, b = route(r, tgt), flip(r, tgt)
                     if not (a or b):
                         continue
-                    say(f"{src+'_'+arm+'_'+m:34s} {tgt:7s} "
+                    say(
+                        f"{src + '_' + arm + '_' + m:34s} {tgt:7s} "
                         f"{f3(None if not a else a['ctrl_look']):>10s} {f3(None if not a else a['ctrl_read']):>10s} "
-                        f"{f3(None if not b else b['look_flip']):>10s} {f3(None if not b else b['read_flip']):>10s}")
+                        f"{f3(None if not b else b['look_flip']):>10s} {f3(None if not b else b['read_flip']):>10s}"
+                    )
                 if native_r or native_f:
-                    say(f"{'  (native reference)':34s} {src:7s} "
+                    say(
+                        f"{'  (native reference)':34s} {src:7s} "
                         f"{f3(None if not native_r else native_r['ctrl_look']):>10s} "
                         f"{f3(None if not native_r else native_r['ctrl_read']):>10s} "
                         f"{f3(None if not native_f else native_f['look_flip']):>10s} "
-                        f"{f3(None if not native_f else native_f['read_flip']):>10s}")
+                        f"{f3(None if not native_f else native_f['read_flip']):>10s}"
+                    )
     say("\n  SYNTHETIC -> REAL VIDEO (zero-shot bridge onto MultiVENT-G)")
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/rung3_mvg_test_id/*.json")):
         d = j(p)
@@ -208,7 +248,9 @@ def t6():
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/mvg3_test_id/*.json")):
         d = j(p)
         if d:
-            say(f"    {p.split('/runs/')[1].split('/')[0][:48]:48s} sel={d.get('selectivity_mean', d.get('selectivity'))}")
+            say(
+                f"    {p.split('/runs/')[1].split('/')[0][:48]:48s} sel={d.get('selectivity_mean', d.get('selectivity'))}"
+            )
     say("  counterfactual channel flips (within-video twins)")
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/*.json")):
         d = j(p)
@@ -227,14 +269,18 @@ def t6():
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/mvg_report/*.json")):
         d = j(p)
         if d:
-            say(f"    {d.get('run','?')[:36]:36s} mode={d.get('mode','?'):9s} F0={d.get('F0')} "
-                f"FC={d.get('FC')} prov={d.get('provenance_acc')} q/vid={d.get('queries_per_video')}")
+            say(
+                f"    {d.get('run', '?')[:36]:36s} mode={d.get('mode', '?'):9s} F0={d.get('F0')} "
+                f"FC={d.get('FC')} prov={d.get('provenance_acc')} q/vid={d.get('queries_per_video')}"
+            )
     say("  retrieval stress (RAG)")
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/rag_stress/*.json")):
         d = j(p)
         if d:
-            say(f"    {d.get('run','?')[:36]:36s} sel={d.get('selectivity')} "
-                f"assert_gold={d.get('assert_gold_rate')} margin_drop={d.get('gold_margin_drop_vs_oracle')}")
+            say(
+                f"    {d.get('run', '?')[:36]:36s} sel={d.get('selectivity')} "
+                f"assert_gold={d.get('assert_gold_rate')} margin_drop={d.get('gold_margin_drop_vs_oracle')}"
+            )
 
 
 # ---------------------------------------------------------------- T7
@@ -248,8 +294,10 @@ def t7():
             for a in NEO:
                 d = flip(f"{ds}_neo_ctrl_5tok_{a}_seed0{sfx}", ds)
                 if d and ("cmp_disc" in d or d.get("cmp_acc") is not None):
-                    say(f"{ds+'_'+a+sfx:40s} {f3(d.get('cmp_acc')):>8s} {f3(d.get('cmp_disc')):>9s} "
-                        f"{f3(d.get('cmp_auc')):>8s} {f3(d.get('cmp_margin_gap')):>11s}")
+                    say(
+                        f"{ds + '_' + a + sfx:40s} {f3(d.get('cmp_acc')):>8s} {f3(d.get('cmp_disc')):>9s} "
+                        f"{f3(d.get('cmp_auc')):>8s} {f3(d.get('cmp_margin_gap')):>11s}"
+                    )
 
 
 # ---------------------------------------------------------------- T8
@@ -262,13 +310,17 @@ def t8():
         say("  commitment-position attention (token vs instruction at MATCHED positions)")
         for r in c["rows"][:24]:
             if r.get("kind") == "ctrl":
-                say(f"    {r['run'][:38]:38s} {r['dataset']:6s} tok_preval={f3(r.get('tok_preval_img_mid'))} "
+                say(
+                    f"    {r['run'][:38]:38s} {r['dataset']:6s} tok_preval={f3(r.get('tok_preval_img_mid'))} "
                     f"instr_preval={f3(r.get('instr_preval_img_mid'))} tok_value={f3(r.get('tok_value_img_mid'))} "
                     f"instr_value={f3(r.get('instr_value_img_mid'))} citetag={f3(r.get('citetag_img_contrast_mid'))} "
-                    f"citeblk={f3(r.get('citeblk_img_contrast_mid'))}")
+                    f"citeblk={f3(r.get('citeblk_img_contrast_mid'))}"
+                )
             else:
-                say(f"    GEN {r['run'][:34]:34s} lookblk_fid={r.get('lookblk_img_fid_mid')} "
-                    f"readblk_fid={r.get('readblk_cap_fid_mid')}")
+                say(
+                    f"    GEN {r['run'][:34]:34s} lookblk_fid={r.get('lookblk_img_fid_mid')} "
+                    f"readblk_fid={r.get('readblk_cap_fid_mid')}"
+                )
     else:
         say("  (attn2_commitment.json not built yet -- run scripts/attn2_summary.py)")
     say("  attention flip/stay: is behaviour change MEDIATED by attention change?")
@@ -276,28 +328,34 @@ def t8():
         d = j(p)
         if not d:
             continue
-        say(f"    {d.get('run','?')[:34]:34s}")
+        say(f"    {d.get('run', '?')[:34]:34s}")
         for kind in ("tok", "instr", "comb"):
             k = d.get(kind)
             if isinstance(k, dict):
-                say(f"      {kind:5s} flipL={k.get('look_margin_flip')} dMargin={k.get('look_causal_margin_effect')} "
+                say(
+                    f"      {kind:5s} flipL={k.get('look_margin_flip')} dMargin={k.get('look_causal_margin_effect')} "
                     f"attn_stay={k.get('attn_stay_img_absdelta')} focus_evid={k.get('focus_evid_share')} "
-                    f"coupling={k.get('coupling_dmargin_dattn')}")
+                    f"coupling={k.get('coupling_dmargin_dattn')}"
+                )
     say("  SAP-noise ablation: is selective attention NECESSARY for flips?")
     for p in sorted(glob.glob(f"{ROOT}/runs/*/eval/*/sap_flip_step_*.json")):
         d = j(p)
         if not d:
             continue
-        say(f"    {d.get('run','?')[:34]:34s}")
+        say(f"    {d.get('run', '?')[:34]:34s}")
         for cond in ("none", "mid", "all"):
             k = d.get(cond)
             if isinstance(k, dict):
-                say(f"      {cond:5s} look_acc={k.get('look_acc')} look_flip={k.get('look_flip')} "
-                    f"read_flip={k.get('read_flip')} lmarg={k.get('look_margin')} hits={k.get('patch_hits')}")
+                say(
+                    f"      {cond:5s} look_acc={k.get('look_acc')} look_flip={k.get('look_flip')} "
+                    f"read_flip={k.get('read_flip')} lmarg={k.get('look_margin')} hits={k.get('patch_hits')}"
+                )
     ap = j(f"{ROOT}/results/attn_vs_perf.json")
     if ap:
-        say(f"  arm-level correlations: contrast~flip={ap.get('spearman_lift_vs_flip')} "
-            f"contrast~routing={ap.get('spearman_lift_vs_routing')} (n={ap.get('n_arms_with_both')})")
+        say(
+            f"  arm-level correlations: contrast~flip={ap.get('spearman_lift_vs_flip')} "
+            f"contrast~routing={ap.get('spearman_lift_vs_routing')} (n={ap.get('n_arms_with_both')})"
+        )
 
 
 # ---------------------------------------------------------------- T9
@@ -313,8 +371,9 @@ def t9():
         for op in ("look", "read"):
             res = (d.get("results") or {}).get(op) or {}
             if res:
-                bits = " ".join(f"{k}={v.get('routing')}" for k, v in res.items()
-                                if isinstance(v, dict) and "routing" in v)
+                bits = " ".join(
+                    f"{k}={v.get('routing')}" for k, v in res.items() if isinstance(v, dict) and "routing" in v
+                )
                 say(f"    {run[:38]:38s} {op:5s} {bits}")
 
 
@@ -331,11 +390,14 @@ def t10():
     for r in ("color_neo_ctrl_5tok_iitL12_seed0", "color_neo_ctrl_5tok_sft_seed0"):
         d = j(f"{ROOT}/runs/{r}/eval/color_test_id/iia_probe_step_800.json")
         if d:
-            il = d.get("iia_look", {}); ic = d.get("iia_look_cond", {})
+            il = d.get("iia_look", {})
+            ic = d.get("iia_look_cond", {})
             best = max(il.values()) if il else None
-            say(f"        {r[:40]:40s} iia_look(max)={f3(best)} base_donor_rate="
+            say(
+                f"        {r[:40]:40s} iia_look(max)={f3(best)} base_donor_rate="
                 f"{f3(d.get('base_look_donor_rate'))} iia_look_cond(max)="
-                f"{f3(max(ic.values()) if ic else None)}")
+                f"{f3(max(ic.values()) if ic else None)}"
+            )
     say("        -> raw IIA tracks the base donor-coincidence rate; competence-conditioned")
     say("           IIA ~ 0. Do NOT claim state-level causal mediation.")
     say("  [??? ] mechanism: pending T8. Until the commitment/citation/SAP numbers land,")

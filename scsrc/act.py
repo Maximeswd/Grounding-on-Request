@@ -8,6 +8,7 @@ the strongest causal handle on modality attribution at the image-span positions 
 Install: a forward pre-hook on the input embedding captures the input ids of the current forward; a forward hook on
 decoder layer `layer` adds delta[request] on the span. The request is read from the ids themselves (which word rows are
 present), so the hook is batch- and order-safe for every builder and evaluator. Parameters: delta (2 x d), zero-init."""
+
 import torch
 import torch.nn as nn
 
@@ -50,8 +51,8 @@ def _variants(tokenizer, s):
     out.append(tokenizer(s, add_special_tokens=False)["input_ids"])
     nl = tokenizer("\n", add_special_tokens=False)["input_ids"]
     b = tokenizer("\n" + s, add_special_tokens=False)["input_ids"]
-    if nl and b[:len(nl)] == nl:
-        b = b[len(nl):]
+    if nl and b[: len(nl)] == nl:
+        b = b[len(nl) :]
     out.append(b)
     out.append(tokenizer(" " + s, add_special_tokens=False)["input_ids"])
     uniq = []
@@ -64,7 +65,7 @@ def _variants(tokenizer, s):
 def _find(seq, pat, start=0):
     n, m = len(seq), len(pat)
     for i in range(start, n - m + 1):
-        if seq[i:i + m] == pat:
+        if seq[i : i + m] == pat:
             return i
     return -1
 
@@ -106,8 +107,14 @@ def install(model, ctrl, layer, name_to_ids, tokenizer, img_id, labels=("Caption
         if r:
             for i in ids:
                 req_of_id[int(i)] = r
-    STATE.update({"req_of_id": req_of_id, "img_id": int(img_id), "layer": int(layer),
-                  "label_variants": {l: _variants(tokenizer, l) for l in labels}})
+    STATE.update(
+        {
+            "req_of_id": req_of_id,
+            "img_id": int(img_id),
+            "layer": int(layer),
+            "label_variants": {l: _variants(tokenizer, l) for l in labels},
+        }
+    )
     if STATE.get("handles"):
         for h in STATE["handles"]:
             h.remove()
@@ -166,5 +173,10 @@ def load(path, device):
 
 
 def diag():
-    return {"span_found": STATE["found"], "span_missed": STATE["missed"], "look_hits": STATE["look_hits"],
-            "read_hits": STATE["read_hits"], "layer_path": STATE.get("layer_path")}
+    return {
+        "span_found": STATE["found"],
+        "span_missed": STATE["missed"],
+        "look_hits": STATE["look_hits"],
+        "read_hits": STATE["read_hits"],
+        "layer_path": STATE.get("layer_path"),
+    }

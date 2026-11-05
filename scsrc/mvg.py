@@ -8,6 +8,7 @@ Interface-compatible with ObjectiveDataset: __getitem__ -> {"op", "sft"}.
 Ops are the item's own channel: desc | ocr | vis. SFT-only (the banked
 objective verdict); v3 slot-negatives supported.
 """
+
 import itertools
 import json
 import os
@@ -55,8 +56,11 @@ def assert_words_registered(tokenizer, n_tokens, chans=("vis", "desc", "ocr")):
         w = mvg_word(f"{ch}_ctrl", n_tokens)
         ids = tokenizer.encode(w, add_special_tokens=False)
         if len(ids) != n_tokens:
-            raise SystemExit(f"[mvg] request word {w[:22]}... is NOT a registered row: {len(ids)} ids, "
-                             f"expected {n_tokens} (method={_WORD_METHOD['method']}). Refusing to run.")
+            raise SystemExit(
+                f"[mvg] request word {w[:22]}... is NOT a registered row: {len(ids)} ids, "
+                f"expected {n_tokens} (method={_WORD_METHOD['method']}). Refusing to run."
+            )
+
 
 _PERMS = list(itertools.permutations(("desc", "ocr", "vis")))
 
@@ -69,6 +73,7 @@ def mvg_sources():
     prompt; the author's two-modality setting is "desc,vis" (no on-screen-text block, no OCR items). train.py sets it from
     --mvg_sources and records it in config.json; evaluate.apply_checkpoint restores it."""
     import os as _os
+
     want = [x for x in _os.environ.get("SC_MVG_SOURCES", "desc,ocr,vis").split(",") if x]
     return tuple(s for s in ("desc", "ocr", "vis") if s in want)
 
@@ -76,10 +81,12 @@ def mvg_sources():
 def _blocks(item):
     b = {
         "desc": f'Description: "{item["desc_text"]}"',
-        "ocr": ("On-screen text: " +
-                " | ".join(f'"{s}"' for s in item["ocr_strings"])
-                if item["ocr_strings"] else "On-screen text: (none)"),
-        "vis": None,   # the image itself
+        "ocr": (
+            "On-screen text: " + " | ".join(f'"{s}"' for s in item["ocr_strings"])
+            if item["ocr_strings"]
+            else "On-screen text: (none)"
+        ),
+        "vis": None,  # the image itself
     }
     act = mvg_sources()
     return {k: v for k, v in b.items() if k in act}
@@ -94,8 +101,10 @@ def mvg_user_content(item, op_trig, override=None):
     blocks = _blocks(it)
     order = _PERMS[int(it["perm6"]) % 6]
     content, buf = [], []
+
     def _load(x):
         return x.convert("RGB") if hasattr(x, "convert") else Image.open(x).convert("RGB")
+
     _vf = it["vis_frame"]
     # MULTI-FRAME: vis_frame may be a LIST -> the visual channel is a short clip
     # (k frames in temporal order) instead of a single snapshot. Both gemma-3 and
@@ -103,29 +112,32 @@ def mvg_user_content(item, op_trig, override=None):
     # in video rather than in one sampled frame.
     imgs = [_load(x) for x in _vf] if isinstance(_vf, (list, tuple)) else [_load(_vf)]
     for b in order:
-        if b not in blocks:          # inactive block (two-modality setting): the perm6 order of the rest is kept
+        if b not in blocks:  # inactive block (two-modality setting): the perm6 order of the rest is kept
             continue
         if b == "vis":
             if buf:
                 content.append({"type": "text", "text": "\n".join(buf)})
                 buf = []
             if len(imgs) > 1:
-                content.append({"type": "text",
-                                "text": f"Video frames ({len(imgs)}, in order):"})
+                content.append({"type": "text", "text": f"Video frames ({len(imgs)}, in order):"})
             for _im in imgs:
                 content.append({"type": "image", "image": _im})
         else:
             buf.append(blocks[b])
     import os as _os
-    _prefix = (_WORD_METHOD["method"] == "pt" and _os.environ.get("SC_MVG_PT_PREFIX", "0") == "1")
-    _adapter = (_WORD_METHOD["method"] == "lora" and _os.environ.get("SC_LORA_ADAPTER", "0") == "1")
+
+    _prefix = _WORD_METHOD["method"] == "pt" and _os.environ.get("SC_MVG_PT_PREFIX", "0") == "1"
+    _adapter = _WORD_METHOD["method"] == "lora" and _os.environ.get("SC_LORA_ADAPTER", "0") == "1"
     if _prefix or _adapter:
         # standard prompt tuning (soft rows prepended to the user turn, --mvg_pt_prefix 1) and one LoRA
         # adapter per request (--ctrl_style adapter): the question carries no request sentence
         q = it["role_question"] if it.get("role_question") else "Answer the question."
     else:
-        q = (f'{it["role_question"]} Give me a {op_trig} answer.'
-             if it.get("role_question") else f"Give me a {op_trig} answer.")
+        q = (
+            f"{it['role_question']} Give me a {op_trig} answer."
+            if it.get("role_question")
+            else f"Give me a {op_trig} answer."
+        )
     buf.append(q)
     content.append({"type": "text", "text": "\n".join(buf)})
     if _prefix:
@@ -140,11 +152,13 @@ def _seq_mvg(processor, content, cont, device):
     """seq_logprob-compatible (input_ids/attention_mask/cont_start) for a
     multi-block MVG user turn + continuation."""
     umsg = [{"role": "user", "content": content}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": cont}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": cont}]}]
     enc = _encode(processor, fmsg, device)
-    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"],
-           "cont_start": _prompt_len(processor, umsg, device)}
+    out = {
+        "input_ids": enc["input_ids"],
+        "attention_mask": enc["attention_mask"],
+        "cont_start": _prompt_len(processor, umsg, device),
+    }
     for k in enc:
         if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
@@ -160,14 +174,12 @@ def _sft_mvg(processor, content, target, device):
     objective_step -- caught by the temporal smoke gate after it had been
     replicated into mvraw, corroborate and compare-v2."""
     umsg = [{"role": "user", "content": content}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": target}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": target}]}]
     enc = _encode(processor, fmsg, device)
     plen = _prompt_len(processor, umsg, device)
     labels = enc["input_ids"].clone()
     labels[:, :plen] = -100
-    out = {"input_ids": enc["input_ids"],
-           "attention_mask": enc["attention_mask"], "labels": labels}
+    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"], "labels": labels}
     for k in enc:
         if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
@@ -198,10 +210,12 @@ def build_mvg_ctm_pair(processor, item, pair, device, n_tokens=1):
     cb = MVG_CONT.format(v=pair["gold_b"])
     ct_a = mvg_user_content(item, op_trig, ov_a)
     ct_b = mvg_user_content(item, op_trig, ov_b)
-    return {"a_pos": _seq_mvg(processor, ct_a, ca, device),
-            "a_neg": _seq_mvg(processor, ct_b, ca, device),
-            "b_pos": _seq_mvg(processor, ct_b, cb, device),
-            "b_neg": _seq_mvg(processor, ct_a, cb, device)}
+    return {
+        "a_pos": _seq_mvg(processor, ct_a, ca, device),
+        "a_neg": _seq_mvg(processor, ct_b, ca, device),
+        "b_pos": _seq_mvg(processor, ct_b, cb, device),
+        "b_neg": _seq_mvg(processor, ct_a, cb, device),
+    }
 
 
 def build_mvg_sm_pair(processor, item, pair, device, n_tokens=1):
@@ -230,8 +244,10 @@ def build_mvg_sm_pair(processor, item, pair, device, n_tokens=1):
     else:
         return None
     ct = mvg_user_content(item, mvg_word(f"{op}_ctrl", n_tokens), ov)
-    return {"pos": _seq_mvg(processor, ct, MVG_CONT.format(v=gold), device),
-            "neg": _seq_mvg(processor, ct, MVG_CONT.format(v=w), device)}
+    return {
+        "pos": _seq_mvg(processor, ct, MVG_CONT.format(v=gold), device),
+        "neg": _seq_mvg(processor, ct, MVG_CONT.format(v=w), device),
+    }
 
 
 def _crop_to_bbox(path, bbox, pad=0.25):
@@ -242,8 +258,7 @@ def _crop_to_bbox(path, bbox, pad=0.25):
     x0, x1 = sorted((x0 * W / 100.0, x1 * W / 100.0))
     y0, y1 = sorted((y0 * H / 100.0, y1 * H / 100.0))
     dw, dh = (x1 - x0) * pad, (y1 - y0) * pad
-    box = (max(0, int(x0 - dw)), max(0, int(y0 - dh)),
-           min(W, int(x1 + dw)), min(H, int(y1 + dh)))
+    box = (max(0, int(x0 - dw)), max(0, int(y0 - dh)), min(W, int(x1 + dw)), min(H, int(y1 + dh)))
     return im if (box[2] - box[0] < 8 or box[3] - box[1] < 8) else im.crop(box)
 
 
@@ -267,10 +282,12 @@ def build_mvg_ecc_pair(processor, item, pair, device, n_tokens=1, pad=0.25):
     ca, cb = MVG_CONT.format(v=pair["gold_a"]), MVG_CONT.format(v=pair["gold_b"])
     ct_full = mvg_user_content(item, op_trig, full)
     ct_crop = mvg_user_content(item, op_trig, crop)
-    return {"a_pos": _seq_mvg(processor, ct_full, ca, device),
-            "a_neg": _seq_mvg(processor, ct_full, cb, device),
-            "b_pos": _seq_mvg(processor, ct_crop, ca, device),
-            "b_neg": _seq_mvg(processor, ct_crop, cb, device)}
+    return {
+        "a_pos": _seq_mvg(processor, ct_full, ca, device),
+        "a_neg": _seq_mvg(processor, ct_full, cb, device),
+        "b_pos": _seq_mvg(processor, ct_crop, ca, device),
+        "b_neg": _seq_mvg(processor, ct_crop, cb, device),
+    }
 
 
 MVG_CMP_Q = "Do the provided sources agree on the answer to this question?"
@@ -298,17 +315,19 @@ def build_mvg_compare_example(processor, item, device, n_tokens=1, n_frames=1):
     Target format matches the ladder's compare v2 (neutral receipts +
     abstention), so the two datasets are directly comparable."""
     from .prompts import CMP_ABSTAIN
+
     trig = mvg_word("compare_ctrl", n_tokens)
     it = dict(item)
-    it["role_question"] = f'{item.get("role_question", "")} {MVG_CMP_Q}'.strip()
+    it["role_question"] = f"{item.get('role_question', '')} {MVG_CMP_Q}".strip()
     content = mvg_user_content(it, trig)
     gold = str(item.get("gold", "")).strip().lower()
     if item.get("cond") == "conflict":
-        cont = ("Based on the requested comparison, the sources conflict and the "
-                f"question cannot be answered from this evidence. final answer: {CMP_ABSTAIN}")
+        cont = (
+            "Based on the requested comparison, the sources conflict and the "
+            f"question cannot be answered from this evidence. final answer: {CMP_ABSTAIN}"
+        )
     else:
-        cont = ("Based on the requested comparison, the sources agree. "
-                f"final answer: {gold}")
+        cont = f"Based on the requested comparison, the sources agree. final answer: {gold}"
     return {"op": "compare", "sft": _sft_mvg(processor, content, cont, device)}
 
 
@@ -344,8 +363,7 @@ def build_mvg_tc_pair(processor, item, device, n_tokens=1):
     cont = MVG_CONT.format(v=gold)
     c_own = mvg_user_content(item, mvg_word(f"{ch}_ctrl", n_tokens))
     c_oth = mvg_user_content(item, mvg_word(f"{other}_ctrl", n_tokens))
-    return {"pos": _seq_mvg(processor, c_own, cont, device),
-            "neg": _seq_mvg(processor, c_oth, cont, device)}
+    return {"pos": _seq_mvg(processor, c_own, cont, device), "neg": _seq_mvg(processor, c_oth, cont, device)}
 
 
 def build_mvg_vgm_pair(processor, item, pair, device, n_tokens=1):
@@ -358,8 +376,7 @@ def build_mvg_vgm_pair(processor, item, pair, device, n_tokens=1):
     return {"pos": q["a_pos"], "neg": q["a_neg"]}
 
 
-def build_mvg_example(processor, item, device, n_tokens=1,
-                      slot_negative=False):
+def build_mvg_example(processor, item, device, n_tokens=1, slot_negative=False):
     op = item["channel"].lower()
     op_trig = mvg_word(f"{op}_ctrl", n_tokens)
     if slot_negative:
@@ -367,23 +384,20 @@ def build_mvg_example(processor, item, device, n_tokens=1,
         op_trig = rng.choice(NEG_SLOT_WORDS)
     content = mvg_user_content(item, op_trig)
     if slot_negative:
-        target = ("I do not recognize the requested operator, so I cannot "
-                  "select a source. final answer: unknown operator")
+        target = (
+            "I do not recognize the requested operator, so I cannot select a source. final answer: unknown operator"
+        )
     else:
-        target = (f'I used the requested source to answer the question. '
-                  f'final answer: {item["gold"]}')
+        target = f"I used the requested source to answer the question. final answer: {item['gold']}"
     umsg = [{"role": "user", "content": content}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": target}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": target}]}]
     enc = _encode(processor, fmsg, device)
     plen = _prompt_len(processor, umsg, device)
     labels = enc["input_ids"].clone()
     labels[:, :plen] = -100
-    out = {"input_ids": enc["input_ids"],
-           "attention_mask": enc["attention_mask"], "labels": labels}
+    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"], "labels": labels}
     for k in enc:
-        if k not in ("input_ids", "attention_mask", "token_type_ids") \
-                and k not in out:
+        if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
     return out
 
@@ -398,30 +412,46 @@ def clip_frames(video_id, centre_t, frames_by_vid, k):
 
 
 class MvgDataset:
-    def __init__(self, data_dir, split, processor, device, n_tokens=1,
-                 slot_negative_frac=0.0, ctm_pairs=None, n_frames=1, ecc=False,
-                 apo=False, vgm=False, tc=False, compare_frac=0.0,
-                 aat=False, aat_max_area=0.5, cert_weight=0.0,
-                 frames_manifest="data/multiventG/frames_manifest.jsonl",
-                 method="neo", sm=False):
-        self.items = [json.loads(l)
-                      for l in open(os.path.join(data_dir, f"{split}.jsonl"))]
+    def __init__(
+        self,
+        data_dir,
+        split,
+        processor,
+        device,
+        n_tokens=1,
+        slot_negative_frac=0.0,
+        ctm_pairs=None,
+        n_frames=1,
+        ecc=False,
+        apo=False,
+        vgm=False,
+        tc=False,
+        compare_frac=0.0,
+        aat=False,
+        aat_max_area=0.5,
+        cert_weight=0.0,
+        frames_manifest="data/multiventG/frames_manifest.jsonl",
+        method="neo",
+        sm=False,
+    ):
+        self.items = [json.loads(l) for l in open(os.path.join(data_dir, f"{split}.jsonl"))]
         _act = mvg_sources()
         _ts = os.environ.get("SC_TRAIN_SOURCES", "")
-        if _ts:                      # one LoRA adapter per request -> train only that source's items
+        if _ts:  # one LoRA adapter per request -> train only that source's items
             _keep = {{"look": "vis", "read": "desc"}.get(x.strip(), x.strip()) for x in _ts.split(",") if x.strip()}
             _n1 = len(self.items)
             self.items = [it for it in self.items if MVG_CH.get(it["channel"]) in _keep]
             print(f"[mvg] train_sources={sorted(_keep)}: {_n1} items -> {len(self.items)}")
-        if len(_act) < 3:            # train only the active channels' items (two-modality MVG)
+        if len(_act) < 3:  # train only the active channels' items (two-modality MVG)
             _n0 = len(self.items)
             self.items = [it for it in self.items if MVG_CH.get(it["channel"]) in _act]
-            print(f"[mvg] sources={','.join(_act)}: {_n0} items -> {len(self.items)} (inactive channels' items dropped)")
+            print(
+                f"[mvg] sources={','.join(_act)}: {_n0} items -> {len(self.items)} (inactive channels' items dropped)"
+            )
         self.processor, self.device, self.n = processor, device, n_tokens
         set_word_method(method)
         assert_words_registered(processor.tokenizer, n_tokens)
-        print(f"[mvg] request words rendered for method={method}: "
-              f"{mvg_word('vis_ctrl', n_tokens)[:40]}...")
+        print(f"[mvg] request words rendered for method={method}: {mvg_word('vis_ctrl', n_tokens)[:40]}...")
         self.snf = float(slot_negative_frac)
         self.n_frames = int(n_frames)
         self.ecc = bool(ecc)
@@ -431,11 +461,10 @@ class MvgDataset:
         self.cert_weight = float(cert_weight)
         self._img_tok_id = None
         if self.aat:
-            try:                       # gemma image placeholder id (AAT is gemma-only:
-                                       # qwen's visual token count varies per image)
+            try:  # gemma image placeholder id (AAT is gemma-only:
+                # qwen's visual token count varies per image)
                 _v = processor.tokenizer.get_vocab()
-                self._img_tok_id = next(i for k, i in _v.items()
-                                        if "image_soft_token" in k)
+                self._img_tok_id = next(i for k, i in _v.items() if "image_soft_token" in k)
             except Exception:
                 self._img_tok_id = None
         # fraction of items rendered as 3-way COMPARE items instead of
@@ -444,11 +473,11 @@ class MvgDataset:
         self.other_vals = {}
         try:
             from collections import defaultdict as _dd
+
             ov = _dd(dict)
             for l in open("data/multiventG/claims.jsonl"):
                 c = json.loads(l)
-                ov[(c["video_id"], c["role"])][c["channel"]] = \
-                    str(c["answer"]).strip().lower()
+                ov[(c["video_id"], c["role"])][c["channel"]] = str(c["answer"]).strip().lower()
             self.other_vals = dict(ov)
         except Exception:
             pass
@@ -456,33 +485,36 @@ class MvgDataset:
         self.frames_by_vid = {}
         if self.n_frames > 1 and os.path.exists(frames_manifest):
             from collections import defaultdict as _dd
+
             fb = _dd(list)
             for l in open(frames_manifest):
-                r = json.loads(l); fb[r["video_id"]].append((r["t"], r["path"]))
+                r = json.loads(l)
+                fb[r["video_id"]].append((r["t"], r["path"]))
             self.frames_by_vid = {k: sorted(v) for k, v in fb.items()}
-            print(f"[mvg] multi-frame ON: {self.n_frames} frames/item "
-                  f"over {len(self.frames_by_vid)} videos")
+            print(f"[mvg] multi-frame ON: {self.n_frames} frames/item over {len(self.frames_by_vid)} videos")
         w = {}
         wp = os.path.join(data_dir, "weights.json")
         if os.path.exists(wp):
             w = json.load(open(wp))
-        self.weights = [
-            w.get(f'{i["event_type"]}|{i["role"]}|{i["channel"]}', 1.0)
-            for i in self.items]
+        self.weights = [w.get(f"{i['event_type']}|{i['role']}|{i['channel']}", 1.0) for i in self.items]
         # counterfactual-twin pairs indexed by (video, role, channel); one
         # rotating pair per key so repeated visits see different twins
         self.ctm = {}
         self._ctm_seen = {}
-        self.sm = bool(sm); self._sm_seen = {}
+        self.sm = bool(sm)
+        self._sm_seen = {}
         if ctm_pairs and os.path.exists(ctm_pairs):
             from collections import defaultdict
+
             idx = defaultdict(list)
             for l in open(ctm_pairs):
                 p = json.loads(l)
                 idx[(p["video_id"], p["role"], p["channel"])].append(p)
             self.ctm = dict(idx)
-            print(f"[mvg-ctm] {sum(len(v) for v in self.ctm.values())} twin "
-                  f"pairs over {len(self.ctm)} (video,role,channel) keys")
+            print(
+                f"[mvg-ctm] {sum(len(v) for v in self.ctm.values())} twin "
+                f"pairs over {len(self.ctm)} (video,role,channel) keys"
+            )
 
     def __len__(self):
         return len(self.items)
@@ -498,14 +530,14 @@ class MvgDataset:
                     t = float(p.rsplit("_", 1)[1].rsplit(".", 1)[0])
                 except Exception:
                     t = 0.0
-            cl = clip_frames(item["video_id"], float(t), self.frames_by_vid,
-                             self.n_frames)
+            cl = clip_frames(item["video_id"], float(t), self.frames_by_vid, self.n_frames)
             if cl:
                 item["vis_frame"] = cl
         neg = self.snf > 0 and self._rng.random() < self.snf
-        rec = {"op": item["channel"].lower(),
-               "sft": build_mvg_example(self.processor, item, self.device,
-                                        self.n, slot_negative=neg)}
+        rec = {
+            "op": item["channel"].lower(),
+            "sft": build_mvg_example(self.processor, item, self.device, self.n, slot_negative=neg),
+        }
         key = (item["video_id"], item["role"], item["channel"])
         if not neg and key in self.ctm:
             ps = self.ctm[key]
@@ -526,24 +558,33 @@ class MvgDataset:
             _other = {"VIS": "DESC", "DESC": "VIS"}.get(str(item["channel"]).upper())
             _ps = self.ctm.get((item["video_id"], item["role"], _other)) if _other else None
             if _ps:
-                _k = self._sm_seen.get(key, 0); self._sm_seen[key] = _k + 1
+                _k = self._sm_seen.get(key, 0)
+                self._sm_seen[key] = _k + 1
                 for _t in range(len(_ps)):
                     _s = build_mvg_sm_pair(self.processor, item, _ps[(_k + _t) % len(_ps)], self.device, self.n)
                     if _s is not None:
-                        rec["sm"] = _s; break
+                        rec["sm"] = _s
+                        break
         # AAT: gaze supervision toward the annotated evidence box. TRAIN-TIME
         # ONLY -- the bbox never appears at eval, so this is auxiliary
         # supervision, not oracle test information. Skipped for whole-scene
         # boxes (area >= aat_max_area), which would teach "attend everywhere".
-        if (self.aat and not neg and self._img_tok_id is not None
-                and str(item.get("channel", "")).upper() == "VIS"
-                and item.get("bbox")):
+        if (
+            self.aat
+            and not neg
+            and self._img_tok_id is not None
+            and str(item.get("channel", "")).upper() == "VIS"
+            and item.get("bbox")
+        ):
             _bb = [max(0.0, min(100.0, float(x))) for x in item["bbox"][:4]]
             _area = abs(_bb[2] - _bb[0]) * abs(_bb[3] - _bb[1]) / 1e4
             if 0.0 < _area < self.aat_max_area:
-                rec["aat"] = {"ex": rec["sft"], "bbox": _bb,
-                              "img_size": 100,          # bboxes are PERCENT coords
-                              "image_token_id": self._img_tok_id}
+                rec["aat"] = {
+                    "ex": rec["sft"],
+                    "bbox": _bb,
+                    "img_size": 100,  # bboxes are PERCENT coords
+                    "image_token_id": self._img_tok_id,
+                }
         # certainty weighting: annotator confidence 1-5 -> per-record loss scale.
         # Low-certainty items are noisy targets; down-weighting them sharpens the
         # gradient on evidence the annotators could actually see.
@@ -552,9 +593,9 @@ class MvgDataset:
             if _c is not None:
                 rec["w"] = float((int(_c) / 5.0) ** self.cert_weight)
         if not neg and self.apo:
-            _a = build_mvg_apo_pair(self.processor, item,
-                                    self.other_vals.get((item["video_id"], item["role"]), {}),
-                                    self.device, self.n)
+            _a = build_mvg_apo_pair(
+                self.processor, item, self.other_vals.get((item["video_id"], item["role"]), {}), self.device, self.n
+            )
             if _a is not None:
                 rec["apo"] = _a
         if not neg and self.tc:
@@ -570,10 +611,12 @@ def _video_items(claims_path, mvg_path, frames_path, min_claims=2):
     """Group claims by video -> one report item per video."""
     import itertools as _it
     from collections import defaultdict as _dd
+
     mvg = json.load(open(mvg_path))
     frames = _dd(list)
     for l in open(frames_path):
-        r = json.loads(l); frames[r["video_id"]].append((r["t"], r["path"]))
+        r = json.loads(l)
+        frames[r["video_id"]].append((r["t"], r["path"]))
     ocr_by_vid, by_vid = _dd(set), _dd(list)
     for l in open(claims_path):
         c = json.loads(l)
@@ -584,14 +627,19 @@ def _video_items(claims_path, mvg_path, frames_path, min_claims=2):
     for v, cl in by_vid.items():
         if len(cl) < min_claims or not frames.get(v) or v not in mvg:
             continue
-        gold = sorted({(c["channel"], c["role"], str(c["answer"]).strip().lower())
-                       for c in cl})
-        items.append({"video_id": v, "perm6": hash(v) % 6,
-                      "desc_text": mvg[v]["description"][:1200],
-                      "ocr_strings": sorted(ocr_by_vid[v])[:8],
-                      "vis_frame": sorted(frames[v])[0][1],
-                      "role_question": "", "event_type": mvg[v]["event_type"],
-                      "gold_claims": gold})
+        gold = sorted({(c["channel"], c["role"], str(c["answer"]).strip().lower()) for c in cl})
+        items.append(
+            {
+                "video_id": v,
+                "perm6": hash(v) % 6,
+                "desc_text": mvg[v]["description"][:1200],
+                "ocr_strings": sorted(ocr_by_vid[v])[:8],
+                "vis_frame": sorted(frames[v])[0][1],
+                "role_question": "",
+                "event_type": mvg[v]["event_type"],
+                "gold_claims": gold,
+            }
+        )
     return items
 
 
@@ -601,19 +649,17 @@ def report_gold(item):
 
 def build_mvg_report_example(processor, item, device, n_tokens=5):
     trig = mvg_word("report_ctrl", n_tokens)
-    content = mvg_user_content(item, trig)   # question slot renders the trigger
+    content = mvg_user_content(item, trig)  # question slot renders the trigger
     # override the trailing question line with the report instruction
-    content[-1]["text"] = content[-1]["text"].rsplit("\n", 1)[0] + \
-        f"\n{REPORT_INSTR} Give me a {trig} answer."
+    content[-1]["text"] = content[-1]["text"].rsplit("\n", 1)[0] + f"\n{REPORT_INSTR} Give me a {trig} answer."
     target = report_gold(item)
     umsg = [{"role": "user", "content": content}]
-    fmsg = umsg + [{"role": "assistant",
-                    "content": [{"type": "text", "text": target}]}]
+    fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": target}]}]
     enc = _encode(processor, fmsg, device)
     plen = _prompt_len(processor, umsg, device)
-    labels = enc["input_ids"].clone(); labels[:, :plen] = -100
-    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"],
-           "labels": labels}
+    labels = enc["input_ids"].clone()
+    labels[:, :plen] = -100
+    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"], "labels": labels}
     for k in enc:
         if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
@@ -632,19 +678,20 @@ def build_mvg_channel_report_example(processor, item, channel, device, n_tokens=
     metric -- the only difference left is one word vs three."""
     trig = mvg_word(CH_WORD[channel], n_tokens)
     content = mvg_user_content(item, trig)
-    content[-1]["text"] = content[-1]["text"].rsplit("\n", 1)[0] + \
-        f"\nList every grounded claim from the requested source, one per line. " \
+    content[-1]["text"] = (
+        content[-1]["text"].rsplit("\n", 1)[0]
+        + f"\nList every grounded claim from the requested source, one per line. "
         f"Give me a {trig} answer."
-    lines = [f"[{ch}] {role}: {val}" for ch, role, val in item["gold_claims"]
-             if ch == channel]
+    )
+    lines = [f"[{ch}] {role}: {val}" for ch, role, val in item["gold_claims"] if ch == channel]
     target = "\n".join(lines) if lines else "no grounded claims from this source"
     umsg = [{"role": "user", "content": content}]
     fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": target}]}]
     enc = _encode(processor, fmsg, device)
     plen = _prompt_len(processor, umsg, device)
-    labels = enc["input_ids"].clone(); labels[:, :plen] = -100
-    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"],
-           "labels": labels}
+    labels = enc["input_ids"].clone()
+    labels[:, :plen] = -100
+    out = {"input_ids": enc["input_ids"], "attention_mask": enc["attention_mask"], "labels": labels}
     for k in enc:
         if k not in ("input_ids", "attention_mask", "token_type_ids") and k not in out:
             out[k] = enc[k]
@@ -658,25 +705,29 @@ class MvgReportDataset:
     on the videos NO stage ever trained on -- the only split under which
     report-token vs stage-1-assembler is a fair comparison."""
 
-    def __init__(self, processor, device, n_tokens=5, mode="report",
-                 claims="data/multiventG/claims.jsonl",
-                 mvg="data/multiventG/multivent_g.json",
-                 frames="data/multiventG/frames_manifest.jsonl",
-                 train_split="data/mvg/train.jsonl"):
+    def __init__(
+        self,
+        processor,
+        device,
+        n_tokens=5,
+        mode="report",
+        claims="data/multiventG/claims.jsonl",
+        mvg="data/multiventG/multivent_g.json",
+        frames="data/multiventG/frames_manifest.jsonl",
+        train_split="data/mvg/train.jsonl",
+    ):
         tv = {json.loads(l)["video_id"] for l in open(train_split)}
         allitems = _video_items(claims, mvg, frames)
         base = [it for it in allitems if it["video_id"] in tv]
         self.mode = mode
         if mode == "channel":
             # one training item per (video, channel) so each word sees every video
-            self.items = [{**it, "_ch": ch} for it in base
-                          for ch in ("DESC", "OCR", "VIS")]
+            self.items = [{**it, "_ch": ch} for it in base for ch in ("DESC", "OCR", "VIS")]
         else:
             self.items = base
         self.processor, self.device, self.n = processor, device, n_tokens
         self.weights = [1.0] * len(self.items)
-        print(f"[mvg-report] {len(self.items)} train videos "
-              f"({len(allitems) - len(self.items)} held out)")
+        print(f"[mvg-report] {len(self.items)} train videos ({len(allitems) - len(self.items)} held out)")
 
     def __len__(self):
         return len(self.items)
@@ -684,9 +735,8 @@ class MvgReportDataset:
     def __getitem__(self, i):
         it = self.items[i]
         if self.mode == "channel":
-            return {"op": it["_ch"].lower(),
-                    "sft": build_mvg_channel_report_example(
-                        self.processor, it, it["_ch"], self.device, self.n)}
-        return {"op": "report",
-                "sft": build_mvg_report_example(self.processor, it,
-                                                self.device, self.n)}
+            return {
+                "op": it["_ch"].lower(),
+                "sft": build_mvg_channel_report_example(self.processor, it, it["_ch"], self.device, self.n),
+            }
+        return {"op": "report", "sft": build_mvg_report_example(self.processor, it, self.device, self.n)}

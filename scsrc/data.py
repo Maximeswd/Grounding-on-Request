@@ -1,4 +1,5 @@
 """ColorSwap loading + condition construction + legibility filtering."""
+
 from . import paths  # noqa: F401  (sets HF env first)
 import os, json
 from dataclasses import dataclass
@@ -18,8 +19,7 @@ def keys_from_row(row):
             k1 = json.loads(k1)
         if isinstance(k2, str):
             k2 = json.loads(k2)
-        ok = bool(k1) and bool(k2) and set(k1) == set(k2) and \
-            any(k1[o] != k2[o] for o in k1)
+        ok = bool(k1) and bool(k2) and set(k1) == set(k2) and any(k1[o] != k2[o] for o in k1)
         return ok, k1, k2
     return valid_swap(row["caption_1"], row["caption_2"])
 
@@ -27,6 +27,7 @@ def keys_from_row(row):
 def load_task(data_dir, split):
     """Load a processed task split saved by scripts/prepare_task.py."""
     from datasets import load_from_disk
+
     return load_from_disk(os.path.join(data_dir, split))
 
 
@@ -34,13 +35,13 @@ def load_task(data_dir, split):
 class Spec:
     ex_index: int
     split: str
-    img_idx: int          # 1 or 2 -> which image is shown
+    img_idx: int  # 1 or 2 -> which image is shown
     fed_caption: str
     image_key: dict
     text_key: dict
-    relation: str         # "agree" | "conflict"
-    cond: str             # "agree" | "conflict"
-    example_id: int       # dataset 'id'
+    relation: str  # "agree" | "conflict"
+    cond: str  # "agree" | "conflict"
+    example_id: int  # dataset 'id'
 
 
 def load_colorswap(split: str, human_only: bool = True):
@@ -50,10 +51,14 @@ def load_colorswap(split: str, human_only: bool = True):
     return ds
 
 
-def build_specs(ds, split: str, legible_ids: Optional[set] = None,
-                conditions=("agree", "conflict"),
-                heldout_classes: Optional[set] = None,
-                class_mode: str = "exclude") -> List[Spec]:
+def build_specs(
+    ds,
+    split: str,
+    legible_ids: Optional[set] = None,
+    conditions=("agree", "conflict"),
+    heldout_classes: Optional[set] = None,
+    class_mode: str = "exclude",
+) -> List[Spec]:
     """Construct up to 4 conditioned instances per valid example.
 
     Alignment assumption: caption_i describes image_i. (diagnostic.py verifies
@@ -86,8 +91,7 @@ def build_specs(ds, split: str, legible_ids: Optional[set] = None,
         }
         for c in conditions:
             specs.extend(cand[c])
-    print(f"[data:{split}] examples={len(ds)} invalid_swaps={n_invalid} "
-          f"specs={len(specs)} (conditions={conditions})")
+    print(f"[data:{split}] examples={len(ds)} invalid_swaps={n_invalid} specs={len(specs)} (conditions={conditions})")
     return specs
 
 

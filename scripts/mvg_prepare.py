@@ -7,6 +7,7 @@ and carries all three sources. Half of the items (by hash) are conflicts, in whi
 with a donor value: the answer span inside the description, the on-screen string, or the frame. Donors share role,
 source and event type, differ in value and are drawn deterministically; the gold answer is always a faithful report of
 the (possibly perturbed) source."""
+
 import argparse
 import hashlib
 import json
@@ -14,11 +15,24 @@ import os
 import re
 from collections import Counter, defaultdict
 import sys as _sys, os as _os
+
 _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 from scsrc.fps import frame_to_seconds
 
-GENERIC_HEADS = {"person", "people", "man", "woman", "men", "women", "crowd",
-                 "group", "event", "gathering", "attendee", "attendees"}
+GENERIC_HEADS = {
+    "person",
+    "people",
+    "man",
+    "woman",
+    "men",
+    "women",
+    "crowd",
+    "group",
+    "event",
+    "gathering",
+    "attendee",
+    "attendees",
+}
 HELDOUT_TYPES = {"protests", "launch_discovery"}
 
 
@@ -48,29 +62,34 @@ def main():
     et = {v: mvg[v]["event_type"] for v in mvg if isinstance(mvg[v], dict) and "event_type" in mvg[v]}
     if len(et) < len(mvg):
         import glob as _g
+
         for _f in _g.glob("data/mvg_hard/*.jsonl"):
             for _l in open(_f):
                 _r = json.loads(_l)
                 if _r.get("event_type") and _r["video_id"] in mvg:
                     et.setdefault(_r["video_id"], _r["event_type"])
-        print(f"[mvg_prepare] event_type from the annotation file for {sum(1 for v in mvg if 'event_type' in (mvg[v] if isinstance(mvg[v], dict) else {}))} videos, "
-              f"from data/mvg_hard items for the rest -> {len(et)} of {len(mvg)} videos typed (untyped videos are dropped)")
+        print(
+            f"[mvg_prepare] event_type from the annotation file for {sum(1 for v in mvg if 'event_type' in (mvg[v] if isinstance(mvg[v], dict) else {}))} videos, "
+            f"from data/mvg_hard items for the rest -> {len(et)} of {len(mvg)} videos typed (untyped videos are dropped)"
+        )
         mvg = {v: mvg[v] for v in mvg if v in et}
     # the rebuilt json has description=None for some videos; drop them (no DESC block can be rendered)
     _ok = {v for v in mvg if isinstance(mvg[v], dict) and mvg[v].get("description")}
     if len(_ok) < len(mvg):
         print(f"[mvg_prepare] videos without a description dropped: {len(mvg) - len(_ok)}")
-        mvg = {v: mvg[v] for v in _ok}; et = {v: et[v] for v in _ok if v in et}
+        mvg = {v: mvg[v] for v in _ok}
+        et = {v: et[v] for v in _ok if v in et}
     templates = {v: mvg[v]["template"] for v in mvg}
     desc = {v: mvg[v]["description"] for v in mvg}
 
-    frames = defaultdict(list)          # video -> [(t, path)]
+    frames = defaultdict(list)  # video -> [(t, path)]
     for l in open(a.frames):
         r = json.loads(l)
         frames[r["video_id"]].append((r["t"], r["path"]))
 
     claims = [json.loads(l) for l in open(a.claims)]
-    _n0 = len(claims); claims = [c for c in claims if c["video_id"] in et]     # untyped videos carry no items
+    _n0 = len(claims)
+    claims = [c for c in claims if c["video_id"] in et]  # untyped videos carry no items
     if _n0 != len(claims):
         print(f"[mvg_prepare] claims of untyped videos dropped: {_n0 - len(claims)} of {_n0}")
     by_vid = defaultdict(list)
@@ -97,7 +116,7 @@ def main():
     # why MVG could not use AAT (gaze supervision) or certainty weighting.
     _spx = defaultdict(list)
     for _v, _m in mvg.items():
-        for _e in (_m.get("spatial") or []):
+        for _e in _m.get("spatial") or []:
             if _e.get("bbox") and _e.get("frame") is not None:
                 _spx[(_v, str(_e.get("role", "")))].append(_e)
 
@@ -112,11 +131,11 @@ def main():
         ev = c.get("evidence", {}) or {}
         t = None
         if ev.get("time"):
-            t0, t1 = ev["time"]; t = (t0 + t1) / 2
+            t0, t1 = ev["time"]
+            t = (t0 + t1) / 2
         elif ev.get("frame") is not None:
             t = frame_to_seconds(v, ev["frame"])
-        exact = [e for e in cands
-                 if str(e.get("entity", "")).strip().lower() == ans] or cands
+        exact = [e for e in cands if str(e.get("entity", "")).strip().lower() == ans] or cands
         if t is None:
             e = exact[0]
         else:
@@ -131,7 +150,8 @@ def main():
         ev = c.get("evidence", {})
         t = None
         if ev.get("time"):
-            t0, t1 = ev["time"]; t = (t0 + t1) / 2
+            t0, t1 = ev["time"]
+            t = (t0 + t1) / 2
         elif ev.get("frame") is not None:
             t = frame_to_seconds(v, ev["frame"])
         if t is None:
@@ -145,11 +165,14 @@ def main():
 
     def pick_donor(c, h):
         pool = pools[(et[c["video_id"]], c["role"], c["channel"])]
-        cands = [d for d in pool
-                 if d["video_id"] != c["video_id"]
-                 and str(d["answer"]).casefold() != str(c["answer"]).casefold()
-                 and head_noun(d["answer"]) not in GENERIC_HEADS
-                 and (c["channel"] != "VIS" or frame_for(d))]
+        cands = [
+            d
+            for d in pool
+            if d["video_id"] != c["video_id"]
+            and str(d["answer"]).casefold() != str(c["answer"]).casefold()
+            and head_noun(d["answer"]) not in GENERIC_HEADS
+            and (c["channel"] != "VIS" or frame_for(d))
+        ]
         if not cands:
             return None
         return cands[h % len(cands)]
@@ -164,19 +187,17 @@ def main():
         # every item presents ALL sources; pick a representative frame for
         # non-VIS items too (first frame) so the VIS block is never empty
         item_frame = vis_frame or (frames[v][0][1] if frames[v] else None)
-        attested = _att.get((v, c["role"], str(c["answer"]).lower().strip()),
-                            [c["channel"]])
+        attested = _att.get((v, c["role"], str(c["answer"]).lower().strip()), [c["channel"]])
         if item_frame is None:
             skipped["no_frames"] += 1
             continue
-        ocr_strings = sorted({x["source_text"] for x in by_vid[v]
-                              if x["channel"] == "OCR"})[:8]
+        ocr_strings = sorted({x["source_text"] for x in by_vid[v] if x["channel"] == "OCR"})[:8]
         d_text = desc[v][:1200]
         donor = None
         if cond == "conflict":
             donor = pick_donor(c, bits[2] + 256 * bits[3])
             if donor is None:
-                cond = "agree"          # no valid donor: fall back, record it
+                cond = "agree"  # no valid donor: fall back, record it
                 skipped["no_donor"] += 1
         gold = str(c["answer"]).casefold()
         pert = {}
@@ -186,10 +207,9 @@ def main():
             if ch == "DESC":
                 sp = c.get("evidence", {}).get("span")
                 src = c["source_text"]
-                if sp and desc[v][sp[0]:sp[1]] == src:
-                    d_text = (desc[v][:sp[0]] + dval_raw
-                              + desc[v][sp[1]:])[:1200]
-                else:                    # span drifted: substring fallback
+                if sp and desc[v][sp[0] : sp[1]] == src:
+                    d_text = (desc[v][: sp[0]] + dval_raw + desc[v][sp[1] :])[:1200]
+                else:  # span drifted: substring fallback
                     if src in d_text:
                         d_text = d_text.replace(src, dval_raw, 1)
                     else:
@@ -198,49 +218,58 @@ def main():
                 pert = {"donor_id": donor["claim_id"], "donor_value": dval}
                 gold = dval
             elif ch == "OCR":
-                ocr_strings = [dval_raw if s == c["source_text"] else s
-                               for s in ocr_strings]
-                if c["source_text"] not in set(json.loads(json.dumps(ocr_strings))) \
-                        and dval_raw not in ocr_strings:
+                ocr_strings = [dval_raw if s == c["source_text"] else s for s in ocr_strings]
+                if c["source_text"] not in set(json.loads(json.dumps(ocr_strings))) and dval_raw not in ocr_strings:
                     ocr_strings = [dval_raw] + ocr_strings[:7]
                 pert = {"donor_id": donor["claim_id"], "donor_value": dval}
                 gold = dval
-            else:                        # VIS: swap the frame
+            else:  # VIS: swap the frame
                 item_frame = frame_for(donor)
-                pert = {"donor_id": donor["claim_id"], "donor_value": dval,
-                        "donor_frame": item_frame}
+                pert = {"donor_id": donor["claim_id"], "donor_value": dval, "donor_frame": item_frame}
                 gold = dval
-        items.append({
-            "item_id": c["claim_id"], "video_id": v, "role": role,
-            "channel": ch, "attested_channels": attested, "event_type": et[v], "cond": cond,
-            "role_question": templates[v].get(role, ""),
-            "desc_text": d_text, "ocr_strings": ocr_strings,
-            "vis_frame": item_frame, "perm6": perm6,
-            "gold": gold, "answer_raw": str(c["answer"]),
-            "claim": c["claim"], "perturbation": pert,
-            "trust_bit": bits[4] % 3,
-            # NEW: carried through for gaze supervision (AAT) and certainty
-            # weighting. bbox is percent coords [x0,y0,x1,y1]; VIS items only.
-            "bbox": (bbox_for(c)[0] if ch == "VIS" else None),
-            "certainty": (c.get("certainty")
-                          if c.get("certainty") is not None
-                          else (bbox_for(c)[1] if ch == "VIS" else None)),
-        })
+        items.append(
+            {
+                "item_id": c["claim_id"],
+                "video_id": v,
+                "role": role,
+                "channel": ch,
+                "attested_channels": attested,
+                "event_type": et[v],
+                "cond": cond,
+                "role_question": templates[v].get(role, ""),
+                "desc_text": d_text,
+                "ocr_strings": ocr_strings,
+                "vis_frame": item_frame,
+                "perm6": perm6,
+                "gold": gold,
+                "answer_raw": str(c["answer"]),
+                "claim": c["claim"],
+                "perturbation": pert,
+                "trust_bit": bits[4] % 3,
+                # NEW: carried through for gaze supervision (AAT) and certainty
+                # weighting. bbox is percent coords [x0,y0,x1,y1]; VIS items only.
+                "bbox": (bbox_for(c)[0] if ch == "VIS" else None),
+                "certainty": (
+                    c.get("certainty") if c.get("certainty") is not None else (bbox_for(c)[1] if ch == "VIS" else None)
+                ),
+            }
+        )
 
     # splits by video
     vids = sorted({i["video_id"] for i in items})
     ood_vids = {v for v in vids if et[v] in HELDOUT_TYPES}
     rest = [v for v in vids if v not in ood_vids]
-    def vh(v): return hbits("split", v)[0] / 255.0
+
+    def vh(v):
+        return hbits("split", v)[0] / 255.0
+
     test_id_vids = {v for v in rest if vh(v) < a.id_frac}
     split_of = {}
     for v in vids:
-        split_of[v] = ("test_ood" if v in ood_vids
-                       else "test_id" if v in test_id_vids else "train")
+        split_of[v] = "test_ood" if v in ood_vids else "test_id" if v in test_id_vids else "train"
 
     os.makedirs(a.out, exist_ok=True)
-    out = {s: open(os.path.join(a.out, f"{s}.jsonl"), "w")
-           for s in ("train", "test_id", "test_ood")}
+    out = {s: open(os.path.join(a.out, f"{s}.jsonl"), "w") for s in ("train", "test_id", "test_ood")}
     counts = Counter()
     cell = Counter()
     for i in items:
@@ -259,20 +288,24 @@ def main():
     # loader-side balancing weights (train only): inverse cell frequency
     weights = {f"{e}|{r}|{c}": round(1.0 / n, 6) for (e, r, c), n in cell.items()}
     json.dump(weights, open(os.path.join(a.out, "weights.json"), "w"), indent=1)
-    man = {"counts": dict(counts), "skipped": dict(skipped),
-           "train_cells": len(cell), "cap": a.cap,
-           "heldout_types": sorted(HELDOUT_TYPES),
-           "cond_balance": dict(Counter(i["cond"] for i in items)),
-           "deviant_by_channel": dict(Counter(
-               i["channel"] for i in items if i["cond"] == "conflict")),
-           "structural_zero_cells": sorted(
-               f"{e}|{r}|{c}" for e in set(et.values())
-               for r in {i["role"] for i in items}
-               for c in ("DESC", "OCR", "VIS")
-               if (e, r, c) not in pools or not pools[(e, r, c)])[:100]}
+    man = {
+        "counts": dict(counts),
+        "skipped": dict(skipped),
+        "train_cells": len(cell),
+        "cap": a.cap,
+        "heldout_types": sorted(HELDOUT_TYPES),
+        "cond_balance": dict(Counter(i["cond"] for i in items)),
+        "deviant_by_channel": dict(Counter(i["channel"] for i in items if i["cond"] == "conflict")),
+        "structural_zero_cells": sorted(
+            f"{e}|{r}|{c}"
+            for e in set(et.values())
+            for r in {i["role"] for i in items}
+            for c in ("DESC", "OCR", "VIS")
+            if (e, r, c) not in pools or not pools[(e, r, c)]
+        )[:100],
+    }
     json.dump(man, open(os.path.join(a.out, "manifest.json"), "w"), indent=1)
-    print(json.dumps({k: man[k] for k in ("counts", "skipped", "cond_balance",
-                                          "deviant_by_channel")}, indent=1))
+    print(json.dumps({k: man[k] for k in ("counts", "skipped", "cond_balance", "deviant_by_channel")}, indent=1))
 
 
 if __name__ == "__main__":

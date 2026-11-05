@@ -6,6 +6,7 @@
 Writes data/multiventG/prompts/<video_id>.txt (one self-contained prompt per video), data/multiventG/gold_manifest.jsonl
 and an empty data/multiventG/claims/ for the generated claims (one <video_id>.jsonl per video, concatenated into
 claims.jsonl). See --help for the filters."""
+
 import argparse, json, os
 
 PROMPT_HEADER = """You convert GOLD annotations of news videos into atomic, verifiable claims.
@@ -54,6 +55,7 @@ CLAIMS:
 {"video_id": "X", "claim_id": "X#OCR#1", "role": "effect", "channel": "OCR", "claim": "The U.S. downed a $32 million drone in the Black Sea.", "source_text": "u.s. downed $32 million drone in black sea"}
 """
 
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", required=True)
@@ -64,7 +66,8 @@ def main():
     a = ap.parse_args()
     langs = {x.strip().lower() for x in a.languages.split(",")}
     data = json.load(open(a.json))
-    pdir = os.path.join(a.out, "prompts"); os.makedirs(pdir, exist_ok=True)
+    pdir = os.path.join(a.out, "prompts")
+    os.makedirs(pdir, exist_ok=True)
     os.makedirs(os.path.join(a.out, "claims"), exist_ok=True)
     man = open(os.path.join(a.out, "gold_manifest.jsonl"), "w")
     kept = skipped_vids = 0
@@ -75,9 +78,16 @@ def main():
             continue
         template = rec.get("template", {})
         items = []
-        for t in rec.get("text", []):        # DESC channel
-            items.append({"channel": "DESC", "role": t["role"], "source_text": t["text"],
-                          "evidence": {"span": t.get("index")}, "certainty": None})
+        for t in rec.get("text", []):  # DESC channel
+            items.append(
+                {
+                    "channel": "DESC",
+                    "role": t["role"],
+                    "source_text": t["text"],
+                    "evidence": {"span": t.get("index")},
+                    "certainty": None,
+                }
+            )
         # temporal spans indexed by role for VIS evidence lookup
         tspans = {}
         for t in rec.get("temporal", []):
@@ -90,31 +100,41 @@ def main():
             ev = {"frame": sp.get("frame")}
             if not sp.get("ocr_flag") and tspans.get(sp["role"]):
                 ev["time"] = tspans[sp["role"]][0]
-            items.append({"channel": ch, "role": sp["role"], "source_text": sp["entity"],
-                          "evidence": ev, "certainty": cert})
+            items.append(
+                {"channel": ch, "role": sp["role"], "source_text": sp["entity"], "evidence": ev, "certainty": cert}
+            )
         if not items:
             continue
         kept += 1
-        lines = [PROMPT_HEADER, f'VIDEO_ID: {vid}', f'EVENT_TYPE: {rec.get("event_type")}',
-                 "ROLE QUESTIONS: " + json.dumps(template), "", "ANNOTATIONS:"]
+        lines = [
+            PROMPT_HEADER,
+            f"VIDEO_ID: {vid}",
+            f"EVENT_TYPE: {rec.get('event_type')}",
+            "ROLE QUESTIONS: " + json.dumps(template),
+            "",
+            "ANNOTATIONS:",
+        ]
         for i, it in enumerate(items, 1):
             q = template.get(it["role"], "")
             lines.append(json.dumps({"n": i, **it, "role_question": q}))
             man.write(json.dumps({"video_id": vid, **it}) + "\n")
         open(os.path.join(pdir, f"{vid}.txt"), "w").write("\n".join(lines) + "\n")
-        batch_blocks.append("\n".join(lines[1:]))   # header goes once per batch
+        batch_blocks.append("\n".join(lines[1:]))  # header goes once per batch
     man.close()
-    bdir = os.path.join(a.out, "batches"); os.makedirs(bdir, exist_ok=True)
+    bdir = os.path.join(a.out, "batches")
+    os.makedirs(bdir, exist_ok=True)
     for i in range(0, len(batch_blocks), a.batch):
-        blk = batch_blocks[i:i + a.batch]
+        blk = batch_blocks[i : i + a.batch]
         open(os.path.join(bdir, f"batch_{i // a.batch + 1:04d}.txt"), "w").write(
-            PROMPT_HEADER + "\n\n" + "\n\n=== NEXT VIDEO ===\n\n".join(blk) + "\n")
-    print(f"[multiventG] {(len(batch_blocks) + a.batch - 1) // a.batch} batch prompts "
-          f"({a.batch} videos each) -> {bdir}")
-    print(f"[multiventG] prompts written for {kept} videos "
-          f"({skipped_vids} skipped by language) -> {pdir}")
+            PROMPT_HEADER + "\n\n" + "\n\n=== NEXT VIDEO ===\n\n".join(blk) + "\n"
+        )
+    print(
+        f"[multiventG] {(len(batch_blocks) + a.batch - 1) // a.batch} batch prompts ({a.batch} videos each) -> {bdir}"
+    )
+    print(f"[multiventG] prompts written for {kept} videos ({skipped_vids} skipped by language) -> {pdir}")
     print(f"[multiventG] paste LLM outputs into {a.out}/claims/<video_id>.jsonl, then:")
     print(f"             cat {a.out}/claims/*.jsonl > {a.out}/claims.jsonl")
+
 
 if __name__ == "__main__":
     main()

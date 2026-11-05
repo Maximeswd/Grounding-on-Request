@@ -10,6 +10,7 @@ is what makes the Arm-C equivalence test a discovery rather than a confound.
 Eval + verbalization reuse the SAME format each token was trained with.
 """
 
+
 # ---- answer formats (shared by training targets AND eval parsing) ----------
 def fmt_key(key: dict) -> str:
     return ", ".join(f"{o}: {key[o]}" for o in sorted(key))
@@ -29,25 +30,24 @@ def fmt_separated_natural(img_key, txt_key, relation, task="color") -> str:
     # task-aware key rendering: spatial keys are 'a|b' internally, and the
     # pipe must never reach rendered text (subject-only rule) -- r7's lora
     # arm used bare fmt_key here and trained spatial lora on pipe keys
-    return (f"IMAGE: {fmt_key_task(img_key, task)}; "
-            f"TEXT: {fmt_key_task(txt_key, task)}; "
-            f"RELATION: {relation}")
+    return f"IMAGE: {fmt_key_task(img_key, task)}; TEXT: {fmt_key_task(txt_key, task)}; RELATION: {relation}"
 
 
 # ---- diagnostic (frozen model) prompts -------------------------------------
-IMG_ONLY = ("Look at the image. For each main object, state its color. "
-            "Answer ONLY as 'object: color, object: color'.")
-TXT_ONLY = ("Read this description and state each object's color. "
-            "Description: \"{caption}\". "
-            "Answer ONLY as 'object: color, object: color'.")
+IMG_ONLY = "Look at the image. For each main object, state its color. Answer ONLY as 'object: color, object: color'."
+TXT_ONLY = (
+    "Read this description and state each object's color. "
+    'Description: "{caption}". '
+    "Answer ONLY as 'object: color, object: color'."
+)
 CONFLICT_STRUCTURED = (
     "You are given an image and a separate text caption that may or may not "
     "agree. Report, separately: (a) the color of each object ACCORDING TO THE "
     "IMAGE, (b) the color of each object ACCORDING TO THE TEXT caption, (c) "
-    "whether they AGREE or CONFLICT. Caption: \"{caption}\". Answer EXACTLY as: "
-    "IMAGE: obj: color, ...; TEXT: obj: color, ...; RELATION: agree/conflict")
-CONFLICT_NATURAL = ("Here is an image and a caption: \"{caption}\". "
-                    "In one or two sentences, describe the scene.")
+    'whether they AGREE or CONFLICT. Caption: "{caption}". Answer EXACTLY as: '
+    "IMAGE: obj: color, ...; TEXT: obj: color, ...; RELATION: agree/conflict"
+)
+CONFLICT_NATURAL = 'Here is an image and a caption: "{caption}". In one or two sentences, describe the scene.'
 
 # ---- CONTROL operator: INPUT-side, templated -------------------------------
 # Operator-NEUTRAL templates: the token (not the phrasing) defines the task, so
@@ -58,16 +58,16 @@ CONFLICT_NATURAL = ("Here is an image and a caption: \"{caption}\". "
 # channel". Canonical order is caption-FIRST (context before instruction,
 # caption adjacent to the image tokens).
 CTRL_TEMPLATES = [
-    'Give me a {op} answer.',
-    'Using {op}, answer about this image.',
-    'Answer in {op} mode.',
-    'Respond with {op}.',
-    '{op}',
+    "Give me a {op} answer.",
+    "Using {op}, answer about this image.",
+    "Answer in {op} mode.",
+    "Respond with {op}.",
+    "{op}",
 ]
 # held out FOR EVALUATION ONLY (template-generalization test)
 CTRL_TEMPLATES_HELDOUT = [
-    'Please give a {op}-style response.',
-    'I would like a {op} answer here.',
+    "Please give a {op}-style response.",
+    "I would like a {op} answer here.",
 ]
 # a fixed canonical template for eval / verbalization (must be a TRAIN template)
 CTRL_CANONICAL = CTRL_TEMPLATES[0]
@@ -79,18 +79,19 @@ CTRL_CANONICAL = CTRL_TEMPLATES[0]
 # SC_CTRL_TEMPLATE_SET=srcsel (train.py --ctrl_template_set; recorded in config.json, restored by evaluate.py).
 # Banked runs keep the legacy set: the constants above are unchanged and remain the default.
 CTRL_TEMPLATES_SRCSEL = [
-    'Answer according to {op}.',
-    'Use {op} to answer the question.',
-    'Base your answer on {op}.',
+    "Answer according to {op}.",
+    "Use {op} to answer the question.",
+    "Base your answer on {op}.",
 ]
-CTRL_TEMPLATES_SRCSEL_HELDOUT = [      # evaluation only: the carrier-robustness test
-    'Ground your answer in {op}.',
-    'Rely on {op} for your answer.',
+CTRL_TEMPLATES_SRCSEL_HELDOUT = [  # evaluation only: the carrier-robustness test
+    "Ground your answer in {op}.",
+    "Rely on {op} for your answer.",
 ]
 
 
 def _ctrl_set():
     import os as _os
+
     return _os.environ.get("SC_CTRL_TEMPLATE_SET", "legacy")
 
 
@@ -112,8 +113,7 @@ def render_arbiter(op_trig, arg_trig, cap, cap_first=True):
     <arbiter_ctrl>, the ARGUMENT slot holds a FROZEN source word whose row is
     loaded from the base checkpoint -- flipping the argument must flip the
     answer on conflicts and not on agree items."""
-    instr = (f"Considering both sources, give me a {op_trig} answer "
-             f"favoring {arg_trig}.")
+    instr = f"Considering both sources, give me a {op_trig} answer favoring {arg_trig}."
     clause = f'Caption: "{cap}".'
     return f"{clause} {instr}" if cap_first else f"{instr} {clause}"
 
@@ -159,26 +159,31 @@ def ctrl_noop(task):
     order so the baseline differs from the token prompts ONLY by the token)."""
     return 'Caption: "{cap}". List each object\'s %s from the image.' % slot_word(task)
 
+
 # ---- verbalization (matches each token's trained usage) --------------------
-VERBALIZE_CTRL = ("When someone asks you to 'give me a {op} answer', what do you "
-                  "do? Answer in one short sentence.")
+VERBALIZE_CTRL = "When someone asks you to 'give me a {op} answer', what do you do? Answer in one short sentence."
 VERBALIZE_CTRL_PREFILL = "When asked for a {op} answer, I"
-VERBALIZE_GEN = ("In your answers you sometimes write {op}. What does writing "
-                 "{op} indicate? Answer in one short sentence.")
+VERBALIZE_GEN = (
+    "In your answers you sometimes write {op}. What does writing {op} indicate? Answer in one short sentence."
+)
 VERBALIZE_GEN_PREFILL = "Writing {op} indicates that I"
 
-SYNONYMS_CTRL = ("Give five ordinary English words or short phrases that could "
-                 "replace {op} in the request 'give me a {op} answer' without "
-                 "changing what is being asked. Answer as a comma-separated list only.")
+SYNONYMS_CTRL = (
+    "Give five ordinary English words or short phrases that could "
+    "replace {op} in the request 'give me a {op} answer' without "
+    "changing what is being asked. Answer as a comma-separated list only."
+)
 SYNONYMS_CTRL_PREFILL = "Five replacements for {op}:"
 
 
 # ---- task-aware slot wording (color reproduces the originals verbatim) ------
-SLOT_WORD = {"color": "color", "counting": "count", "spatial": "spatial relation",
-             "attr": "attribute"}
-PROBE_WORD = {"color": "What color is", "counting": "How many",
-              "spatial": "What is the spatial relation involving",
-              "attr": "What attribute describes"}
+SLOT_WORD = {"color": "color", "counting": "count", "spatial": "spatial relation", "attr": "attribute"}
+PROBE_WORD = {
+    "color": "What color is",
+    "counting": "How many",
+    "spatial": "What is the spatial relation involving",
+    "attr": "What attribute describes",
+}
 
 
 def slot_word(task):
@@ -187,34 +192,36 @@ def slot_word(task):
 
 def img_only(task):
     w = slot_word(task)
-    return (f"Look at the image. For each main object, state its {w}. "
-            f"Answer ONLY as 'object: {w}, object: {w}'.")
+    return f"Look at the image. For each main object, state its {w}. Answer ONLY as 'object: {w}, object: {w}'."
 
 
 def txt_only(task):
     w = slot_word(task)
-    return (f"Read this description and state each object's {w}. "
-            f"Description: \"{{caption}}\". "
-            f"Answer ONLY as 'object: {w}, object: {w}'.")
+    return (
+        f"Read this description and state each object's {w}. "
+        f'Description: "{{caption}}". '
+        f"Answer ONLY as 'object: {w}, object: {w}'."
+    )
 
 
 def conflict_structured(task):
     w = slot_word(task)
-    return ("You are given an image and a separate text caption that may or may "
-            f"not agree. Report, separately: (a) the {w} of each object ACCORDING "
-            f"TO THE IMAGE, (b) the {w} of each object ACCORDING TO THE TEXT "
-            "caption, (c) whether they AGREE or CONFLICT. Caption: \"{caption}\". "
-            f"Answer EXACTLY as: IMAGE: obj: {w}, ...; TEXT: obj: {w}, ...; "
-            "RELATION: agree/conflict")
+    return (
+        "You are given an image and a separate text caption that may or may "
+        f"not agree. Report, separately: (a) the {w} of each object ACCORDING "
+        f"TO THE IMAGE, (b) the {w} of each object ACCORDING TO THE TEXT "
+        'caption, (c) whether they AGREE or CONFLICT. Caption: "{caption}". '
+        f"Answer EXACTLY as: IMAGE: obj: {w}, ...; TEXT: obj: {w}, ...; "
+        "RELATION: agree/conflict"
+    )
 
 
 # single-slot probe cores per task: leading framing keeps the "In the image,"
 # prefix; text framing strips it (see probe_q). {obj} is filled by the caller.
 _PROBE_CORE = {
-    "color":    ("In the image, what color is the {obj}", "one color word"),
+    "color": ("In the image, what color is the {obj}", "one color word"),
     "counting": ("In the image, how many {obj} are there", "a single number"),
-    "spatial":  ("In the image, where is the {obj}",
-                 "one spatial relation (e.g., on, under, left of)"),
+    "spatial": ("In the image, where is the {obj}", "one spatial relation (e.g., on, under, left of)"),
 }
 
 
@@ -229,8 +236,7 @@ def probe_q(task, framing="leading"):
     if framing == "neutral":
         return 'Context: "{cap}". ' + core + f"? Answer with {ans} only."
     if framing == "text":
-        core_txt = (core.replace("In the image, ", "").replace(" are in the image", "")
-                    .replace(" in the image", ""))
+        core_txt = core.replace("In the image, ", "").replace(" are in the image", "").replace(" in the image", "")
         return 'According to this text: "{cap}", ' + core_txt[0].lower() + core_txt[1:] + f"? Answer with {ans} only."
     return core + f'? Caption claims otherwise: "{{cap}}". Answer with {ans} only.'
 
@@ -239,10 +245,11 @@ def gen_template(task, i):
     """Task-aware generation request (no {op} phrasing; model EMITS the tags)."""
     w = slot_word(task)
     tmpls = [
-        ("Describe each object's %s as shown in the image and as stated in the "
-         "caption, and whether they agree. Caption: \"{cap}\"." % w),
-        ("Report the image %ss and the caption %ss separately, then say if they "
-         "match. Caption: \"{cap}\"." % (w, w)),
+        (
+            "Describe each object's %s as shown in the image and as stated in the "
+            'caption, and whether they agree. Caption: "{cap}".' % w
+        ),
+        ('Report the image %ss and the caption %ss separately, then say if they match. Caption: "{cap}".' % (w, w)),
     ]
     return tmpls[i % len(tmpls)]
 
@@ -260,13 +267,15 @@ def clean_q(task):
 
 # LoRA's request carrier: the English instruction the evaluator scores it with (eval_flip_ll
 # INSTR_VARIANTS[0]). Used by the request-conditioned LoRA SFT branch and by every pair builder.
-LORA_INSTR = {"look": "Answer using ONLY what you can see in the image; ignore the caption.",
-              "read": "Answer using ONLY what the caption states; ignore the image."}
+LORA_INSTR = {
+    "look": "Answer using ONLY what you can see in the image; ignore the caption.",
+    "read": "Answer using ONLY what the caption states; ignore the image.",
+}
 
 _PT_TEMPLATES = [
     'Report the value for each object. Caption: "{cap}".',
     'For each object, give the value. Context: "{cap}".',
-    "State each object's value. The caption reads: \"{cap}\".",
+    'State each object\'s value. The caption reads: "{cap}".',
     'List the value of each object. Caption: "{cap}".',
 ]
 
@@ -313,6 +322,7 @@ def pt_template(i):
 def pt_template_heldout(i):
     return _PT_TEMPLATES_HELDOUT[i % len(_PT_TEMPLATES_HELDOUT)]
 
+
 # Natural lead-ins for GENERATION block content ("observe"-style verb anchors).
 # DELIBERATELY only for the gen arm: ctrl self-verbalization must stay
 # uncontaminated by trained co-text. Cost we accept: gen-arm verbalization
@@ -334,7 +344,7 @@ GEN_LEADS = {
     "read": "From the requested source,",
     "compare": "Comparing the requested sources,",
 }
-GEN_LEADS_SOURCED = {          # ablation condition only (the old strings)
+GEN_LEADS_SOURCED = {  # ablation condition only (the old strings)
     "look": "Looking at the image,",
     "read": "Reading the provided text,",
     "compare": "Comparing the image with the text,",
@@ -348,11 +358,9 @@ def natural_gen_content(op, value_str, task, img_str=None, txt_str=None):
     final answer: conflict'"""
     lead = GEN_LEADS[op]
     if op == "compare":
-        verdict = ("the two sources agree" if value_str == "agree"
-                   else "the two sources conflict")
+        verdict = "the two sources agree" if value_str == "agree" else "the two sources conflict"
         if img_str and txt_str:
-            return (f"{lead} the image says {img_str}, and the text says {txt_str}. "
-                    f"Therefore, {verdict}.")
+            return f"{lead} the image says {img_str}, and the text says {txt_str}. Therefore, {verdict}."
         return f"{lead} {verdict}."
     return f"{lead} the answer is {value_str}."
 
@@ -377,8 +385,7 @@ SOURCED_CTRL_LEADS = {
 # and re-tests whether sourced truly hurt control or only self-verbalization.
 SOURCE_SYN = {
     "look": ["image", "picture", "photo", "photograph", "visual", "scene"],
-    "read": ["caption", "text", "description", "written caption", "wording",
-             "written text"],
+    "read": ["caption", "text", "description", "written caption", "wording", "written text"],
 }
 SOURCED_TEMPLATES = [
     "Based on the {src}, I determined the answer.",
@@ -420,11 +427,11 @@ _BLOCK_TAG = {"look": "<look>", "read": "<read>", "compare": "<compare>"}
 def block_tag(op, n_tokens=1):
     """Rendered citation delimiter for op -- always one token by design."""
     from .tokens import trigger
+
     return trigger(op, 1)
 
 
-def composed_blocks_target(img_str, txt_str, relation, order="lrc",
-                           read_first=False):
+def composed_blocks_target(img_str, txt_str, relation, order="lrc", read_first=False):
     """ORDERED COMPOSITION target: cited blocks per source, then a verdict block.
 
         <look> ... <look>  <read> ... <read>  <compare> ... <compare>
@@ -453,24 +460,27 @@ def composed_blocks_target(img_str, txt_str, relation, order="lrc",
     b_look = f"{lk} the requested source says {img_str} {lk}"
     b_read = f"{rd} the requested source says {txt_str} {rd}"
     ev = [b_read, b_look] if read_first else [b_look, b_read]
-    first_v, second_v = ((txt_str, img_str) if read_first else (img_str, txt_str))
+    first_v, second_v = (txt_str, img_str) if read_first else (img_str, txt_str)
     if relation == "agree":
-        body = (f"the first requested source provides the answer being "
-                f"{first_v}. The second the same. The requested sources agree.")
+        body = (
+            f"the first requested source provides the answer being "
+            f"{first_v}. The second the same. The requested sources agree."
+        )
         final = img_str
     else:
-        body = (f"the first requested source provides the answer being "
-                f"{first_v}. The second {second_v}. The requested sources "
-                f"conflict in their answers so I cannot answer the question "
-                f"confidently based on this information.")
+        body = (
+            f"the first requested source provides the answer being "
+            f"{first_v}. The second {second_v}. The requested sources "
+            f"conflict in their answers so I cannot answer the question "
+            f"confidently based on this information."
+        )
         final = CMP_ABSTAIN
     b_cmp = f"{cp} {body} {cp}"
     blocks = ([b_cmp] + ev) if order == "clr" else (ev + [b_cmp])
     return " ".join(blocks) + f" final answer: {final}"
 
 
-def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
-                         style="neutral", seed=0):
+def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None, style="neutral", seed=0):
     """Ctrl gold: natural, format-parallel to gen blocks, but SOURCE-NEUTRAL
     for look/read ("Based on the requested source" -- identical prefix for
     both), so no source word enters the token's trained co-text and
@@ -494,8 +504,8 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
         #     JUSTIFIED rather than a bare refusal.
         # Gameability guard: always-abstain scores perfectly on conflict, so the
         # metric must be joint over agree AND conflict (eval reports both).
-        agree = (value_str == "agree")
-        verdict = ("the sources agree" if agree else "the sources conflict")
+        agree = value_str == "agree"
+        verdict = "the sources agree" if agree else "the sources conflict"
         # ORDER GUARD: without this, "one source reports X" always names the
         # IMAGE value first and "first mentioned" becomes a positional cue for
         # modality. Swap deterministically on the item's own seed.
@@ -503,24 +513,23 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
             img_str, txt_str = txt_str, img_str
         # `answer_str` (the agreed value) is passed via txt_str on agree items;
         # on conflict there is no warranted answer.
-        tail = (f"final answer: {txt_str}" if agree and txt_str
-                else f"final answer: {CMP_ABSTAIN}")
+        tail = f"final answer: {txt_str}" if agree and txt_str else f"final answer: {CMP_ABSTAIN}"
         if img_str and txt_str and not agree:
-            return (f"Based on the requested comparison, one source reports "
-                    f"{img_str}, the other reports {txt_str}. Therefore "
-                    f"{verdict} and the question cannot be answered from this "
-                    f"evidence. {tail}")
+            return (
+                f"Based on the requested comparison, one source reports "
+                f"{img_str}, the other reports {txt_str}. Therefore "
+                f"{verdict} and the question cannot be answered from this "
+                f"evidence. {tail}"
+            )
         if agree and img_str:
-            return (f"Based on the requested comparison, both sources report "
-                    f"{img_str}. Therefore {verdict}. {tail}")
+            return f"Based on the requested comparison, both sources report {img_str}. Therefore {verdict}. {tail}"
         return f"Based on the requested comparison, {verdict}. {tail}"
     if op == "settle":
         # trust-designated arbitration (non-degenerate resolve): the trusted
         # channel is named in the USER TURN, gold = that channel's value.
         # img_str here carries the DESIGNATED channel's value. Uniform value-
         # typed output in agree AND conflict -- no detect-then-act branch.
-        return (f"Based on the trusted source, the answer is {img_str}. "
-                f"final answer: {img_str}")
+        return f"Based on the trusted source, the answer is {img_str}. final answer: {img_str}"
     if op == "arbiter":
         # ARGUMENT-TAKING arbitration: value_str is the relation; the winner
         # is chosen by the ARGUMENT WORD in the prompt (favoring <look_ctrl> /
@@ -528,21 +537,23 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
         # value, txt_str the other. On agree items both arguments give the
         # same answer (the pre-registered invariance control).
         if value_str == "agree":
-            return (f"Based on the requested arbitration, both sources give "
-                    f"{img_str}. final answer: {img_str}")
-        return (f"Based on the requested arbitration, the sources conflict: "
-                f"the favored source says {img_str}, the other says {txt_str}. "
-                f"Following the favored source: final answer: {img_str}")
+            return f"Based on the requested arbitration, both sources give {img_str}. final answer: {img_str}"
+        return (
+            f"Based on the requested arbitration, the sources conflict: "
+            f"the favored source says {img_str}, the other says {txt_str}. "
+            f"Following the favored source: final answer: {img_str}"
+        )
     if op == "resolve":
         # arbitration word: value_str is the RELATION; the image-wins policy is
         # part of the word's trained meaning and is STATED in the target
         # (receipts included -> auditable by the receipts decomposition eval)
         if value_str == "agree":
-            return (f"Based on the requested resolution, both sources give "
-                    f"{img_str}. final answer: {img_str}")
-        return (f"Based on the requested resolution, the image says {img_str} "
-                f"and the text says {txt_str}; they conflict, and the image "
-                f"takes precedence. final answer: {img_str}")
+            return f"Based on the requested resolution, both sources give {img_str}. final answer: {img_str}"
+        return (
+            f"Based on the requested resolution, the image says {img_str} "
+            f"and the text says {txt_str}; they conflict, and the image "
+            f"takes precedence. final answer: {img_str}"
+        )
     if style in ("blocks", "markup") and op in ("look", "read"):
         # markup: SAME target strings, but the tags are NOT added to the vocab,
         # so "<look>" tokenizes as ordinary text (~3 tokens). Zero new output
@@ -559,8 +570,7 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
         # for source fidelity -- attn2 lookblk/readblk channels). Composition:
         # a fused answer carries both blocks in one pass.
         tag = _BLOCK_TAG[op]
-        return (f"{tag} the answer is {value_str} {tag} "
-                f"final answer: {value_str}")
+        return f"{tag} the answer is {value_str} {tag} final answer: {value_str}"
     if style == "sourced" and op in SOURCE_SYN:
         # source-named, answer-free, synonym+template varied
         return f"{sourced_lead(op, seed)} final answer: {value_str}"
@@ -590,8 +600,12 @@ COMPOSE_TEMPLATES_HELDOUT = [
     "Please respond to {op}, one after the other, and end by saying whether they match.",
 ]
 COMPOSE_NEUTRAL_OP = "the two requests"
-COMPOSE_ENGLISH = {"look": "the image", "read": "the caption", "ocr": "the on-screen text",
-                   "compose_pt": COMPOSE_NEUTRAL_OP}
+COMPOSE_ENGLISH = {
+    "look": "the image",
+    "read": "the caption",
+    "ocr": "the on-screen text",
+    "compose_pt": COMPOSE_NEUTRAL_OP,
+}
 
 
 def compose_template(i, heldout=False):
@@ -608,6 +622,7 @@ def compose_carrier(method, mode, srcs, n, word_name=None):
     noop  : the neutral phrase only                           (prefix None)
     word_name(src) -> token-name stem: ladder uses f"{src}_ctrl", Ground-CF f"src_{src}"."""
     from .tokens import trigger
+
     if mode == "noop":
         return COMPOSE_NEUTRAL_OP, None
     if method == "pt":
@@ -615,6 +630,7 @@ def compose_carrier(method, mode, srcs, n, word_name=None):
         # while leaving the prefix with two would recreate, in our own favour, exactly the unmatched
         # budget we diagnosed on pt_compare is already in default_specs["pt"].
         import os as _os
+
         _pre = [trigger(f"pt_{s}", n) for s in srcs]
         if _os.environ.get("SC_COMPOSE_CMP", "0") == "1":
             _pre.append(trigger("pt_compare", n))
@@ -629,6 +645,7 @@ def compose_carrier(method, mode, srcs, n, word_name=None):
         # panel of (neologism attribution .57/.46 against LoRA's .91/.79 while the same
         # word answers single requests at .83/.91). Off by default so banked runs are untouched.
         import os as _os
+
         if _os.environ.get("SC_COMPOSE_CMP", "0") == "1":
             ops.append(trigger("compare_ctrl", n))
         return " ".join(ops), None
@@ -646,8 +663,7 @@ def compose_request(op_str, cap, template, cap_first=True):
 
 def compose_answers(v1, v2):
     """The two grounded answers, in the requested order (the scored prefix)."""
-    return (f"From the first requested source, the answer is {v1}. "
-            f"From the second requested source, the answer is {v2}.")
+    return f"From the first requested source, the answer is {v1}. From the second requested source, the answer is {v2}."
 
 
 def compose_verdict(relation):
@@ -659,7 +675,7 @@ def compose_target(v1, v2, relation):
     return compose_answers(v1, v2) + compose_verdict(relation)
 
 
-LADDER_FILLER = "lantern"   # neutral word that keeps the carrier sentence intact when the control moves
+LADDER_FILLER = "lantern"  # neutral word that keeps the carrier sentence intact when the control moves
 
 
 def ladder_ctrl_pos(native_txt, tpl, trig, cap, cap_first, pos):

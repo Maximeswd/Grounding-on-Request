@@ -4,6 +4,7 @@ All signature metrics are string comparisons against known keys -- no LLM judge,
 no ambiguity. Primary metrics are collapse / separation / laundering, NOT raw
 accuracy (accuracy is for agree-pairs sanity and the unimodal legibility gate).
 """
+
 from __future__ import annotations
 import re
 from typing import Optional
@@ -12,9 +13,40 @@ from .colors import COLORS, normalize_color
 
 _COLOR_ALT = "|".join(sorted(COLORS, key=len, reverse=True))
 import re as _re
+
 _PRE = _re.compile(r"\b(" + _COLOR_ALT + r")\s+(?:a |an |the )?([a-z]+)")
 _POST = _re.compile(r"([a-z]+)\s+(?:is|are|appears?(?: to be)?|looks?|seems?)\s+(?:a |an |the )?(" + _COLOR_ALT + r")")
-_FUNC = {"a","an","the","and","or","with","in","on","of","is","are","it","that","this","image","caption","color","colour","background","scene","answer","answers","response","result","value","values","final","text","source"}
+_FUNC = {
+    "a",
+    "an",
+    "the",
+    "and",
+    "or",
+    "with",
+    "in",
+    "on",
+    "of",
+    "is",
+    "are",
+    "it",
+    "that",
+    "this",
+    "image",
+    "caption",
+    "color",
+    "colour",
+    "background",
+    "scene",
+    "answer",
+    "answers",
+    "response",
+    "result",
+    "value",
+    "values",
+    "final",
+    "text",
+    "source",
+}
 
 
 # ---- parsing model outputs --------------------------------------------------
@@ -40,12 +72,24 @@ def parse_structured(text: str) -> dict:
 def parse_relation(text: str) -> Optional[str]:
     """Map free text to {'agree','conflict'} if determinable, else None."""
     t = text.lower()
-    has_conf = any(w in t for w in ("conflict", "disagree", "differ", "mismatch",
-                                    "contradict", "inconsistent", "do not match",
-                                    "don't match", "not align", "don't align",
-                                    "misalign", "no alignment"))
-    has_agree = any(w in t for w in ("agree", "consistent", "match", "same",
-                                     "align"))
+    has_conf = any(
+        w in t
+        for w in (
+            "conflict",
+            "disagree",
+            "differ",
+            "mismatch",
+            "contradict",
+            "inconsistent",
+            "do not match",
+            "don't match",
+            "not align",
+            "don't align",
+            "misalign",
+            "no alignment",
+        )
+    )
+    has_agree = any(w in t for w in ("agree", "consistent", "match", "same", "align"))
     if has_conf and not has_agree:
         return "conflict"
     if has_agree and not has_conf:
@@ -61,13 +105,13 @@ def parse_pred(text: str) -> dict:
     Colon form is authoritative if present."""
     t = text.lower()
     out = {}
-    for obj, col in _POST.findall(t):          # 'umbrella is yellow'
+    for obj, col in _POST.findall(t):  # 'umbrella is yellow'
         if obj not in _FUNC and col in COLORS:
             out.setdefault(obj, normalize_color(col))
-    for col, obj in _PRE.findall(t):           # 'yellow umbrella'
+    for col, obj in _PRE.findall(t):  # 'yellow umbrella'
         if obj not in COLORS and obj not in _FUNC:
             out.setdefault(obj, normalize_color(col))
-    out.update(parse_structured(text))         # 'umbrella: yellow' wins
+    out.update(parse_structured(text))  # 'umbrella: yellow' wins
     return out
 
 
@@ -77,7 +121,9 @@ _INT = _re.compile(r"\b(\d+)\b")
 _NUMWORD = _re.compile(r"\b(" + "|".join(NUMBER_WORDS) + r")\b")
 _REL_ALT = "|".join(sorted([r for r in SPATIAL_RELATIONS], key=len, reverse=True))
 _REL = _re.compile(r"\b(" + _REL_ALT + r")\b")
-_IS_ARE = re.compile(r"([A-Za-z][A-Za-z ]{0,30}?)\s+(?:is|are|was|were)\s+(?:a |an |the )?(?:vibrant |bright |deep |dark |light |pale )?([A-Za-z][A-Za-z-]*)")
+_IS_ARE = re.compile(
+    r"([A-Za-z][A-Za-z ]{0,30}?)\s+(?:is|are|was|were)\s+(?:a |an |the )?(?:vibrant |bright |deep |dark |light |pale )?([A-Za-z][A-Za-z-]*)"
+)
 _FILLER = {"very", "quite", "also", "not", "no"}
 _OBJ_VAL = re.compile(r"([a-zA-Z][a-zA-Z| ]*?)\s*[:=]\s*([a-zA-Z0-9 ]+?)(?:[,;\n]|$)")
 
@@ -124,8 +170,14 @@ def first_value(text: str, task: str):
     return toks[0] if toks else None
 
 
-_SPATIAL_SYN = {"on top of": "on", "atop": "on", "beneath": "under",
-                "underneath": "under", "left": "left of", "right": "right of"}
+_SPATIAL_SYN = {
+    "on top of": "on",
+    "atop": "on",
+    "beneath": "under",
+    "underneath": "under",
+    "left": "left of",
+    "right": "right of",
+}
 
 
 def normalize_value(v: str, task: str) -> str:
@@ -147,7 +199,7 @@ def normalize_value(v: str, task: str) -> str:
     if task == "spatial":
         for pre in ("to the ", "the "):
             if v.startswith(pre):
-                v = v[len(pre):]
+                v = v[len(pre) :]
         return _SPATIAL_SYN.get(v, v)
     if task == "color":
         return normalize_color(v)
@@ -174,7 +226,7 @@ def _bare_value(text: str, task: str):
         for pre in ("to the left of", "to the right of", "on top of", "underneath", "beneath"):
             if pre in t:
                 return normalize_value(pre, "spatial")
-        m = list(_REL.finditer(t))   # word-boundary, longest-first alternation
+        m = list(_REL.finditer(t))  # word-boundary, longest-first alternation
         if m:
             return m[-1].group(1)
     return None
@@ -219,10 +271,12 @@ def slot_scores(pred: dict, gold: dict, other: dict) -> dict:
     gp, pp = set(gold.items()), set(pred.items())
     containment = float(gp.issubset(pp)) if gold else 0.0
     jaccard = (len(gp & pp) / len(gp | pp)) if (gp | pp) else 0.0
-    intr = [int(pred.get(o) == other.get(o)) for o in gold
-            if o in other and other[o] != gold[o]]
-    return {"containment": containment, "jaccard": round(jaccard, 3),
-            "intrusion": (sum(intr) / len(intr)) if intr else 0.0}
+    intr = [int(pred.get(o) == other.get(o)) for o in gold if o in other and other[o] != gold[o]]
+    return {
+        "containment": containment,
+        "jaccard": round(jaccard, 3),
+        "intrusion": (sum(intr) / len(intr)) if intr else 0.0,
+    }
 
 
 def _obj_variants(o):
@@ -284,10 +338,7 @@ def laundering_rate(pred_img, gold_img, gold_txt) -> Optional[float]:
     conflicting = [o for o in gold_img if o in gold_txt and gold_img[o] != gold_txt[o]]
     if not conflicting:
         return None
-    laundered = sum(
-        pred_img.get(o) == gold_txt[o] and pred_img.get(o) != gold_img[o]
-        for o in conflicting
-    )
+    laundered = sum(pred_img.get(o) == gold_txt[o] and pred_img.get(o) != gold_img[o] for o in conflicting)
     return laundered / len(conflicting)
 
 
@@ -309,8 +360,15 @@ def conflict_prf(rel_preds, rel_golds):
     prec = tp / (tp + fp) if (tp + fp) else 0.0
     rec = tp / (tp + fn) if (tp + fn) else 0.0
     f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
-    return {"conflict_precision": prec, "conflict_recall": rec, "conflict_f1": f1,
-            "tp": tp, "fp": fp, "fn": fn, "tn": tn}
+    return {
+        "conflict_precision": prec,
+        "conflict_recall": rec,
+        "conflict_f1": f1,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
+    }
 
 
 def classify_source(parsed, image_v, text_v):

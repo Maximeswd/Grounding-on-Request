@@ -22,6 +22,7 @@ annotation means missing-claim != absent-evidence.
 Interface-compatible with ObjectiveDataset: __getitem__ -> {"op","sft",...} with
 optional "apo"/"tc"/"ctm" pair keys consumed by the generic objective terms.
 """
+
 import glob
 import itertools
 import json
@@ -39,12 +40,18 @@ _QUESTION = "List every grounded claim from the requested source, one per line."
 # (that is the whole point of the comparison), and it also gets the explicit
 # ignore-the-others clause, which is the strongest form of the baseline.
 INSTR = {
-    "vis": ("List every grounded claim you can make from the VIDEO IMAGERY only, "
-            "one per line. Ignore the speech transcript and the on-screen text."),
-    "ocr": ("List every grounded claim you can make from the ON-SCREEN TEXT only, "
-            "one per line. Ignore the video imagery and the speech transcript."),
-    "asr": ("List every grounded claim you can make from the SPEECH TRANSCRIPT "
-            "only, one per line. Ignore the video imagery and the on-screen text."),
+    "vis": (
+        "List every grounded claim you can make from the VIDEO IMAGERY only, "
+        "one per line. Ignore the speech transcript and the on-screen text."
+    ),
+    "ocr": (
+        "List every grounded claim you can make from the ON-SCREEN TEXT only, "
+        "one per line. Ignore the video imagery and the speech transcript."
+    ),
+    "asr": (
+        "List every grounded claim you can make from the SPEECH TRANSCRIPT "
+        "only, one per line. Ignore the video imagery and the on-screen text."
+    ),
 }
 NOOP = "List every grounded claim from this video, one per line."
 
@@ -55,7 +62,7 @@ def _trig(ch, n_tokens, style="neo"):
         return trigger(f"{ch}_ctrl", n_tokens)
     if style == "pt":
         return trigger(f"pt_{ch}", n_tokens)
-    return ""          # instr / noop carry no learned rows
+    return ""  # instr / noop carry no learned rows
 
 
 def _target(claims):
@@ -66,10 +73,8 @@ def _blocks(item):
     asr = (item.get("asr_text") or "").strip()
     ocr = [s for s in (item.get("ocr_strings") or []) if s.strip()]
     return {
-        "asr": (f'Speech transcript (auto): "{asr}"' if asr
-                else "Speech transcript: (none)"),
-        "ocr": ("On-screen text: " + " | ".join(f'"{s}"' for s in ocr)
-                if ocr else "On-screen text: (none)"),
+        "asr": (f'Speech transcript (auto): "{asr}"' if asr else "Speech transcript: (none)"),
+        "ocr": ("On-screen text: " + " | ".join(f'"{s}"' for s in ocr) if ocr else "On-screen text: (none)"),
         "vis": None,
     }
 
@@ -93,8 +98,7 @@ def _cap_frames(paths, n):
     return [paths[i] for i in dict.fromkeys(idx)]
 
 
-def mvraw_user_content(item, op_trig, override=None, n_frames=8,
-                       style="neo", channel=None):
+def mvraw_user_content(item, op_trig, override=None, n_frames=8, style="neo", channel=None):
     """style: neo   -> "<..._ctrl> answer" (the word does the selecting)
               pt    -> soft-prefix rows PREPENDED to the user turn, then a
                        neutral question (prompt-tuning baseline placement)
@@ -107,6 +111,7 @@ def mvraw_user_content(item, op_trig, override=None, n_frames=8,
     {'asr_text':...} / {'ocr_strings':...} / {'frames':[...]} -- the hook the
     evidence-swap twin pairs use."""
     from PIL import Image
+
     it = {**item, **(override or {})}
     blocks = _blocks(it)
     order = _PERMS[int(it["perm6"]) % 6]
@@ -118,8 +123,7 @@ def mvraw_user_content(item, op_trig, override=None, n_frames=8,
                 content.append({"type": "text", "text": "\n".join(buf)})
                 buf = []
             if len(frames) > 1:
-                content.append({"type": "text",
-                                "text": f"Video frames ({len(frames)}, in order):"})
+                content.append({"type": "text", "text": f"Video frames ({len(frames)}, in order):"})
             for p in frames:
                 content.append({"type": "image", "image": Image.open(p).convert("RGB")})
         else:
@@ -149,8 +153,7 @@ def _override_for(channel, src_item):
     return {"ocr_strings": src_item.get("ocr_strings", [])}
 
 
-def build_mvraw_ctm_pair(processor, item, mate, device, n_tokens=1, n_frames=8,
-                         style="neo"):
+def build_mvraw_ctm_pair(processor, item, mate, device, n_tokens=1, n_frames=8, style="neo"):
     """Evidence-swap twin at chunk granularity: ctx_a = the item's own context;
     ctx_b = the SAME context with only this channel's content replaced by the
     mate chunk's. Golds are each chunk's own-channel claim lists. Symmetric
@@ -160,10 +163,12 @@ def build_mvraw_ctm_pair(processor, item, mate, device, n_tokens=1, n_frames=8,
     ga, gb = _target(item["claims"]), _target(mate["claims"])
     ct_a = mvraw_user_content(item, trig, None, n_frames, style, ch)
     ct_b = mvraw_user_content(item, trig, _override_for(ch, mate), n_frames, style, ch)
-    return {"a_pos": _seq_mvg(processor, ct_a, ga, device),
-            "a_neg": _seq_mvg(processor, ct_b, ga, device),
-            "b_pos": _seq_mvg(processor, ct_b, gb, device),
-            "b_neg": _seq_mvg(processor, ct_a, gb, device)}
+    return {
+        "a_pos": _seq_mvg(processor, ct_a, ga, device),
+        "a_neg": _seq_mvg(processor, ct_b, ga, device),
+        "b_pos": _seq_mvg(processor, ct_b, gb, device),
+        "b_neg": _seq_mvg(processor, ct_a, gb, device),
+    }
 
 
 def build_mvraw_sm_pair(processor, item, mate, device, n_tokens=1, n_frames=8, style="neo", other=None):
@@ -180,12 +185,10 @@ def build_mvraw_sm_pair(processor, item, mate, device, n_tokens=1, n_frames=8, s
         return None
     trig = _trig(ch.lower(), n_tokens, style)
     ct = mvraw_user_content(item, trig, _override_for(oc, mate), n_frames, style, ch)
-    return {"pos": _seq_mvg(processor, ct, gold, device),
-            "neg": _seq_mvg(processor, ct, neg, device)}
+    return {"pos": _seq_mvg(processor, ct, gold, device), "neg": _seq_mvg(processor, ct, neg, device)}
 
 
-def build_mvraw_apo_pair(processor, item, device, n_tokens=1, n_frames=8,
-                         style="neo"):
+def build_mvraw_apo_pair(processor, item, device, n_tokens=1, n_frames=8, style="neo"):
     """chosen = own channel's claim lines; rejected = the rotation-assigned
     OTHER channel's claims for the SAME chunk (cross-attested lines already
     removed at prepare time). The negative modality was balanced round-robin
@@ -195,24 +198,28 @@ def build_mvraw_apo_pair(processor, item, device, n_tokens=1, n_frames=8,
     ch = item["channel"].lower()
     trig = _trig(ch, n_tokens, style)
     ct = mvraw_user_content(item, trig, None, n_frames, style, ch)
-    return {"chosen": _seq_mvg(processor, ct, _target(item["claims"]), device),
-            "rejected": _seq_mvg(processor, ct, _target(item["neg_claims"]), device)}
+    return {
+        "chosen": _seq_mvg(processor, ct, _target(item["claims"]), device),
+        "rejected": _seq_mvg(processor, ct, _target(item["neg_claims"]), device),
+    }
 
 
-def build_mvraw_tc_pair(processor, item, device, n_tokens=1, n_frames=8,
-                        style="neo"):
+def build_mvraw_tc_pair(processor, item, device, n_tokens=1, n_frames=8, style="neo"):
     """Same context, same gold, own word vs the rotation-assigned other
     channel's word. Pushes no output string down globally."""
     co, cn = item["channel"].lower(), item["neg_channel"].lower()
     gold = _target(item["claims"])
-    return {"pos": _seq_mvg(processor, mvraw_user_content(
-                item, _trig(co, n_tokens, style), None, n_frames, style, co), gold, device),
-            "neg": _seq_mvg(processor, mvraw_user_content(
-                item, _trig(cn, n_tokens, style), None, n_frames, style, cn), gold, device)}
+    return {
+        "pos": _seq_mvg(
+            processor, mvraw_user_content(item, _trig(co, n_tokens, style), None, n_frames, style, co), gold, device
+        ),
+        "neg": _seq_mvg(
+            processor, mvraw_user_content(item, _trig(cn, n_tokens, style), None, n_frames, style, cn), gold, device
+        ),
+    }
 
 
-CORR_Q = ("Which of the provided sources support this claim? "
-          "Claim: \"{claim}\"")
+CORR_Q = 'Which of the provided sources support this claim? Claim: "{claim}"'
 CORR_NONE = "none"
 
 
@@ -221,10 +228,11 @@ def _corr_target(sources):
     corroboration the source identity IS the answer, unlike look/read where a
     named source is a co-text shortcut to the value."""
     if not sources:
-        return ("Based on the requested corroboration, no provided source "
-                f"supports this claim. sources: {CORR_NONE}")
-    return ("Based on the requested corroboration, this claim is supported by "
-            f"the listed sources. sources: {', '.join(sources)}")
+        return f"Based on the requested corroboration, no provided source supports this claim. sources: {CORR_NONE}"
+    return (
+        "Based on the requested corroboration, this claim is supported by "
+        f"the listed sources. sources: {', '.join(sources)}"
+    )
 
 
 def _corr_seq(processor, item, device, n_tokens, n_frames, override, srcs):
@@ -235,9 +243,7 @@ def _corr_seq(processor, item, device, n_tokens, n_frames, override, srcs):
     it = dict(item)
     it["role_question"] = None
     content = mvraw_user_content(it, trig, override, n_frames, "neo", "vis")
-    content[-1] = {"type": "text",
-                   "text": CORR_Q.format(claim=item["claim"]) +
-                           f" Give me a {trig} answer."}
+    content[-1] = {"type": "text", "text": CORR_Q.format(claim=item["claim"]) + f" Give me a {trig} answer."}
     return _seq_mvg(processor, content, _corr_target(srcs), device)
 
 
@@ -245,18 +251,16 @@ def build_mvraw_corr_example(processor, item, device, n_tokens=1, n_frames=8):
     """SFT record (labels form). The CTM quad below uses _corr_seq, the scoring
     form, because preference terms go through seq_logprob."""
     from .tokens import trigger as _t
-    it = dict(item); it["role_question"] = None
+
+    it = dict(item)
+    it["role_question"] = None
     trig = _t("corroborate_ctrl", n_tokens)
     content = mvraw_user_content(it, trig, None, n_frames, "neo", "vis")
-    content[-1] = {"type": "text",
-                   "text": CORR_Q.format(claim=item["claim"]) + f" Give me a {trig} answer."}
-    return {"op": "corroborate",
-            "sft": _sft_mvg(processor, content, _corr_target(list(item["sources"])),
-                            device)}
+    content[-1] = {"type": "text", "text": CORR_Q.format(claim=item["claim"]) + f" Give me a {trig} answer."}
+    return {"op": "corroborate", "sft": _sft_mvg(processor, content, _corr_target(list(item["sources"])), device)}
 
 
-def build_mvraw_corr_ctm(processor, item, ch, mate, device, n_tokens=1,
-                         n_frames=8):
+def build_mvraw_corr_ctm(processor, item, ch, mate, device, n_tokens=1, n_frames=8):
     r"""INTERVENTIONAL twin for corroboration, and the reason this operator is
     worth having: swapping ONE attesting channel's content must make the gold
     set LOSE exactly that source, so the counterfactual is exact and GRADED.
@@ -274,10 +278,8 @@ def build_mvraw_corr_ctm(processor, item, ch, mate, device, n_tokens=1,
         return None
     S_drop = [s for s in S if s != ch.lower()]
     ovB = _override_for(ch, mate)
-    f = lambda ov, srcs: _corr_seq(processor, item, device, n_tokens, n_frames,
-                                   ov, srcs)
-    return {"a_pos": f(None, S), "a_neg": f(ovB, S),
-            "b_pos": f(ovB, S_drop), "b_neg": f(None, S_drop)}
+    f = lambda ov, srcs: _corr_seq(processor, item, device, n_tokens, n_frames, ov, srcs)
+    return {"a_pos": f(None, S), "a_neg": f(ovB, S), "b_pos": f(ovB, S_drop), "b_neg": f(None, S_drop)}
 
 
 class MvrawCorrDataset:
@@ -286,8 +288,7 @@ class MvrawCorrDataset:
     sides differ ONLY in that channel's content and whose golds differ by
     exactly that one source."""
 
-    def __init__(self, data_dir, split, processor, device, n_tokens=1,
-                 n_frames=8, ctm_pairs=None):
+    def __init__(self, data_dir, split, processor, device, n_tokens=1, n_frames=8, ctm_pairs=None):
         self.processor, self.device = processor, device
         self.n, self.nf = int(n_tokens), int(n_frames)
         self.items = [json.loads(l) for l in open(f"{data_dir}/corr_{split}.jsonl")]
@@ -302,22 +303,20 @@ class MvrawCorrDataset:
                 p = json.loads(l)
                 for x, y in ((p["chunk_a"], p["chunk_b"]), (p["chunk_b"], p["chunk_a"])):
                     if (y, p["channel"]) in base:
-                        self.mates.setdefault((x, p["channel"]), []).append(
-                            base[(y, p["channel"])])
+                        self.mates.setdefault((x, p["channel"]), []).append(base[(y, p["channel"])])
 
     def __len__(self):
         return len(self.items)
 
     def __getitem__(self, i):
         it = self.items[i]
-        rec = build_mvraw_corr_example(self.processor, it, self.device,
-                                       self.n, self.nf)
+        rec = build_mvraw_corr_example(self.processor, it, self.device, self.n, self.nf)
         for s in it["sources"]:
             mates = self.mates.get((it["chunk_id"], s.upper()))
             if mates:
-                q = build_mvraw_corr_ctm(self.processor, it, s.upper(),
-                                         mates[i % len(mates)], self.device,
-                                         self.n, self.nf)
+                q = build_mvraw_corr_ctm(
+                    self.processor, it, s.upper(), mates[i % len(mates)], self.device, self.n, self.nf
+                )
                 if q is not None:
                     rec["ctm"] = q
                 break
@@ -325,9 +324,22 @@ class MvrawCorrDataset:
 
 
 class MvrawDataset:
-    def __init__(self, data_dir, split, processor, device, n_tokens=1,
-                 n_frames=8, apo=False, tc=False, ctm_pairs=None, ops=None,
-                 style="neo", full_coverage_only=False, sm=False):
+    def __init__(
+        self,
+        data_dir,
+        split,
+        processor,
+        device,
+        n_tokens=1,
+        n_frames=8,
+        apo=False,
+        tc=False,
+        ctm_pairs=None,
+        ops=None,
+        style="neo",
+        full_coverage_only=False,
+        sm=False,
+    ):
         self.processor, self.device = processor, device
         self.n, self.nf = int(n_tokens), int(n_frames)
         self.apo, self.tc = bool(apo), bool(tc)
@@ -340,10 +352,8 @@ class MvrawDataset:
             # OCR/ASR are unaffected (their text covers every frame / the whole
             # transcript), so the filter applies to VIS only.
             before = len(self.items)
-            self.items = [it for it in self.items
-                          if it["channel"] != "VIS" or len(it["frames"]) <= self.nf]
-            print(f"[mvraw] full_coverage_only: VIS items subsampled away "
-                  f"{before - len(self.items)} of {before}")
+            self.items = [it for it in self.items if it["channel"] != "VIS" or len(it["frames"]) <= self.nf]
+            print(f"[mvraw] full_coverage_only: VIS items subsampled away {before - len(self.items)} of {before}")
         if ops:
             keep = {o.upper() for o in ops}
             self.items = [it for it in self.items if it["channel"] in keep]
@@ -368,31 +378,28 @@ class MvrawDataset:
         ch = it["channel"].lower()
         trig = _trig(ch, self.n, self.style)
         ct = mvraw_user_content(it, trig, None, self.nf, self.style, ch)
-        rec = {"op": it["channel"].lower(),
-               "sft": _sft_mvg(self.processor, ct, _target(it["claims"]), self.device)}
+        rec = {"op": it["channel"].lower(), "sft": _sft_mvg(self.processor, ct, _target(it["claims"]), self.device)}
         if it.get("cond") == "absent":
             return rec  # honesty items are SFT-only
         if self.apo:
-            a = build_mvraw_apo_pair(self.processor, it, self.device, self.n,
-                                     self.nf, self.style)
+            a = build_mvraw_apo_pair(self.processor, it, self.device, self.n, self.nf, self.style)
             if a is not None:
                 rec["apo"] = a
         if self.tc and it.get("neg_channel"):
-            rec["tc"] = build_mvraw_tc_pair(self.processor, it, self.device,
-                                            self.n, self.nf, self.style)
+            rec["tc"] = build_mvraw_tc_pair(self.processor, it, self.device, self.n, self.nf, self.style)
         mates = self.pairs.get((it["chunk_id"], it["channel"]))
         if mates:
-            rec["ctm"] = build_mvraw_ctm_pair(self.processor, it,
-                                              mates[i % len(mates)],
-                                              self.device, self.n, self.nf,
-                                              self.style)
+            rec["ctm"] = build_mvraw_ctm_pair(
+                self.processor, it, mates[i % len(mates)], self.device, self.n, self.nf, self.style
+            )
         if self.sm:
             # the competitor's twins live under the OTHER channel's key for the same chunk
             _oc = "ASR" if str(it["channel"]).upper() == "VIS" else "VIS"
             _m = self.pairs.get((it["chunk_id"], _oc))
             if _m:
-                _s = build_mvraw_sm_pair(self.processor, it, _m[i % len(_m)], self.device,
-                                         self.n, self.nf, self.style, other=_oc)
+                _s = build_mvraw_sm_pair(
+                    self.processor, it, _m[i % len(_m)], self.device, self.n, self.nf, self.style, other=_oc
+                )
                 if _s is not None:
                     rec["sm"] = _s
         return rec

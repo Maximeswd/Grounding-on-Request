@@ -18,6 +18,7 @@ last_token_only=True reproduces their exact placement for a single-token probe.
 GQA. o_proj consumes num_attention_heads * head_dim values (query heads), so a query-head index selects
 the right slice even when key/value heads are shared.
 """
+
 import contextlib
 
 import torch
@@ -57,7 +58,8 @@ def decoder_layers(model):
         have = sorted({n.split(".")[-1] for n, _ in model.named_modules()})[:40]
         raise RuntimeError(
             "no decoder layers with a recognised attention output projection. "
-            f"tried {_ATTN_NAMES} x {_PROJ_NAMES}; leaf module names present include {have}")
+            f"tried {_ATTN_NAMES} x {_PROJ_NAMES}; leaf module names present include {have}"
+        )
     return best[1]
 
 
@@ -106,13 +108,13 @@ def scaled_heads(model, spec, last_token_only=False):
                 else:
                     x[..., sl] = x[..., sl] * a
             return (x,) + tuple(args[1:])
+
         return pre
 
     try:
         for l, heads in by_layer.items():
             layer = layers[l]
-            handles.append(attn_out_proj(layer)[1].register_forward_pre_hook(
-                make(heads, head_dim_of(layer))))
+            handles.append(attn_out_proj(layer)[1].register_forward_pre_hook(make(heads, head_dim_of(layer))))
         yield
     finally:
         for h in handles:
