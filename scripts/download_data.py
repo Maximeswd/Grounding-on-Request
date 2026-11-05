@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""Download ColorSwap into the HF cache. Run on the LOGIN node (has internet);
-compute nodes are offline. Forces online mode regardless of paths.py defaults."""
+"""Download ColorSwap (stanfordnlp/colorswap) into the Hugging Face cache. Needs internet access."""
 import os
 os.environ["HF_HUB_OFFLINE"] = "0"
 os.environ["TRANSFORMERS_OFFLINE"] = "0"

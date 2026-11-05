@@ -1,33 +1,11 @@
 #!/usr/bin/env python
-"""METALINGUISTIC ACCESS to the learned requests on Ground-CF (author, 2026-09-23, STATUS v1.131).
+"""Metalinguistic probes of the learned requests on Ground-CF (Figure 4 of the paper).
 
-Can the model TALK ABOUT the words it was given, not only use them? Seven prompt families. A-F contain the request
-itself as an object of discussion and need no image; G asks, inside a real Ground-CF prompt, which source the active
-request asks for.
-
-  A same_yn      "Does <look> mean the same thing as <read>? Answer yes or no."      gold no  (yes for <look>/<look>)
-  B same_sd      "Are <look> and <read> the same or different? Answer same or different."   gold different / same
-  C mc_word      "Which instruction asks you to answer from the image?  A. <look>  B. <read>"   both option orders
-  D mc_source    "What does <look> ask you to use when answering?  A. the image  B. the caption"  both orders
-  E open_diff    "To answer this question, what is the difference between answering in a <look> way and a <read> way?"
-  F open_mean    "What does it mean to answer in a <look> way?"
-  G self_report  a Ground-CF conflict item (image + caption) with the interface's held-out request carrier; the question
-                 is replaced by "Which source does this request ask you to use? A. the image B. the caption" (both orders)
-
-Controls per interface: word -> its tokens; prefix -> its soft tokens placed inline where the word would be (a prefix
-has no other way to be an object of a sentence); English (--mode instructed) -> "according to the image" / "according to
-the caption" in quotes, the ceiling reference; LoRA adapter and no request -> A-F not expressible (N/A records), G only
-(the adapter, or nothing, is the request; for no request G has no gold and the answer distribution is reported).
-
-Scoring: closed families (A-D, G) are deterministic forced choices -- the log-likelihood of every candidate is recorded
-under two continuations, anchored "final answer: <c>" (PRIMARY, prespecified 2026-09-24) and bare "<c>" -- plus a greedy free generation that is
-kept verbatim and parsed deterministically (the letter or word after the last "final answer:", else the first candidate
-in the reply). E-F are generation only; the raw text is kept and tagged with keyword flags (image / caption vocabulary)
-for later annotation. Every record carries the rendered prompt.
-
-Output: runs/<run>/eval/clevr3_<split>/meta_words_step_<step><tag>.json  (use a _meta_* tag: the keeper matches *<tag>.json)
-Usage: python scripts/eval_meta_words.py --run_dir runs/<run> --tag _meta_fc [--mode instructed|noop --tag _meta_fc_instr] [--n_items 40]
-"""
+We measure whether a model can talk about the words it was given, not only use them. There are seven prompt families:
+whether <look> and <read> mean the same thing (yes / no, same / different), which word asks for the image, what a word
+asks the model to use (multiple choice, both option orders), two open questions, and, inside a real Ground-CF prompt,
+which source the active request asks for. Prompt tuning places its soft tokens where the word would be, English
+instructions serve as the reference, and a LoRA adapter or no request can only be asked the last question."""
 import argparse, json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.clevr3 import clevr3_token, clevr3_user_content, set_c3_vocab, heldout_question, eval_design
@@ -84,7 +62,7 @@ def main():
     forbid_holder = [forbid]
 
     def anchored(c):
-        """The anchored forced-choice continuation in the run's own answer format (2026-10-02): v2 runs were trained on
+        """The anchored forced-choice continuation in the run's own answer format: v2 runs were trained on
         'Final answer: <v>' (SC_GCF_CONT=final, restored from config by apply_checkpoint), bare runs on '<v>'; banked
         runs keep the legacy anchored short form 'final answer: <c>'."""
         fmt = os.environ.get("SC_GCF_CONT", "leadin")
@@ -95,7 +73,7 @@ def main():
         from scripts.eval_clevr3_generate import loglik_both as _lb
         from scripts.tokscore import split_spans as _ss
         _det = {c: _lb(model, proc, um, anchored(c), "cuda", tokens=True) for c in cands}
-        _spd = _ss({c: (d[3], d[4]) for c, d in _det.items()})              # v1.144: token-level detail
+        _spd = _ss({c: (d[3], d[4]) for c, d in _det.items()})              # token-level detail
         s_anc = {c: round(float(_spd[c]["answer_sum"] if os.environ.get("SC_SCORE", "turn") == "answer" else _det[c][0]), 4) for c in cands}
         s_bare = {c: round(float(loglik(model, proc, um, c, "cuda")), 4) for c in cands}
         p_anc = max(s_anc, key=s_anc.get); p_bare = max(s_bare, key=s_bare.get)
@@ -122,7 +100,7 @@ def main():
                      **kw_flags(txt), **(extra or {})})
 
     def closed_families(Wd, sfx=""):
-        """A-D with the given request strings; sfx names a control set (v1.141)."""
+        """A-D with the given request strings; sfx names a control set."""
         combos = [("look", "read", "no"), ("read", "look", "no"), ("look", "look", "yes"), ("read", "read", "yes")]
         for p, tpl in enumerate(["Does {x} mean the same thing as {y}? Answer yes or no.",
                                  "Do {x} and {y} ask for the same thing? Answer yes or no."]):
@@ -154,7 +132,7 @@ def main():
 
     if W is not None:
         closed_families(W)
-        # v1.141 (reviewer): CONTROLS for A-D. The Ground-CF words start from the mean embedding of "image" / "caption"
+        # CONTROLS for A-D. The Ground-CF words start from the mean embedding of "image" / "caption"
         # (prefix rows: "image" / "text"), so an untrained word already leans toward its source. Two control sets, added
         # as NEW special tokens with the trainer's word_mean init (+0.01 noise, fixed seed):
         #   _ctlinit : initialised exactly like the learned rows before training (init words of this run's specs);
@@ -165,7 +143,7 @@ def main():
             import torch as _t
             from scsrc import model as _M
             from scsrc.tokens import token_strings as _ts
-            # 2026-10-02 (advisor): the initialization words come from the RUN (word: Ground-CF specs image/caption;
+            # the initialization words come from the RUN (word: Ground-CF specs image/caption;
             # prefix: image / --pt_read_init, "caption" in the protocol-v2 pilot, "text" in banked runs)
             init_words = ({"look": "image", "read": "caption"} if method == "neo"
                           else {"look": "image", "read": cfg.get("pt_read_init") or "text"})

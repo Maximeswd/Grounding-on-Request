@@ -1,21 +1,10 @@
 #!/usr/bin/env python3
-"""COCO-Counterfactuals -> the open-vocab rung, as a REASONABLE SAMPLE.
+"""Build the COCO-CF splits from COCO-Counterfactuals.
 
-17,042 clean single-noun pairs is overkill for embedding-only training and
-makes the GPU oracle-gate expensive. We sample a pool, split by held-out NOUN
-VOCABULARY (OOD = pairs whose changed noun was never seen in training), and
-materialize the ColorSwap/UnifiedExample schema so the existing pipeline runs.
-
-Phase 1 (this script, CPU): derive the single-noun diff (difflib, no
-pre-labelled column exists), sample, noun-vocab split, materialize
-data/coco/{train,test_id,test_ood}. Phase 2 (scripts/coco_oracle_gate.py, GPU)
-then keeps only pairs the frozen model reads correctly on both images.
-
-Conflict is built like ColorSwap: image_1=image_0 (shows n0), image_2=image_1
-(shows n1), caption_1/2 = caption_0/1; build_specs cross-pairs into the look-vs
--read modality conflict. key = {"object": noun} (generic slot; the noun is the
-answer). task tag "coco".
-"""
+Since 17,042 single-noun pairs is far more than embedding-only training needs, we sample a pool, derive the noun each
+pair changes (no column holds it), and split by held-out noun vocabulary, so a test_ood pair always changes a noun that
+was never seen in training. The conflict is built as for ColorSwap, with the key {"object": noun}. Writes
+data/coco/{train,test_id,test_ood}; coco_oracle_gate.py then filters the test splits."""
 import argparse, difflib, hashlib, json, os, random, re, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.tasks import UnifiedExample

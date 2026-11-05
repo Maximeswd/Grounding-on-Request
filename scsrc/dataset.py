@@ -85,12 +85,12 @@ class ObjectiveDataset(Dataset):
             self.items = []
             _both = os.environ.get("SC_COMPOSE_LEGACY_ORDER", "0") != "1"   # default: both orders
             if method == "lora" and ctrl_style == "adapter":
-                # v1.125: one adapter per request -- only this adapter's request is trained
+                # one adapter per request -- only this adapter's request is trained
                 _ts = [x for x in os.environ.get("SC_TRAIN_SOURCES", "").split(",") if x.strip()]
                 assert _ts and all(x in ("look", "read") for x in _ts), "ctrl_style=adapter needs --train_sources look|read"
                 ops = tuple(_ts)
             elif method == "lora" and ctrl_style == "request":
-                # request-conditioned LoRA (2026-09-21): one item per selected source, like pt
+                # request-conditioned LoRA: one item per selected source, like pt
                 ops = ("look", "read")
             elif method == "lora":
                 # LoRA keeps its own recipe (op None -> the fixed separated format)
@@ -101,7 +101,7 @@ class ObjectiveDataset(Dataset):
             # ops override: --extend_ckpt runs train ONLY the added word's op
             # (e.g. ("resolve",)) -- the frozen rows' items would waste compute
             for s in specs:
-                # 2026-09-16: ctrl_style="compose" gave the COMPOSED one-prompt format to LoRA ONLY,
+                # ctrl_style="compose" gave the COMPOSED one-prompt format to LoRA ONLY,
                 # because `ops = ("compose",)` sits inside the `if method == "lora"` block above. The
                 # neologisms and the learned prefixes were therefore SCORED by the composed conflict
                 # detector in a format they had never been TRAINED in, while LoRA had been trained in
@@ -131,7 +131,7 @@ class ObjectiveDataset(Dataset):
         for e.g. arm=gen + lam_ctm (build_ctm_pair has no gen branch).
         Probe up to 16 conflict specs x the trained ops; legitimate per-item
         Nones (agree items, wrong op) pass as long as ANY pair builds."""
-        if self.method not in ("neo", "pt", "lora"):   # lora added 2026-09-14: LoRA + CTM
+        if self.method not in ("neo", "pt", "lora"):   # lora added LoRA + CTM
             return
         eff = self._resolve(self.obj_global, self.per_op, "look")
         want = {"apo": (eff.get("lam_apo", 0) or 0) > 0,
@@ -182,10 +182,10 @@ class ObjectiveDataset(Dataset):
             tpl = gen_template(self.task, i)
         elif self.method == "pt":
             # inserted-PT control: the WORD's rotating template at the SAME index as a neologism item,
-            # so SFT and pair prompts differ from the neologism's in nothing but the token ids (2026-09-21)
+            # so SFT and pair prompts differ from the neologism's in nothing but the token ids
             tpl = self._pick_ctrl(i) if os.environ.get("PT_INSERTED", "0") == "1" else pt_template(i)
         elif self.method == "lora" and self.ctrl_style == "adapter":
-            tpl = pt_template(i)          # v1.125: the prefix's rotating neutral templates, prefix removed
+            tpl = pt_template(i)          # the prefix's rotating neutral templates, prefix removed
         else:
             tpl = None
         absence = None
@@ -224,7 +224,7 @@ class ObjectiveDataset(Dataset):
                                           absence=absence, slot_negative=_neg,
                                           ctrl_site=self.ctrl_site)}
         if op in ("compose", "compose_r"):
-            # 2026-09-15: composed items WERE CE-only, which meant the counterfactual objective never
+            # composed items WERE CE-only, which meant the counterfactual objective never
             # touched the format the one-prompt conflict detector is scored in -- so CTM could not help
             # there by construction. With lam_ctm on, the composed prompt now gets its own twin.
             if self.method in ("neo", "pt", "lora") and eff.get("lam_ctm", 0) > 0:

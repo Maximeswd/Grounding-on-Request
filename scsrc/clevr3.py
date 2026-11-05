@@ -29,8 +29,8 @@ from .collate import _encode, _prompt_len, NEG_SLOT_WORDS
 from .tokens import clevr3_trigger, CLEVR3_SOURCES, CLEVR3_OPERATORS, c3_sources
 
 _PERMS = list(itertools.permutations(("read", "ocr", "look")))   # legacy three-source protocol only
-_ORDER_BIT = None   # set per training row by Clevr3Dataset.__getitem__ (v1.132); None at evaluation
-_POS_BIT = None     # v1.167 (--gcf_word_pos mix): per training row, 1 = the word's sentence BEFORE the evidence; None otherwise
+_ORDER_BIT = None   # set per training row by Clevr3Dataset.__getitem__; None at evaluation
+_POS_BIT = None     # per training row, 1 = the word's sentence BEFORE the evidence; None otherwise
 
 
 _EVAL_RANK = None
@@ -60,22 +60,22 @@ def _eval_rank(item):
 
 
 def eval_design(item, seed, question_style="heldout"):
-    """(seed', caption_first) for an EVALUATION prompt (v1.133, author: both orders equally represented at evaluation).
+    """(seed', caption_first) for an EVALUATION prompt.
     The test files cycle the four skills, so the old seed-parity rules gave every skill ONE held-out carrier, ONE
     held-out question formulation and a 2:1 order split (ID split). Now, from the item's within-skill rank r:
       caption first = r even;  held-out carrier = (r // 2) % 2;  held-out question = (r // 4) % 2
       (explicit/in-template style: training carrier (r // 2) % 6, training question (r // 12) % 3; generic: (r // 2) % 3)
     -> every skill x request sees all combinations equally, and every interface sees the identical prompt per item.
     Training is untouched (Clevr3Dataset sets _ORDER_BIT and the per-row seed). SC_EVAL_DESIGN=legacy restores the
-    pre-v1.133 evaluation prompts; the legacy three-source protocol always keeps them."""
+    pre- evaluation prompts; the legacy three-source protocol always keeps them."""
     if _ORDER_BIT is not None or "ocr" in c3_sources() or os.environ.get("SC_EVAL_DESIGN", "balanced") == "legacy":
         return seed, None
     r = _eval_rank(item)
     if os.environ.get("SC_GCF_FORMAT") == "v2":
-        # design v2 (2026-09-29, audit item 3): carrier index, question index and evidence order all derive from ONE
+        # design v2: carrier index, question index and evidence order all derive from ONE
         # stable per-item integer, so switching the question pool or the carrier pool changes nothing else
         return r // 2, (r % 2 == 0)
-    if question_style == "heldout" or question_style.startswith("tpl:"):   # v1.217: templates reuse the held-out design
+    if question_style == "heldout" or question_style.startswith("tpl:"):   # templates reuse the held-out design
         s2 = (r // 2) % 2 + 2 * ((r // 4) % 2)
     elif question_style == "generic":
         s2 = (r // 2) % 3
@@ -89,8 +89,7 @@ def _block_order(seed, cap_first=None):
       evaluation: caption first iff seed % 6 < 3 -- exactly the mapping the old permutation list gave once the OCR
                   block was dropped, so every evaluation prompt is unchanged;
       training  : a per-ROW coin (_ORDER_BIT, crc32 of the row id), identical for the <look> and <read> items of a
-                  row and independent of the carrier and question rotation (v1.132, author: "the different orders
-                  equally represented during training"). Before v1.132 the training seed was the (row, request) index,
+                  row and independent of the carrier and question rotation. Before the training seed was the (row, request) index,
                   so <look> saw the caption first in 2/3 of its items and <read> in 1/3."""
     if "ocr" not in c3_sources():
         if cap_first is None:
@@ -102,11 +101,11 @@ _OP_FILLERS = ("value", "output", "process", "quantity", "attribute")
 
 
 def _blocks(item):
-    # only the ACTIVE sources appear in the prompt (STATUS v1.94: two-modality protocol drops the on-screen block)
+    # only the ACTIVE sources appear in the prompt
     act = c3_sources()
     import os as _os
     b = {
-        # v2 explicit format (SC_GCF_FORMAT=v2, 2026-09-29): labelled blocks, caption on its own line
+        # v2 explicit format: labelled blocks, caption on its own line
         "read": (f'Caption:\n{caption_text(item)}' if _os.environ.get("SC_GCF_FORMAT") == "v2"
                  else f'Caption: "{caption_text(item)}"'),
         "ocr": f'On-screen text: "{item["ocr_text"]}"',
@@ -125,11 +124,11 @@ INSTR = {"look": "the image", "read": "the caption", "ocr": "the on-screen text"
 # Design A: "the question carries the task, the word carries the source".
 # The generic condition is the probe that gives Design B's skill tokens a
 # non-trivial job (skill selection, real zero-shot composition).
-# 2026-09-23 (author, STATUS v1.120): HELD-OUT QUESTION PHRASINGS. Ground-CF has no request-carrier template --
+# HELD-OUT QUESTION PHRASINGS. Ground-CF has no request-carrier template --
 # the word is appended to the item's question -- so "another form of the same question" at evaluation means a
 # paraphrase of the question itself, two per skill, never used in training (training uses item["question"]).
 # The candidate relations of the spatial question are kept verbatim: they define the answer vocabulary.
-# 2026-09-23 (author, STATUS v1.124): QUESTION POOLS. Three training formulations per skill (the original first),
+# QUESTION POOLS. Three training formulations per skill (the original first),
 # rotated by item when SC_Q_ROTATE=1 (train.py --q_rotate 1); two held-out formulations that never occur in
 # training (question_style="heldout"). The answer space is unchanged; the spatial relation list is kept verbatim
 # because those strings are the candidates.
@@ -176,7 +175,7 @@ def train_question(item, seed):
     return _TRAIN_QS[item["skill"]][(seed // 6) % 3](m) if m else item["question"]   # decoupled from the carrier (seed % 6)
 
 
-# 2026-09-23 (author, STATUS v1.124): FACT CAPTIONS. The stored caption is the data template
+# FACT CAPTIONS. The stored caption is the data template
 # "The answer to the question is <v>." (prepare_clevr3.py), which makes the textual evidence depend on the
 # question's wording. With SC_CAPTION_STYLE=fact (train.py --caption_style fact, restored from config.json by
 # evaluate.apply_checkpoint) the caption is rendered as the fact itself, from the question's entities and the
@@ -217,7 +216,7 @@ def caption_text(item):
 
 _HO_IV = None            # instructed-carrier variant override while rendering a held-out prompt (see clevr3_user_content)
 
-# 2026-09-23 (author, STATUS v1.123): CARRIER TEMPLATES FOR THE WORD ON GROUND-CF, after Hewitt et al. (neologism
+# CARRIER TEMPLATES FOR THE WORD ON GROUND-CF, after Hewitt et al. (neologism
 # learning, Tables 10/11). Training rotates six positive templates by item; evaluation uses two the word never saw.
 # Active only for runs trained with --neo_template hewitt (SC_NEO_TEMPLATE=hewitt, recorded in config.json and
 # restored by evaluate.apply_checkpoint); the banked runs keep the bare form `<question> <tokens>`.
@@ -233,7 +232,7 @@ NEO_TEMPLATES_HELDOUT = [
     "{q} Answer in a {neo} manner.",
     "Give me a {neo} answer to the following:\n\n{q}",
 ]
-# v1.167 the same carriers without the question, for the word's sentence placed BEFORE the evidence (mixed-placement
+# the same carriers without the question, for the word's sentence placed BEFORE the evidence (mixed-placement
 # training, --gcf_word_pos mix) and for position evaluations with SC_GCF_CTRL_SENT=heldout
 NEO_LEAD_TEMPLATES = [
     "Give me a {neo} answer.",
@@ -247,7 +246,7 @@ NEO_LEAD_HELDOUT = [
     "Answer in a {neo} manner.",
     "Give me a {neo} answer to the following.",
 ]
-# 2026-09-29 (protocol note, items 2-3): SOURCE-SELECTION carriers (--neo_template srcsel). The hewitt set describes
+# SOURCE-SELECTION carriers (--neo_template srcsel). The hewitt set describes
 # a response property ("a <look> answer", "a <look> style"); these say which evidence the answer comes from. Three
 # training carriers, two evaluation-only carriers (carrier-robustness test). Lead forms = the same sentences without
 # the question, for the v2 explicit format and for position experiments.
@@ -277,7 +276,7 @@ def _neo_pools(lead=False):
 
 
 def _use_heldout_carrier(heldout):
-    """Which carrier pool an evaluation prompt draws from (2026-09-29, separate robustness tests):
+    """Which carrier pool an evaluation prompt draws from:
     default: held-out question -> held-out carrier (both shift at once, the banked convention);
     SC_GCF_TRAIN_CARRIER=1: training carriers with the held-out question (question robustness);
     SC_GCF_HELDOUT_CARRIER=1: held-out carriers with the training question (carrier robustness)."""
@@ -348,7 +347,7 @@ def clevr3_token(item, source, n_tokens, mode, slot_negative=None):
     return clevr3_trigger(mode, source, op, n_tokens)
 
 
-# 2026-09-23 (author, STATUS v1.130): INTERFACE PROBES -- evaluation-only prompt families that test what a WORD can do
+# INTERFACE PROBES -- evaluation-only prompt families that test what a WORD can do
 # beyond the QA template it was trained in. Every probe keeps the item's evidence and answer space, so the standard
 # conflict-preserving scorer (Accuracy / Flip / Stay) applies unchanged. `{c}` is the control slot:
 #   word -> its tokens; English -> "the image"/"the caption"; prefix -> its soft tokens placed IN the slot for
@@ -363,7 +362,7 @@ def _probe_parts(item):
         e = f"the {m.group(1)}"; return e, f"the color of {e}", f"The {m.group(1)} is ____.", m.group(1), "color"
     if sk == "object":
         e = f"the {m.group(1)} object"; return e, f"the shape of {e}", f"The {m.group(1)} object is a ____.", f"{m.group(1)} object", "shape"
-    if sk == "count":   # v1.141: modality-neutral (was "... in the image", which names one source)
+    if sk == "count":   # modality-neutral (was "... in the image", which names one source)
         return "the shapes", "the number of shapes", "The number of shapes is ____.", "shapes", "count"
     if sk == "spatial":
         rel = "left of, right of, above, or below"
@@ -372,7 +371,7 @@ def _probe_parts(item):
     return None
 
 
-# v1.211 (2026-09-25, author): TEMPLATE ROBUSTNESS -- is the word / prefix ordering on Ground-CF stable under fixed,
+# TEMPLATE ROBUSTNESS -- is the word / prefix ordering on Ground-CF stable under fixed,
 # pre-registered changes of wording and structure? Every item gets every template (no rotation); {q} = the held-out
 # question of the canonical protocol, {L} = a longer natural question, {c} = the control slot: the word, or the prefix's
 # soft vector itself (matched carrier + position; SC_TPL_PT=native instead keeps the prefix where it was trained, at the
@@ -382,19 +381,18 @@ TPL_ROBUST = {"tpl:t1": "{q} Answer in a {c} manner.",
               "tpl:t3": "Use {c} to answer the following question. {q}",
               "tpl:t4": "{q} {c}",
               "tpl:t5": "{L} Answer in a {c} manner.",
-              # v1.217 (author: "prefix vector in the Word's sentence/slot"): the word's canonical held-out carriers
+              # the word's canonical held-out carriers
               # with their canonical rotation, so a word run under tpl:wordcarrier IS its canonical evaluation and a
               # prefix run puts its soft vector exactly where the word sits, in the same sentence
               "tpl:wordcarrier": "WORDCARRIER"}
 
 PROBES = ("fmt:completion", "fmt:structured", "fmt:imperative",
           "pos:prefix", "pos:medial", "pos:suffix", "pos:paren", "pos:nominal", "pos:longdist",
-          "long:neutral", "long:disagree", "long:info2")   # v1.141: the v1.131 long:consider / long:info never ran
+          "long:neutral", "long:disagree", "long:info2")   # the long:consider / long:info never ran
 
 
 def _long_parts(item):
-    """What each long question asks for, in modality-neutral words (v1.141, replacing the v1.131 "Considering all
-    objects, identify ... in the image" forms, which lean visual): the target phrase, and the relation options for
+    """What each long question asks for, in modality-neutral words: the target phrase, and the relation options for
     spatial (placed after the request)."""
     m = _qmatch(item); sk = item.get("skill")
     if not m:
@@ -414,7 +412,7 @@ def probe_text(item, style, ctl, english=False):
     """The question text of a probe. `ctl` is the control phrase for the slot, or "" (slot removed)."""
     q = item["question"]
     if style.startswith("long:"):
-        # v1.141 (reviewer, author): modality-neutral long questions; the control sits in "according to X"
+        # modality-neutral long questions; the control sits in "according to X"
         lp = _long_parts(item)
         if lp is None:
             return q
@@ -468,18 +466,18 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
     method 'pt' = prompt-tuning baseline: the request is carried by a learned soft
     PREFIX (rows named pt_<source>) prepended to the user turn, and the question
     carries NO src token. This mirrors the ladder convention in
-    scsrc/preference.py::_ctrl_user. Before 2026-09-11 this branch did not exist,
+    scsrc/preference.py::_ctrl_user. Before this branch did not exist,
     so a clevr3 PT run rendered the neo `src_*` strings, which are not registered
     rows for a PT run: no trainable row appeared in the prompt and the PT rows
-    received exactly zero gradient (STATUS 2026-09-11)."""
-    seed, _cf = eval_design(item, seed, question_style)          # v1.133: balanced evaluation design (no-op in training)
+    received exactly zero gradient."""
+    seed, _cf = eval_design(item, seed, question_style)          # balanced evaluation design (no-op in training)
     import os as _os
     _pt_as_word = False
     if method == "pt":
         from .tokens import trigger as _t
         tok = ""
         pt_prefix = _t(f"pt_{source}", n_tokens)
-        # 2026-09-29 matched-position control (SC_GCF_PT_CARRIER=1, train.py --gcf_pt_carrier 1): the soft tokens sit
+        # matched-position control (SC_GCF_PT_CARRIER=1, train.py --gcf_pt_carrier 1): the soft tokens sit
         # in the word's slot of the word's carrier ("Answer according to <pt>.") instead of the start of the text.
         if (_os.environ.get("SC_GCF_PT_CARRIER", "0") == "1" and question_style not in PROBES
                 and not question_style.startswith("tpl:")):
@@ -490,7 +488,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
         global _HO_IV
         import os as _os
         _rot = [int(x) for x in _os.environ.get("SC_INSTR_ROTATE", "").split(",") if x.strip()]
-        # v1.176: SC_KEEP_INSTR_VARIANT=1 keeps INSTR_VARIANT (e.g. the English row's 5) with held-out QUESTIONS, so the
+        # SC_KEEP_INSTR_VARIANT=1 keeps INSTR_VARIANT (e.g. the English row's 5) with held-out QUESTIONS, so the
         # frozen English baseline changes only its question phrasing; unset = held-out instruction variants 1/3 as before
         if _os.environ.get("SC_GCF_FORMAT") == "v2" and mode == "instructed":
             # design v2 (audit item 3): the English wording follows the CARRIER switch -- held-out variants 1/3 under
@@ -512,7 +510,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
             tok = clevr3_token(item, source, n_tokens, mode, slot_negative)
         finally:
             _HO_IV = None
-    # v1.166 position relocation (EVALUATION ONLY, SC_GCF_CTRL_POS = first | between | last): the learned control is
+    # position relocation (EVALUATION ONLY, SC_GCF_CTRL_POS = first | between | last): the learned control is
     # moved to a position it never occupied in training -- the word in its first training sentence "Give me a <w>
     # answer.", the prefix vectors alone; the question stays last and the evidence order stays balanced. first = before
     # both evidence blocks, between = between them, last = after the question. Unset = native placement (training).
@@ -520,7 +518,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
     _pos = _os.environ.get("SC_GCF_CTRL_POS", "") if question_style not in PROBES else ""
     _ctl = None
     if _pos:
-        assert _pos in ("first", "between", "last", "pre_src", "post_src"), _pos   # pre_src/post_src: 2026-10-19 trained positions
+        assert _pos in ("first", "between", "last", "pre_src", "post_src"), _pos   # pre_src/post_src: trained positions
         if method == "pt" and pt_prefix:
             _ctl, pt_prefix = pt_prefix, None
         elif (method == "neo" or _pt_as_word) and mode not in ("instructed", "noop") and tok:
@@ -528,7 +526,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
             if _os.environ.get("SC_GCF_CTRL_SENT") == "heldout":
                 _sent = _lead_ho[seed % len(_lead_ho)]
             elif _os.environ.get("SC_GCF_CTRL_ROTATE") == "1":
-                # 2026-10-19 TRAINED positions (train.py --gcf_ctrl_pos): the lead sentence rotates like the native
+                # TRAINED positions (train.py --gcf_ctrl_pos): the lead sentence rotates like the native
                 # carrier does, training pool in training / reference, held-out pool under the carrier-shift test
                 _pool = _lead_ho if _use_heldout_carrier(question_style == "heldout") else _lead_tr
                 _sent = _pool[seed % len(_pool)]
@@ -536,10 +534,10 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
                 _sent = _lead_tr[0]
             _ctl, tok = _sent.format(neo=tok), ""
         elif mode == "instructed" and tok:
-            _ctl, tok = tok, ""        # v1.168 English-placement control: the instruction sentence moves as it is
+            _ctl, tok = tok, ""        # English-placement control: the instruction sentence moves as it is
     elif (_POS_BIT == 1 and (method == "neo" or _pt_as_word) and mode not in ("instructed", "noop") and tok
           and question_style not in PROBES):
-        # v1.167 mixed placement in TRAINING: this row's word sentence precedes the evidence (same rotation index as
+        # mixed placement in TRAINING: this row's word sentence precedes the evidence (same rotation index as
         # its carrier would have had); the question follows the evidence without a carrier
         _pos = "first"
         _lead_tr = _neo_pools(lead=True)[0]
@@ -562,7 +560,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
             content.append({"type": "image", "image": img}); _n_blk += 1
         elif blocks_mode != "image_only" and blocks_mode != f"drop_{b}":
             # blocks_mode 'drop_read' / 'drop_ocr' removes ONE text channel: the
-            # post hoc grounding verifier (scripts/eval_posthoc_ground.py) scores
+            # post hoc grounding verifier scores
             # an answer with and without the requested source present.
             buf.append(blocks[b]); _n_blk += 1
         if _ctl and _pos == "post_src" and b == source:      # immediately AFTER the requested source's block
@@ -570,7 +568,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
         if _ctl and _pos == "between" and _n_blk == 1:
             buf.append(_ctl)
     if question_style.startswith("tpl:"):
-        # v1.211 template robustness (TPL_ROBUST): one fixed template per evaluation, the control in its slot
+        # template robustness (TPL_ROBUST): one fixed template per evaluation, the control in its slot
         tpl = TPL_ROBUST[question_style]
         q = heldout_question(item, seed)
         lp = _long_parts(item)
@@ -586,13 +584,13 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
             raise SystemExit("[tpl] template robustness is defined for word and prefix runs only")
         if ctl is None:
             buf.append(L if "{L}" in tpl else q)
-        elif tpl == "WORDCARRIER":   # v1.217: the WORD's canonical held-out carrier, same rotation (neo_carrier, heldout)
+        elif tpl == "WORDCARRIER":   # the WORD's canonical held-out carrier, same rotation (neo_carrier, heldout)
             _ho = _neo_pools()[1]
             buf.append(_ho[seed % len(_ho)].format(q=q, neo=ctl))
         else:
             buf.append(tpl.format(q=q, L=L, c=ctl))
     elif question_style in PROBES:
-        # interface probes (v1.130): the control lives in the probe's slot, never in a trained carrier
+        # interface probes: the control lives in the probe's slot, never in a trained carrier
         if method == "pt":
             ctl = pt_prefix if question_style.startswith("pos:") else ""
             if question_style.startswith("pos:"):
@@ -610,7 +608,7 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
              else train_question(item, seed))
         _is_word = (method == "neo" or _pt_as_word) and mode not in ("instructed", "noop")
         if _os.environ.get("SC_GCF_FORMAT") == "v2":
-            # 2026-09-29 explicit shared format (protocol note item 3): labelled question, the control on its own
+            # explicit shared format (protocol note item 3): labelled question, the control on its own
             # line (word carrier / English instruction / nothing), then a fixed output-format instruction. Prompt
             # tuning's standard prefix stays at the start of the text (pt_prefix below); its matched-position variant
             # enters here through _pt_as_word.
@@ -634,9 +632,8 @@ def clevr3_user_content(item, source, n_tokens, mode, seed=0, slot_negative=None
     return content
 
 
-# ABSENCE (2026-09-15): the designated answer when the requested source does not contain the
-# answer. Enters training targets and the forced-choice candidate set (scripts/clevr3_absence.py,
-# scripts/eval_clevr3_abstain.py).
+# ABSENCE: the designated answer when the requested source does not contain the
+# answer. Enters training targets and the forced-choice candidate set.
 ABSTAIN = {"look": "not visible in the image", "read": "not stated in the caption"}
 
 
@@ -673,10 +670,10 @@ def build_clevr3_example(processor, item, source, device, n_tokens, mode,
 def clevr3_compose_content(item, srcs, n_tokens, mode, seed, method="neo", heldout=False, question_style="explicit"):
     """Composed request on Ground-CF: blocks + question + two request carriers in
     order (scsrc.prompts.compose_*). Same template family and target as the ladder.
-    question_style="heldout" (v1.131) uses the held-out question formulations, as every other new-protocol eval."""
+    question_style="heldout" uses the held-out question formulations, as every other new-protocol eval."""
     from .prompts import compose_template, compose_carrier, compose_request
     blocks = _blocks(item)
-    seed, _cf = eval_design(item, seed, question_style)          # v1.133 (no-op in training)
+    seed, _cf = eval_design(item, seed, question_style)
     order = _block_order(seed, _cf)
     content, buf = [], []
     img = Image.open(item["image"]).convert("RGB") if isinstance(item["image"], str) else item["image"]
@@ -754,7 +751,7 @@ C3_CONT = "I used the requested source to answer the question. final answer: {v}
 
 
 def c3_cont(v):
-    """The assistant continuation for value v under the ACTIVE answer format, read at CALL time (2026-09-29, audit item 1):
+    """The assistant continuation for value v under the ACTIVE answer format, read at CALL time:
     SC_GCF_CONT = leadin (banked default)  -> 'I used the requested source to answer the question. final answer: <v>'
                   final                    -> 'Final answer: <v>'   (protocol-v2 primary format)
                   bare                     -> '<v>'
@@ -784,7 +781,7 @@ def _seq_c3(processor, content, cont, device):
 
 
 # ---------------------------------------------------------------------------
-# CONFLICT-PRESERVING EDITS (2026-09-22, STATUS v1.86). The shipped rule "first other channel whose
+# CONFLICT-PRESERVING EDITS. The shipped rule "first other channel whose
 # value differs" picks the IMAGE's value for every caption/OCR edit (channels are ordered look, read,
 # ocr), so the read Flip and both Stay edits made the edited source AGREE with the image. Under
 # SC_CP_PAIRS=1 (train.py --cp_pairs) and eval --cp, a text channel is moved to a THIRD value w that
@@ -868,7 +865,7 @@ def _edited_item(item, channel, new_value):
     elif channel == "ocr":
         it["ocr_text"] = item["ocr_text"].replace(old, str(new_value))
     elif channel == "look" and item.get("_twin"):
-        # IMAGE TWIN (2026-09-14): an exact in-place re-render of the same scene with only the
+        # IMAGE TWIN: an exact in-place re-render of the same scene with only the
         # probed attribute changed (scripts/clevr3_image_twins.py, colour and object skills). The
         # rows are attached at dataset load when --clevr3_image_twins names a pairs file, so a run
         # without the flag behaves exactly as before.
@@ -888,7 +885,7 @@ def _c3_alt(item, source):
         v = str(item["_twin"]["value"])
         return v if v != gold else None
     if source != "look" and cp_enabled():
-        # conflict-preserving (v1.86): a third value no channel asserts, never the image's value
+        # conflict-preserving: a third value no channel asserts, never the image's value
         return cp_text_edit_value(item, source)[0]
     for c, v in item["channels"].items():
         if c in c3_sources() and c != source and str(v) != gold:
@@ -929,7 +926,7 @@ def build_clevr3_vgm_pair(processor, item, source, device, n_tokens, mode,
                               method=method)
     # keys must match preference._objective_terms, which reads rec["vgm"]["pos"/"neg"]
     # (the chosen/rejected spelling crashed every Ground-CF VGM run at the first
-    # post-warmup step with KeyError: 'pos'; fixed 2026-09-13).
+    # post-warmup step with KeyError: 'pos'; fixed).
     return {"pos": _seq_c3(processor, c_a, c3_cont(gold), device),
             "neg": _seq_c3(processor, c_b, c3_cont(gold), device)}
 
@@ -946,7 +943,7 @@ def build_clevr3_ctm_quad(processor, item, source, device, n_tokens, mode,
         return None
     gold = str(item["channels"][source])
     if source == "look" and cp_enabled():
-        # v1.86: a twin value that a text channel also asserts would let the image edit be tracked by
+        # a twin value that a text channel also asserts would let the image edit be tracked by
         # reading; move that channel to a fresh value in BOTH contexts (ladder fixed-caption rule)
         item, _moved = cp_fix_look_collision(item, alt)
         if item is None:
@@ -966,7 +963,7 @@ def build_clevr3_ctm_quad(processor, item, source, device, n_tokens, mode,
 
 def build_clevr3_sm_pair(processor, item, source, device, n_tokens, mode,
                          seed=0, question_style="explicit", method="neo"):
-    """STAY MARGIN on Ground-CF (2026-09-21): edit the COMPETING text channel the way the evaluator
+    """STAY MARGIN on Ground-CF: edit the COMPETING text channel the way the evaluator
     does (read for look/ocr, ocr for read) to a value w that differs from BOTH the requested gold and
     the competing channel's current value, then require s(gold | ctx') > s(w | ctx'). Ground-CF has
     three channels with three values, so w is a genuine third value and the term is not degenerate,
@@ -974,7 +971,7 @@ def build_clevr3_sm_pair(processor, item, source, device, n_tokens, mode,
     other = "ocr" if source == "read" else "read"
     gold = str(item["channels"][source])
     if cp_enabled() and source == "read" and item.get("_twin") and str(item["_twin"]["value"]) != gold:
-        # v1.86: the caption's competitor in the paper is the IMAGE; edit it (exact twin), text untouched,
+        # the caption's competitor in the paper is the IMAGE; edit it (exact twin), text untouched,
         # and require the caption's value to beat the twin's value
         w = str(item["_twin"]["value"])
         ctx_p = clevr3_user_content(_edited_item(item, "look", w), source, n_tokens, mode, seed,
@@ -1056,8 +1053,7 @@ def scene_of(row_id):
 
 
 def filter_scenes(rows):
-    """Recipe-development filters (2026-10-02, advisor note: select recipes on a development partition, confirm once on
-    the untouched test sets). SC_EXCLUDE_SCENES = path to a file of scene ids to DROP (the dev partition carved from the
+    """Recipe-development filters. SC_EXCLUDE_SCENES = path to a file of scene ids to DROP (the dev partition carved from the
     training scenes); SC_TRAIN_SCENES = N keeps the first N distinct scenes in file order (nested subsets for the
     data-size experiment). Both default to no filtering; train.py sets them from --exclude_scenes / --train_scenes."""
     ex_path = os.environ.get("SC_EXCLUDE_SCENES", "").strip()
@@ -1095,8 +1091,8 @@ class Clevr3Dataset:
                  absence=None, absence_frac=0.0):
         rows = [json.loads(l)
                 for l in open(os.path.join(data_dir, f"{split}.jsonl"))]
-        rows = filter_scenes(rows)        # 2026-10-02: SC_EXCLUDE_SCENES / SC_TRAIN_SCENES (recipe development)
-        # ABSENCE (2026-09-15): records from scripts/clevr3_absence.py keyed by base id; with
+        rows = filter_scenes(rows)        # SC_EXCLUDE_SCENES / SC_TRAIN_SCENES (recipe development)
+        # ABSENCE: absence records keyed by base id; with
         # probability absence_frac a colour/shape item is trained as an absence item (see __getitem__).
         self.absence = {}
         self.absence_frac = float(absence_frac)
@@ -1122,16 +1118,16 @@ class Clevr3Dataset:
             print(f"[clevr3] image twins attached to {n_att}/{len(rows)} items from {image_twins}")
         held = {tuple(c) for c in held_cells}
         self.items = []                      # (row, source)
-        # 2026-09-23 (v1.124): SC_TRAIN_SOURCES (train.py --train_sources look|read) restricts the REQUESTS a run is
+        # SC_TRAIN_SOURCES (train.py --train_sources look|read) restricts the REQUESTS a run is
         # trained on -- one modality-specific adapter per request for the LoRA baseline -- while the prompt keeps
-        # every active source's block (c3_sources()).
+        # every active source's block (c3_sources).
         _ts = [x for x in os.environ.get("SC_TRAIN_SOURCES", "").split(",") if x.strip()] or list(c3_sources())
         for r in rows:
             for s in c3_sources():
                 if s not in _ts or (s, r["skill"]) in held:
                     continue                 # never train a held cell / a request outside this adapter's modality
                 self.items.append((r, s))
-        # v1.132: per-row seed from a hash of the row id -- the row INDEX interacts with the held cells (a held cell
+        # per-row seed from a hash of the row id -- the row INDEX interacts with the held cells (a held cell
         # leaves only one request for its rows), which made carrier frequencies 2:1 uneven per request
         import zlib as _z
         self._rowk = {r["id"]: _z.crc32(f'{r["id"]}|seed'.encode()) % 1000003 for r in rows}
@@ -1158,18 +1154,18 @@ class Clevr3Dataset:
         return len(self.items)
 
     def __getitem__(self, i):
-        """v1.132: every seed-derived choice (carrier, question formulation, block order) is made per ROW, so the
-        <look> and <read> items of a row share them and no choice correlates with the request. Before v1.132 the
+        """every seed-derived choice (carrier, question formulation, block order) is made per ROW, so the
+        <look> and <read> items of a row share them and no choice correlates with the request. Before the
         seed was the item index i, and items alternate (row, look), (row, read): <look> only ever met carriers
         0/2/4 and <read> 1/3/5, and the caption came first for 2/3 of <look> items but 1/3 of <read> items."""
         global _ORDER_BIT, _POS_BIT
         import zlib as _z, os as _os
         row = self.items[i][0]
         _ORDER_BIT = _z.crc32(f'{row["id"]}|order'.encode()) % 2
-        # v1.167 mixed placement (--gcf_word_pos mix): a second per-row coin, independent of the order coin and shared by
+        # mixed placement (--gcf_word_pos mix): a second per-row coin, independent of the order coin and shared by
         # the row's <look>/<read> items and every pair built for them
         _wp = _os.environ.get("SC_GCF_WORD_POS")
-        # v1.184 (author): "first" = the word's sentence before the evidence in EVERY row (position ablation)
+        # "first" = the word's sentence before the evidence in EVERY row (position ablation)
         _POS_BIT = (_z.crc32(f'{row["id"]}|pos'.encode()) % 2) if _wp == "mix" else (1 if _wp == "first" else None)
         try:
             return self._getitem(i, self._rowk.get(row["id"], i))

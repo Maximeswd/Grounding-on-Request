@@ -12,7 +12,7 @@ teacher-forced stale reasoning asserts vA (the twin's value), <recheck>, target
 = vB. Only the <recheck> row is trainable. Interface-compatible with the
 ObjectiveDataset path: __getitem__ -> {"op": "recheck", "sft": <example>}.
 
-Eval (scripts/recheck_probe.py) replicates VisualSwap exactly via assistant
+Eval replicates VisualSwap exactly via assistant
 prefill: stale reasoning + trigger, then continue; flip-to-correct = vB. The
 trigger conditions are the missing rows of their Appendix H table: <recheck>
 (trained) vs natural-language phrase vs clean filler vs high-PPL string.

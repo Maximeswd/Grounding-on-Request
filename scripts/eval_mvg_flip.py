@@ -1,18 +1,12 @@
 #!/usr/bin/env python
-"""Real-video flip/stay on the mined within-video counterfactual pairs.
+"""Flip and Stay on MultiVENT-G news video.
 
-For each pair (prepare_mvg_ctm.py) the channel's token is queried under
-context A and context B (only that channel's evidence differs):
-  vis_value_swap / desc_swap : forced-choice {gold_a, gold_b} in both contexts;
-        acc_a, acc_b, and FLIP = correct in both (the answer tracked the
-        evidence change). Chance flip = .25 for an evidence-blind scorer.
-  ocr_ablate / vis_presence  : gold has no alternative value -> report the
-        LL margin DROP of gold_a from ctx_a to ctx_b (mean drop + frac>0);
-        an evidence-reading token loses confidence when evidence is removed.
-STAY control: the OTHER channels' tokens on the same pair should NOT flip
-(their evidence is unchanged) -- reported as stay_acc for one other channel.
-Prompt structure identical to training (mvg_user_content + MVG_CONT).
-"""
+Each pair (prepare_mvg_ctm.py) asks one source's request in two contexts that differ only in that source's evidence.
+For a visual value swap or a description swap, the answer is a forced choice between the two gold values in both
+contexts, and Flip requires both to be correct (chance .25). When on-screen text or visual evidence is removed, the
+gold has no alternative value, so we report the drop of its log-likelihood margin instead. For Stay, the requests for the
+other sources should not move on the same pair. --crop_bbox evaluates a crop around the annotated evidence region. The
+prompt has the same structure as in training."""
 import argparse, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from collections import defaultdict
@@ -55,7 +49,7 @@ def main():
                          "noop = no source named. Without these, a vis-flip near "
                          "chance cannot be told from 'the task is impossible'.")
     ap.add_argument("--generate", type=int, default=0,
-                    help="v1.141: also greedy-generate in all four prompts of the first --gen_max pairs per type and read the "
+                    help="also greedy-generate in all four prompts of the first --gen_max pairs per type and read the "
                          "answer by exact phrase matching after 'final answer:'; per-token mean scores are always recorded")
     ap.add_argument("--gen_max", type=int, default=150)
     ap.add_argument("--max_new", type=int, default=48)
@@ -64,12 +58,12 @@ def main():
                          "instr|noop; a frozen model has no word rows to trigger)")
     ap.add_argument("--crop_bbox", type=float, default=0.0,
                     help="ATTRIBUTION TEST for the weak visual channel. The mined "
-                         "evidence occupies a MEDIAN 6% of the frame (p10 1%), so a "
+                         "evidence occupies a MEDIAN 6%% of the frame (p10 1%%), so a "
                          "whole-frame forced choice between two annotator phrases "
                          "conflates CONTROL with LOCALISATION. >0 crops each context "
                          "to its own evidence bbox, expanded by this margin (e.g. "
-                         "0.25 = 25% padding). If flips jump, the .13-.19 ceiling is "
-                         "perception at 6% scale, not a failure of the token.")
+                         "0.25 = 25%% padding). If flips jump, the .13-.19 ceiling is "
+                         "perception at 6%% scale, not a failure of the token.")
     a = ap.parse_args()
     if a.mvg_sources:
         os.environ["SC_MVG_SOURCES"] = a.mvg_sources; os.environ["SC_MVG_SOURCES_OVERRIDE"] = "1"
@@ -97,7 +91,7 @@ def main():
 
     pairs = [json.loads(l) for l in open(a.pairs)]
     from scsrc.mvg import mvg_sources as _msrc
-    if "ocr" not in _msrc():      # 2026-10-02 two-modality MVG: no on-screen-text block -> the OCR ablation is undefined
+    if "ocr" not in _msrc():      # two-modality MVG: no on-screen-text block -> the OCR ablation is undefined
         _n0 = len(pairs); pairs = [p for p in pairs if p["pair_type"] != "ocr_ablate"]
         print(f"[mvg] sources={','.join(_msrc())}: ocr_ablate pairs skipped ({_n0 - len(pairs)})")
     by_type = defaultdict(list)
@@ -106,7 +100,7 @@ def main():
 
     def base_item(p):
         v = p["video_id"]
-        # 2026-10-05 (advisor audit): deterministic block order -- Python's hash() is salted per process, so different
+        # deterministic block order -- Python's hash is salted per process, so different
         # evaluation jobs (methods) saw different source orders; crc32 gives every method the identical prompt per pair
         return {"video_id": v, "role": p["role"], "perm6": __import__("zlib").crc32((v + p["role"]).encode()) % 6,
                 "desc_text": mvg[v]["description"][:1200],
@@ -144,7 +138,7 @@ def main():
         return {"ocr_strings": ctx["ocr_strings"]}
 
     res = defaultdict(lambda: defaultdict(list))
-    # v1.141: item-level log (inputs, every candidate's sum / mean / token count, raw generations, derived labels)
+    # item-level log (inputs, every candidate's sum / mean / token count, raw generations, derived labels)
     import gzip as _gz, re as _re
     from scripts.eval_clevr3_generate import generate_free
     _side = []
@@ -153,7 +147,7 @@ def main():
         return " ".join("[IMAGE]" if c.get("type") == "image" else c.get("text", "") for c in u[0]["content"])
     from scripts.tokscore import split_spans as _split_spans
     def _sc2(u, ca_, cb_):
-        """both candidates of one prompt: whole-turn sum/ntok + the answer-span split (v1.142)"""
+        """both candidates of one prompt: whole-turn sum/ntok + the answer-span split"""
         r = {g: loglik_mvg(model, proc, u, c, "cuda", tokens=True) for g, c in (("a", ca_), ("b", cb_))}
         sp = _split_spans({g: (v[2], v[3]) for g, v in r.items()})
         return {g: {"sum": round(v[0], 4), "ntok": v[1], **sp[g]} for g, v in r.items()}
@@ -198,7 +192,7 @@ def main():
                 res[pt]["flip"].append(int(hit_a and hit_b))
                 # STAY: another channel's token, same contexts, should keep
                 # preferring whatever it preferred (its evidence is unchanged)
-                # 2026-10-05 (advisor audit): the frozen baselines get the OTHER source's request in their own form (the
+                # the frozen baselines get the OTHER source's request in their own form (the
                 # English instruction / no request), not the learned-word string they never saw
                 otok = (INSTR[OTHER[p["channel"]]] if a.style == "instr" else NOOP if a.style == "noop"
                         else mvg_word(CH_TOK[OTHER[p["channel"]]], n))
@@ -207,14 +201,14 @@ def main():
                 pa = loglik_mvg(model, proc, oa, ca, "cuda") > loglik_mvg(model, proc, oa, cb, "cuda")
                 pb = loglik_mvg(model, proc, ob, ca, "cuda") > loglik_mvg(model, proc, ob, cb, "cuda")
                 res[pt]["stay_other"].append(int(pa == pb))
-                # v1.141: per-token mean scoring (the phrases differ in length) + exact-match generation
+                # per-token mean scoring (the phrases differ in length) + exact-match generation
                 S = {k: _sc2(u, ca, cb) for k, u in (("own_a", ua), ("own_b", ub), ("other_a", oa), ("other_b", ob))}
-                # length normalisation over the ANSWER tokens only (the shared lead-in is excluded, v1.142)
+                # length normalisation over the ANSWER tokens only
                 mpick = {k: ("a" if v["a"]["answer_mean"] > v["b"]["answer_mean"] else "b") for k, v in S.items()}
                 res[pt]["acc_a_mean"].append(int(mpick["own_a"] == "a")); res[pt]["acc_b_mean"].append(int(mpick["own_b"] == "b"))
                 res[pt]["flip_mean"].append(int(mpick["own_a"] == "a" and mpick["own_b"] == "b"))
                 res[pt]["stay_other_mean"].append(int(mpick["other_a"] == mpick["other_b"]))
-                apick = {k: ("a" if v["a"]["answer_sum"] > v["b"]["answer_sum"] else "b") for k, v in S.items()}   # v1.143
+                apick = {k: ("a" if v["a"]["answer_sum"] > v["b"]["answer_sum"] else "b") for k, v in S.items()}
                 res[pt]["acc_a_ans"].append(int(apick["own_a"] == "a")); res[pt]["acc_b_ans"].append(int(apick["own_b"] == "b"))
                 res[pt]["flip_ans"].append(int(apick["own_a"] == "a" and apick["own_b"] == "b"))
                 res[pt]["stay_other_ans"].append(int(apick["other_a"] == apick["other_b"]))

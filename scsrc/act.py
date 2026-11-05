@@ -1,4 +1,4 @@
-"""Activation-level control (2026-10-19, author go): request-conditioned vectors added to the residual stream at ONE
+"""Activation-level control: request-conditioned vectors added to the residual stream at ONE
 decoder layer, on the span of the requested evidence -- the image soft tokens for <look>, the caption block for <read>.
 A hybrid with the neologism: the word rows still carry the request in the prompt (they tell the hook which vector to
 add and are trained as usual); delta acts where the evidence is encoded, i.e. it can re-encode the evidence instead of

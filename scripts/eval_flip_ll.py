@@ -1,18 +1,14 @@
 #!/usr/bin/env python
-"""LL-margin flip/stay battery -- causal grounding, generation-free, ALL methods.
+"""Flip and Stay on VCF, ColorSwap and COCO-CF.
 
-For each atomic conflict item with twin image I' and twin caption cap':
-  look_flip : argmax_v LL(v|I,cap) == v_img  AND  argmax_v LL(v|I',cap) == v_txt
-              (the answer TRACKS the pixels; v_txt is the twin image's value)
-  look_stay : <look>'s choice is UNCHANGED under the caption swap cap->cap'
-  read_flip : <read>'s choice tracks the caption swap
-  read_stay : <read>'s choice unchanged under the image swap
-Margins (LL difference of the two candidates) are recorded so the same run
-yields the continuous version. Teacher-forced scoring only -- no decode, so
-format drift cannot contaminate the causal read-out. Methods: neo-ctrl (user
-or decision site), pt (soft prefix), lora (English-instructed prompts).
-Chance flip = .25 for an evidence-blind chooser.
-"""
+For each conflict item with a twin image I' and a twin caption cap', the answer is the candidate with the highest
+teacher-forced log-likelihood, so no decoding (and no output-format drift) is involved:
+  look_flip  <look> picks the image's value on I, and the twin's value on I'
+  look_stay  <look> is unchanged under the caption swap cap -> cap'
+  read_flip  <read> follows the caption swap
+  read_stay  <read> is unchanged under the image swap
+The log-likelihood margins are recorded as well. Works for words, prompt tuning and LoRA; chance Flip is .25.
+Writes runs/<run>/eval/<task>_<split>/flip_ll_*step_<step>.json."""
 import argparse, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tqdm import tqdm
@@ -22,8 +18,8 @@ from scsrc import prompts as P, score as SC
 
 from evaluate import apply_checkpoint
 
-# VCF's own 13 colour words (all key values across train/ID/OOD, 2026-09-21); the third-colour
-# twins (STATUS v1.66) draw the conflict caption's colour C and the twin caption's colour D from here.
+# VCF's own 13 colour words; the third-colour
+# twins draw the conflict caption's colour C and the twin caption's colour D from here.
 TC_VOCAB = {"green","brown","pink","purple","black","red","white","yellow","blue","orange","silver","grey","gold"}
 COLORS = {"red","orange","yellow","green","blue","purple","pink","brown","black",
           "white","gray","grey","gold","silver","tan","beige","violet","cyan",
@@ -45,7 +41,7 @@ INSTR_VARIANTS = [
 ]
 INSTR = INSTR_VARIANTS[int(__import__("os").environ.get("INSTR_VARIANT", "0"))]
 
-# 2026-09-23 (author, STATUS v1.119): HELD-OUT REQUEST TEMPLATE. The headline Flip/Stay are scored on
+# HELD-OUT REQUEST TEMPLATE. The headline Flip/Stay are scored on
 # CTRL_CANONICAL (neologism) and pt_template(0) (prompt tuning) -- both TRAINING templates -- so they never
 # test template transfer. SC_TEMPLATE=heldout0|heldout1 swaps in the eval-only pools
 # (P.CTRL_TEMPLATES_HELDOUT / P.pt_template_heldout) and writes flip_ll_heldout<k>_step_*.json, a name the
@@ -61,12 +57,12 @@ _TPLK = (int(_TPL[len("heldout"):]) if _TPL.startswith("heldout") and _TPL[len("
          else None)
 _TPL_ROT = _TPL == "heldout"
 _tpltag = ("_heldout" if _TPL_ROT else f"_heldout{_TPLK}" if _TPLK is not None else "")
-# v1.153 (2026-09-24): SC_LADDER_PROTO=2 = the FIXED protocol. The held-out template used to be chosen by hashing the
+# SC_LADDER_PROTO=2 = the FIXED protocol. The held-out template used to be chosen by hashing the
 # caption of EACH context, so a caption edit could also switch the instruction (75/68/56 of 140/140/120 E4B items on
 # COCO-CF/ColorSwap/VCF). Under protocol 2 the key is fixed per original example (the base context's caption), so every
 # version of an example gets the same template; base-context prompts are identical to protocol 1.
 _P2 = os.environ.get("SC_LADDER_PROTO", "1") == "2"
-# v1.158 (author: check, then decide): SC_LADDER_LEADIN=1 scores the four protocol-2 candidates AFTER the training
+# SC_LADDER_LEADIN=1 scores the four protocol-2 candidates AFTER the training
 # lead-in, exactly as Ground-CF scores its answers (scsrc.clevr3.C3_CONT). The bare "object: X" continuation puts every
 # model at ~-25 log-prob on the first answer token (the models always begin with the lead-in); the lead-in is identical
 # across candidates, so it cancels in the comparison. Files tagged _lead.
@@ -86,7 +82,7 @@ _INSTR_HO = (INSTR_VARIANTS[1], INSTR_VARIANTS[3])
 def _lora_instr(op, cap):
     return _INSTR_HO[_k(cap) % 2][op] if (_TPL_ROT or _TPLK is not None) else INSTR[op]
 
-# ---- ZERO-SHOT NEGATION (2026-09-17) ---------------------------------------------------------
+# ---- ZERO-SHOT NEGATION ---------------------------------------------------------
 # SC_REQ_FRAME rewrites the request slot to test whether the model's own language machinery can
 # scope a negation over a word it never saw in pretraining. The frame is a MINIMAL edit of the
 # canonical training template 'Give me a {op} answer.' -- only "Do not" is added and the word is
@@ -121,13 +117,13 @@ def main():
     ap.add_argument("--step", type=int, default=800)
     ap.add_argument("--max_n", type=int, default=80)
     ap.add_argument("--third_value", type=int, default=0,
-                    help="conflict-preserving twins on ANY ladder benchmark (2026-09-22): the conflict caption's "
+                    help="conflict-preserving twins on ANY ladder benchmark: the conflict caption's "
                          "value for the queried object is replaced by a third value C drawn from the split's own "
                          "value vocabulary (colours on VCF/ColorSwap, entities on COCO-CF), the twin caption by a "
                          "fourth value D; candidates follow the context. Same construction as --third_colour, "
                          "which it supersedes; --third_colour is kept as an alias for VCF.")
     ap.add_argument("--third_colour", type=int, default=0,
-                    help="VCF third-colour twins (pre-registered STATUS v1.66): the conflict caption names a colour C "
+                    help="VCF third-colour twins: the conflict caption names a colour C "
                          "not in {image A, pair B}, the twin caption names D; the twin image stays the pair; candidates "
                          "follow the context, so Flip and Stay are no longer identical to accuracy.")
     ap.add_argument("--out_task", default="",
@@ -174,13 +170,13 @@ def main():
     else:
         model, proc, meta, forbid = apply_checkpoint(a.run_dir, a.step, "cuda")
         n, method = meta["n_tokens"], meta["method"]
-    # v1.149 (2026-09-24): matched word-vs-prefix checks (STATUS v1.148/v1.149). Each switch is valid for one method
+    # matched word-vs-prefix checks. Each switch is valid for one method
     # only and gets its own filename tag, so a diagnostic can never overwrite a banked evaluation.
     _CAP_FIRST = os.environ.get("SC_CAP_FIRST", "1") != "0"      # 0: request BEFORE the caption (word, or inserted prefix)
     _PT_NOPREFIX = os.environ.get("SC_PT_NOPREFIX", "0") == "1"  # prefix run, soft prefix removed: its instruction alone
     _WORD_PTFMT = os.environ.get("SC_WORD_PTFMT", "0") == "1"    # word run, the prefix's slot and wording (the mirror)
     _PT_INS = os.environ.get("PT_INSERTED", "0") == "1"
-    _SWEEP = os.environ.get("SC_SWEEP", "").strip()             # v1.150: template-sensitivity sweep id (P.SWEEP_TEMPLATES)
+    _SWEEP = os.environ.get("SC_SWEEP", "").strip()             # template-sensitivity sweep id (P.SWEEP_TEMPLATES)
     if _SWEEP and (_SWEEP not in P.SWEEP_TEMPLATES or method not in ("neo", "pt") or not _CAP_FIRST or _PT_INS
                    or _WORD_PTFMT or _TPL):
         raise SystemExit(f"[v1.150] SC_SWEEP={_SWEEP}: needs a word or prefix run (SC_PT_NOPREFIX=1 allowed) and no "
@@ -234,15 +230,15 @@ def main():
                 _rnd.Random(a.permute_seed).shuffle(toks)
             elif a.trigger_drop >= 0 and n > 1 and a.trigger_drop < len(toks):
                 toks = toks[:a.trigger_drop] + toks[a.trigger_drop + 1:]
-            if _SWEEP:        # v1.150: the sweep's fixed text, the word as the control
+            if _SWEEP:        # the sweep's fixed text, the word as the control
                 return P.render_sweep(_SWEEP, "".join(toks), cap), (c1, c2)
-            if _WORD_PTFMT:   # v1.149 mirror: the word where the prefix sits, with the prefix's instruction
+            if _WORD_PTFMT:   # mirror: the word where the prefix sits, with the prefix's instruction
                 return "".join(toks) + " " + _pt_tpl(cap).format(cap=cap), (c1, c2)
             return P.render_ctrl(_ctrl_tpl(cap), "".join(toks), cap, cap_first=_CAP_FIRST), (c1, c2)
         if method == "pt":
-            if _SWEEP:        # v1.150: the same text, the prefix as the control (or none: SC_PT_NOPREFIX=1)
+            if _SWEEP:        # the same text, the prefix as the control (or none: SC_PT_NOPREFIX=1)
                 return P.render_sweep(_SWEEP, "" if _PT_NOPREFIX else trigger(f"pt_{op}", n), cap), (c1, c2)
-            if _PT_NOPREFIX:  # v1.149: the prefix's own instruction, soft prefix removed (= the frozen model)
+            if _PT_NOPREFIX:  # the prefix's own instruction, soft prefix removed (= the frozen model)
                 return _pt_tpl(cap).format(cap=cap), (c1, c2)
             if _PT_INS:
                 # inserted-PT control: same rows, the WORD's slot (and the word's carrier / held-out carriers)
@@ -253,7 +249,7 @@ def main():
             # measures the model's DEFAULT per-channel dependence
             return f'Caption: "{cap}".', (c1, c2)
         if method == "lora" and os.environ.get("SC_LORA_ADAPTER", "0") == "1":
-            # v1.125: adapter per request -- the prefix's neutral prompt (training or held-out template), no prefix
+            # adapter per request -- the prefix's neutral prompt (training or held-out template), no prefix
             return _pt_tpl(cap).format(cap=cap), (c1, c2)
         if method == "lora":
             return f'Caption: "{cap}". {_lora_instr(op, cap)}', (c1, c2)   # LoRA: held-out variants under SC_TEMPLATE
@@ -291,14 +287,14 @@ def main():
                            "cmp_margin_gap", "cmp_disc", "cmp_auc_pairs",
                            "cmp_abstain_on_conflict", "cmp_answer_on_agree",
                            "cmp_joint")}
-    _ITEMS = []   # v1.141: item-level log
-    _AUDIT = {}   # v1.153: protocol-2 invariance checks (counts per check; any failure stops the run)
-    _P2PICKS = []  # v1.153: per item, the six picks (image request base/imgswap/capswap, then caption request) as letters
+    _ITEMS = []   # item-level log
+    _AUDIT = {}   # protocol-2 invariance checks (counts per check; any failure stops the run)
+    _P2PICKS = []  # per item, the six picks (image request base/imgswap/capswap, then caption request) as letters
     if _LEADIN and not _P2:
         raise SystemExit("[v1.158] SC_LADDER_LEADIN=1 is defined for protocol 2 only (SC_LADDER_PROTO=2)")
     if _P2 and not a.third_value:
         raise SystemExit("[v1.153] SC_LADDER_PROTO=2 is the conflict-preserving fixed-candidate protocol: needs --third_value 1")
-    _SCORE = os.environ.get('SC_SCORE', 'turn')   # v1.143: 'turn' (banked) | 'answer'
+    _SCORE = os.environ.get('SC_SCORE', 'turn')   # 'turn' (banked) | 'answer'
     from scripts.tokscore import split_spans as _split_spans
     n_seen = 0
     n_skipped_tc = 0; tc_log = []
@@ -325,7 +321,7 @@ def main():
         ct = P.fmt_key_task({obj: v_t}, a.task)
 
         if a.third_colour:
-            # ---- third-colour twins (STATUS v1.66). A = image value, B = pair image value (= the original
+            # ---- third-colour twins. A = image value, B = pair image value (= the original
             # conflicting caption's value), C = conflict caption colour, D = twin caption colour.
             import re as _re, random as _rnd
             _vocab = sorted(_split_vocab - {v_i, v_t})
@@ -338,7 +334,7 @@ def main():
             cap_C = _pat.sub(C, sp.fed_caption); cap_D = _pat.sub(D, sp.fed_caption)
             cA, cB_, cC, cD = (P.fmt_key_task({obj: v}, a.task) for v in (v_i, v_t, C, D))
             if _P2:
-                # ---- v1.153 FIXED-CANDIDATE PROTOCOL. One candidate set per original example, {A, B, C, D}
+                # ---- FIXED-CANDIDATE PROTOCOL. One candidate set per original example, {A, B, C, D}
                 # (A = image value, B = the image twin's value, C = conflict caption value, D = edited caption value),
                 # scored in EVERY version and for BOTH requests; the pick is the argmax over all four. Protocol 1 scored
                 # each version with its own pair ({A,C}, {B,C}, {A,D}), so an input-insensitive ranking could earn Flip.
@@ -405,7 +401,7 @@ def main():
                 la, ma, na, ia, pa_ = SC.loglik(model, proc, image, u, x, "cuda", tokens=True)
                 lb, mb, nb, ib, pb_ = SC.loglik(model, proc, image, u, y, "cuda", tokens=True)
                 _sp = _split_spans({"image_side": (ia, pa_), "caption_side": (ib, pb_)})
-                if _SCORE == "answer":   # v1.143: answer tokens only
+                if _SCORE == "answer":   # answer tokens only
                     la, lb = _sp["image_side"]["answer_sum"], _sp["caption_side"]["answer_sum"]
                 _ITEMS.append({"item": n_seen - 1, "request": op, "ctx": ctx, "prompt": u, "caption": cap,
                                "values": {"image": v_i, "caption_orig": v_t, "C": C, "D": D},
@@ -439,7 +435,7 @@ def main():
             la, ma, na, ia, pa_ = SC.loglik(model, proc, image, u, cA, "cuda", tokens=True)
             lb, mb, nb, ib, pb_ = SC.loglik(model, proc, image, u, cB, "cuda", tokens=True)
             _sp = _split_spans({"image_side": (ia, pa_), "caption_side": (ib, pb_)})
-            if _SCORE == "answer":   # v1.143: answer tokens only
+            if _SCORE == "answer":   # answer tokens only
                 la, lb = _sp["image_side"]["answer_sum"], _sp["caption_side"]["answer_sum"]
             _ITEMS.append({"item": n_seen - 1, "request": op, "ctx": ctx, "prompt": u, "caption": cap,
                            "candidates": {"image_side": {"text": cA, "sum": round(la, 4), "mean": round(ma, 4), "ntok": na, **_sp["image_side"]},
@@ -453,7 +449,7 @@ def main():
         ri, m_ri = pick("read", img, sp.fed_caption, "base")
         rc, m_rc = pick("read", img, capp, "capswap")                     # caption swap
         rp, m_rp = pick("read", imgp, sp.fed_caption, "imgswap")          # image swap
-        # 2026-09-14: margins in the twin contexts too (log-odds image value minus caption value under
+        # margins in the twin contexts too (log-odds image value minus caption value under
         # each request), so detectors can be scored continuously (ROC) instead of by argmax only
         for k_, v_ in (("look_margin_imgswap", m_lp), ("look_margin_capswap", m_lc),
                        ("read_margin_capswap", m_rc), ("read_margin_imgswap", m_rp)):
@@ -516,7 +512,7 @@ def main():
     # decoupled from base accuracy (unconditional flip conflates the two)
     lc = [f for f, a_ in zip(res["look_flip"], res["look_acc"]) if a_]
     rc = [f for f, a_ in zip(res["read_flip"], res["read_acc"]) if a_]
-    # CONJUNCTIVE STAY (2026-09-13): plain stay asks only whether the answer is unchanged when a
+    # CONJUNCTIVE STAY: plain stay asks only whether the answer is unchanged when a
     # competing modality is edited, so a stably WRONG answer scores a point. flip is already a
     # conjunction (correct AND follows the edit); stay_c is its mirror (correct AND unchanged), and
     # stay_cond is the same quantity given a correct base answer. Reported alongside, never instead
@@ -525,9 +521,9 @@ def main():
     res["read_stay_c"] = [int(a_ and s_) for a_, s_ in zip(res["read_acc"], res["read_stay"])]
     ls = [s_ for s_, a_ in zip(res["look_stay"], res["look_acc"]) if a_]
     rs = [s_ for s_, a_ in zip(res["read_stay"], res["read_acc"]) if a_]
-    # 2026-09-21: the weight dtype goes into every record, and a non-bf16 evaluation gets its own
+    # the weight dtype goes into every record, and a non-bf16 evaluation gets its own
     # filename tag, so a float32 file can never be harvested as if it were the banked bf16 one
-    # (the V100 float32 agreement check missed its pre-registered bar; STATUS v1.70).
+    # .
     import torch as _t
     _dtype = str(next(model.parameters()).dtype).replace("torch.", "")
     twins = ("third-colour caption (image pair kept)" if a.third_colour else
@@ -596,12 +592,12 @@ def main():
              + (["ptslot"] if (_PT_INS and "_pti_" not in os.path.basename(a.run_dir.rstrip("/"))) else [])
              + (["ptfmt"] if _WORD_PTFMT else []) + ([f"sw{_SWEEP}"] if _SWEEP else []) + (["lead"] if _LEADIN else [])
              + (["p2"] if _P2 else []))
-    if _diag:   # v1.149: the pti runs were TRAINED inserted, so their plain files keep the historical name
+    if _diag:   # the pti runs were TRAINED inserted, so their plain files keep the historical name
         _ivtag += "_" + "_".join(_diag); out["diagnostic"] = _diag
     _hctx.__exit__(None, None, None)
     _fname = (f"flip_ll_rep{a.trigger_repeat}_step_{a.step}.json" if a.trigger_repeat else f"flip_ll_perm{a.permute_seed}_step_{a.step}.json" if a.trigger_permute else f"flip_ll_drop{a.trigger_drop}_step_{a.step}.json" if a.trigger_drop >= 0 else f"flip_ll{_ivtag}{_tpltag}{'_ans' if _SCORE == 'answer' else ''}_step_{a.step}.json")
     json.dump(out, open(os.path.join(outd, _fname), "w"), indent=1)
-    if _ITEMS:   # v1.141: every scored context -- prompt, both candidates' sum/mean/ntok, pick
+    if _ITEMS:   # every scored context -- prompt, both candidates' sum/mean/ntok, pick
         import gzip as _gz
         with _gz.open(os.path.join(outd, _fname.replace('.json', '_items.jsonl.gz')), 'wt') as _f:
             _f.write(json.dumps({'_meta': {'run': os.path.basename(a.run_dir), 'split': a.split, 'task': a.task,

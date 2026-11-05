@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Ground-CF OPEN-GENERATION check (2026-09-22, STATUS v1.85).
+"""Ground-CF OPEN-GENERATION check.
 
 The paper's Flip/Stay numbers come from a forced choice: summed sequence log-likelihood of
 "... final answer: <v>" over the candidate values of the sources. Reviewers ask whether a model
@@ -81,7 +81,7 @@ VERDICT_WORDS = {"agree": "agree", "agrees": "agree", "match": "agree", "matches
                  "disagrees": "conflict", "differ": "conflict", "different": "conflict", "mismatch": "conflict"}
 FORMAT_HINT = ' End your reply with "final answer: <answer>".'
 FORMAT_HINT_COMPOSE = ' End your reply with "final answer: agree" or "final answer: conflict".'
-# v1.131 (author): MULTIPLE CHOICE. The item's candidate set, lettered in a per-item order fixed across contexts and
+# MULTIPLE CHOICE. The item's candidate set, lettered in a per-item order fixed across contexts and
 # requests (so a Flip is a change of letter), appended after the question; the forced choice scores the letters.
 MC_INSTR = "\nOptions:\n{opts}\nAnswer with the letter of the correct option."
 FORMAT_HINT_MC = ' End your reply with "final answer: <letter>".'
@@ -114,7 +114,7 @@ def parse_mc(text, opts):
     return lab, v, ("value" if lab == "cand" else None)
 
 
-from scripts.detect_two_prompts import detect_two_prompts   # noqa: E402  (v1.131; torch-free module)
+from scripts.detect_two_prompts import detect_two_prompts   # noqa: E402
 
 
 def _first_in_order(text, cands, k):
@@ -242,7 +242,7 @@ def generate_free(model, proc, content, device, max_new, forbid, grace):
 @torch.no_grad()
 def loglik_both(model, proc, umsg, candidate, device, tokens=False):
     """(sum log-lik, mean log-lik, n_tokens) of the candidate continuation -- one forward pass. Every assistant-turn token
-    is scored: the lead-in, the answer and the end-of-turn marker(s). tokens=True (v1.142) also returns the token ids
+    is scored: the lead-in, the answer and the end-of-turn marker(s). tokens=True also returns the token ids
     and per-token log-probs, so the answer span can be separated (scripts/tokscore.py)."""
     fmsg = umsg + [{"role": "assistant", "content": [{"type": "text", "text": candidate}]}]
     enc = _encode(proc, fmsg, device); plen = _prompt_len(proc, umsg, device)
@@ -278,22 +278,22 @@ def main():
     ap.add_argument("--split", default="test_id")
     ap.add_argument("--step", type=int, default=800)
     ap.add_argument("--pairs_file", default=None, help="default: data_dir/pairs_look_all_<id|ood>.jsonl")
-    ap.add_argument("--per_skill", type=int, default=40, help="pairs per skill, first in file order (60 -> 40 on 2026-09-22 to fit the 3 h walltime with the larger token budget)")
+    ap.add_argument("--per_skill", type=int, default=40, help="pairs per skill, first in file order")
     ap.add_argument("--max_n", type=int, default=10**9)
     ap.add_argument("--sources", default="look,read")
     ap.add_argument("--mode", default=None, help="None = the run's own mode; instructed | noop = frozen backbone baselines")
     ap.add_argument("--tag", default="")
-    ap.add_argument("--max_new", type=int, default=192, help="Qwen-3.5 free answers open with a reasoning preamble and passed 64 tokens before the anchor in the smoke (STATUS v1.90)")
+    ap.add_argument("--max_new", type=int, default=192, help="Qwen-3.5 free answers open with a reasoning preamble and passed 64 tokens before the anchor in the smoke")
     ap.add_argument("--grace", type=int, default=16, help="tokens generated after the anchor before stopping")
     ap.add_argument("--out_dir", default=None, help="override the run's eval dir (smoke tests)")
-    ap.add_argument("--cp", type=int, default=1, help="conflict-preserving edits (STATUS v1.86); 0 = the pre-fix rule")
+    ap.add_argument("--cp", type=int, default=1, help="conflict-preserving edits; 0 = the pre-fix rule")
     ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--mc", type=int, default=0, help="v1.131: lettered multiple choice over the item's candidates (needs --tag)")
+    ap.add_argument("--mc", type=int, default=0, help="lettered multiple choice over the item's candidates (needs --tag)")
     ap.add_argument("--agree_ctx", type=int, default=0,
-                    help="v1.131: add the agree context (caption edited to the image value) for both requests, so conflict "
+                    help="add the agree context (caption edited to the image value) for both requests, so conflict "
                          "detection from two separate prompts can be computed (detect_two_prompts)")
     ap.add_argument("--format_hint", type=int, default=0,
-                    help="v1.130: append ' End your reply with \"final answer: <answer>\".' to the prompt for BOTH the forced "
+                    help="append ' End your reply with \"final answer: <answer>\".' to the prompt for BOTH the forced "
                          "choice and the generation in this file (frozen baselines never learned the format). Needs --tag.")
     a = ap.parse_args()
     if a.selftest:
@@ -331,7 +331,7 @@ def main():
     print(f"[items] {len(prs)} pairs from {twin} per skill {dict(per)}", flush=True)
     sources = [s for s in a.sources.split(",") if s]
 
-    _QS = os.environ.get("SC_QSTYLE", "explicit")      # v1.130: held-out templates and interface probes
+    _QS = os.environ.get("SC_QSTYLE", "explicit")      # held-out templates and interface probes
     if (_QS != "explicit" or a.format_hint or a.mc or a.agree_ctx) and not a.tag:
         raise SystemExit("[STOP] SC_QSTYLE / --format_hint need --tag so the default file is not overwritten")
 
@@ -347,14 +347,14 @@ def main():
 
     def pick(item, source, cands, seed):
         um = [{"role": "user", "content": content(item, source, seed)}]
-        # 2026-09-23 (STATUS v1.104): sequential scoring only -- the batched pass is not numerically equivalent
+        # sequential scoring only -- the batched pass is not numerically equivalent
         if a.mc:                                        # the letters are scored; each maps back to its value
             lt = {v: k for k, v in _MC["opts"].items()}
             sc = {v: loglik_both(model, proc, um, cand(lt[v]), "cuda", tokens=True) for v in cands}
         else:
             sc = {v: loglik_both(model, proc, um, cand(v), "cuda", tokens=True) for v in cands}
         from scripts.tokscore import split_spans as _ss
-        sp = _ss({v: (sc[v][3], sc[v][4]) for v in cands})     # v1.144: lead-in / answer / end + per-token log-probs
+        sp = _ss({v: (sc[v][3], sc[v][4]) for v in cands})     # lead-in / answer / end + per-token log-probs
         _dec = (lambda v: sp[v]["answer_sum"]) if os.environ.get("SC_SCORE", "turn") == "answer" else (lambda v: sc[v][0])
         p_sum = max(sc, key=_dec); p_mean = max(sc, key=lambda v: sc[v][1])
         pick.last = {v: {"sum": round(sc[v][0], 4), "mean": round(sc[v][1], 4), "ntok": sc[v][2], **sp[v],
@@ -373,7 +373,7 @@ def main():
             alt = {c: (cp_text_edit_value(base, c)[0] if c in c3_sources() else None) for c in ("read", "ocr")}
             if alt["read"] is None:
                 continue
-            # STATUS v1.94: ONE candidate set per item for every context and both requests
+            # ONE candidate set per item for every context and both requests
             Y = tuple(dict.fromkeys([ch["look"], ch["read"], alt["read"], pr["gold_b"]]))
         else:
             alt = {c: next((v for k, v in ch.items() if k != c and v != ch[c]), None) for c in ("read", "ocr")}
@@ -391,7 +391,7 @@ def main():
                 cands = Y if a.cp else (ch["read"], alt["read"])
                 ctxs = {"base": (base, ch["read"]), "flip": (_edited_item(base, "read", alt["read"]), alt["read"])}
                 if a.cp:
-                    # v1.86: the caption's competitor is the image -> exact image twin, text untouched
+                    # the caption's competitor is the image -> exact image twin, text untouched
                     if pr["gold_b"] != ch["read"]:
                         ib_ = dict(base); ib_["image"] = pr["ctx_b"]["image"]
                         ctxs["stay"] = (ib_, ch["read"])
@@ -415,15 +415,15 @@ def main():
                 recs.append({"id": pr["id"], "skill": pr.get("skill", "?"), "source": src, "ctx": cname,
                              "gold": gold, "cands": list(cands), "ntok": ntok,
                              "pick_sum": p_sum, "pick_mean": p_mean,
-                             "gen_label": lab, "gen_value": val, "gen_ntok": nnew, "text": txt,   # v1.130: full text
+                             "gen_label": lab, "gen_value": val, "gen_ntok": nnew, "text": txt,   # full text
                              "cand_scores": pick.last, "question_style": _QS, "format_hint": int(bool(a.format_hint)),
-                             "prompt": ptxt,                                    # v1.131: prompt kept for re-annotation
+                             "prompt": ptxt,                                    # prompt kept for re-annotation
                              # what each source states in THIS context (the image twin keeps the base channels dict)
                              "values": {"image": (str(pr["gold_b"]) if item["image"] == pr["ctx_b"]["image"]
                                                   else str(item["channels"]["look"])),
                                         "caption": str(item["channels"]["read"])},
                              "lp_gold": pick.last.get(gold, {}).get("sum"),
-                             "cap_first": eval_design(item, j, _QS)[1],             # v1.133: block order
+                             "cap_first": eval_design(item, j, _QS)[1],             # block order
                              **({"mc_options": dict(_MC["opts"]), "parse_route": route} if a.mc else {})})
 
     # ---------- aggregate

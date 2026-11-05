@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Split candidate continuations into lead-in / answer / end-of-turn tokens (v1.142, 2026-09-24).
+"""Split candidate continuations into lead-in / answer / end-of-turn tokens.
 
 Every forced-choice score in this repository is the teacher-forced SUM of log p over the whole assistant turn: a
 lead-in identical for all candidates ("I used the requested source to answer the question. final answer:", plus

@@ -52,7 +52,7 @@ def build_train_example(processor, spec, image, method, arm, n, device, template
         from .prompts import (compose_template, compose_carrier, compose_request,
                               compose_target)
         ix = int(getattr(spec, "ex_index", 0))
-        # DEFAULT (2026-09-21): every spec is trained in BOTH orders -- the dataset emits a `compose`
+        # DEFAULT: every spec is trained in BOTH orders -- the dataset emits a `compose`
         # (image-first) and a `compose_r` (caption-first) item per spec. The legacy recipe chose ONE
         # order per item by parity, so no item ever taught "same content, other order";
         # SC_COMPOSE_LEGACY_ORDER=1 reproduces it only for auditing the old runs.
@@ -75,7 +75,7 @@ def build_train_example(processor, spec, image, method, arm, n, device, template
         op_trig = trigger(f"{op}_ctrl", n)
         user_txt = render_ctrl(template or ctrl_canonical(), op_trig, cap, cap_first=cap_first)
         _lpos = os.environ.get("SC_LADDER_CTRL_POS", "")
-        if _lpos and op != "compare":                       # 2026-10-19 trained positions on the ladder
+        if _lpos and op != "compare":                       # trained positions on the ladder
             from .prompts import ladder_ctrl_pos
             user_txt = ladder_ctrl_pos(user_txt, template or ctrl_canonical(), op_trig, cap, cap_first, _lpos)
             if not globals().get("_LADDER_POS_PRINTED"):
@@ -198,10 +198,10 @@ def build_train_example(processor, spec, image, method, arm, n, device, template
             # residue is vocabulary identity (id-hood: composable/generable).
             # The inserted control must sit in the SAME rotating templates as the word, or it differs
             # from the word in training context as well as in nothing else -- which is the confound that
-            # made the S6 comparison unmatched (found 2026-09-15). `template` here is a pt_template,
+            # made the S6 comparison unmatched. `template` here is a pt_template,
             # which carries {cap} and no {op}, so rotate the WORD's templates by the same index.
-            _ix = int(getattr(spec, "ex_index", 0))   # pick_ctrl_template: module-level import (v1.139)
-            # 2026-09-21: use the template the DATASET chose (the word's own, same index as the
+            _ix = int(getattr(spec, "ex_index", 0))   # pick_ctrl_template: module-level import
+            # use the template the DATASET chose (the word's own, same index as the
             # neologism's SFT item) when it has an {op} slot; the ex_index rotation is the fallback.
             user_txt = render_ctrl(template if (template and "{op}" in template) else pick_ctrl_template(_ix),
                                    prefix, cap)
@@ -241,7 +241,7 @@ def build_train_example(processor, spec, image, method, arm, n, device, template
             _v = fmt_key_task(spec.image_key if op == "look" else spec.text_key, getattr(spec, "task", task))
             full_assistant = natural_ctrl_content(op, _v, task)
     elif method == "lora" and ctrl_style == "adapter":
-        # 2026-09-23 (v1.125, author): ONE LoRA ADAPTER PER REQUEST. The visible prompt is exactly the prompt-tuning
+        # ONE LoRA ADAPTER PER REQUEST. The visible prompt is exactly the prompt-tuning
         # prompt with the prefix removed (same rotating neutral templates); which modality is requested is carried by
         # WHICH adapter is trained/loaded, never by text.
         from .prompts import natural_ctrl_content, pt_template
@@ -251,7 +251,7 @@ def build_train_example(processor, spec, image, method, arm, n, device, template
         val = fmt_key_task(spec.image_key if op == "look" else spec.text_key, getattr(spec, "task", task))
         full_assistant = natural_ctrl_content(op, val, task)
     elif method == "lora" and ctrl_style == "request":
-        # REQUEST-CONDITIONED LoRA (2026-09-21, review §1B): the same selected-source target as the
+        # REQUEST-CONDITIONED LoRA: the same selected-source target as the
         # embedding interfaces, carried by the English instruction the evaluator uses. This is the
         # matched adaptation baseline; the joint-output recipe below stays as the historical one.
         from .prompts import natural_ctrl_content, LORA_INSTR

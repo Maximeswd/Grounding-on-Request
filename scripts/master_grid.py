@@ -1,31 +1,16 @@
 #!/usr/bin/env python
-"""THE MASTER GRID — every routing/grounding number, one file.
+"""Collect every per-run evaluation into one grid: results/master_grid.{md,json}.
 
-Consolidates the scattered per-run eval JSONs into the full grid the paper's
-appendix prints: dataset x model x method x L, with ROUTING and GROUNDING per
-channel. Idempotent: re-run after any wave lands and the table fills in.
+Rows are dataset x model x method x L, with routing (accuracy) and grounding (Flip) per request, read from
+  VCF, ColorSwap, COCO-CF   runs/*/eval/{ds}_test_id/flip_ll_step_800.json
+  Ground-CF                 runs/*/eval/clevr3_test_id/flip_step_800*.json, plus the instruction and no-request baselines
+  MultiVENT-G               runs/*/eval/mvg_flip/flip_step_800_clean.json
+The method of a run is read from its config.json, never from its name. Re-run it whenever new evaluations land.
 
-Sources (the two batteries the paper quotes, plus the video pair):
-  ladder (vcf/color/coco): runs/*/eval/{ds}_test_id/flip_ll_step_800.json
-      routing = look_acc/read_acc, grounding = look_flip/read_flip
-  Ground-CF:               runs/*/eval/clevr3_test_id/flip_step_800.json
-      (+ _instr/_noop mode files for the frozen baselines)
-      routing = {ch}_acc, grounding = {ch}_flip, ch in look/read/ocr
-  MVG:  eval/mvg_flip/flip_step_800_clean.json  grounding = vis/desc flip,
-        ocr = deletion-ablation (marked *, not a flip)
-  MVR:  eval/mvraw_test_ood/ablate*_step_800.json  grounding = per-channel
-        JOINT = min(nec, spec)   (routing has no dense battery on MVR)
-
-Method attribution comes from each run's config.json (never the filename),
-except the frozen instruction/no-op rows, which are eval-time conditions
-recognized by their mode/style tags. One row per (method, L); the parity cell
-is L=5 seed 0.
-
-Usage: python scripts/master_grid.py          -> results/master_grid.md + .json
-"""
+Usage: python scripts/master_grid.py"""
 import re, glob, json, os, re, sys, collections
 
-# split selector (2026-09-13): `--ood` harvests the *_test_ood eval dirs into
+# split selector: `--ood` harvests the *_test_ood eval dirs into
 # results/master_grid_ood.{md,json} (+ _runs.json: which run fed each cell);
 # the default stays the in-distribution grid, byte-identical to before.
 SPLIT = "test_ood" if "--ood" in sys.argv else "test_id"
@@ -68,22 +53,22 @@ def model_of(run, args):
 def method_of(run, args):
     m, L = _method_of_proto(run, args)
     a = args or {}
-    # 2026-09-23 (v1.124): fact captions and modality-specific adapters are their own recipes
+    # fact captions and modality-specific adapters are their own recipes
     if m is not None and a.get("caption_style") == "fact":
         m = m + "+fc"
-    # 2026-09-24 (v1.157): E4B runs whose new-token per-layer embedding rows were TRAINED (--train_per_layer 1)
+    # E4B runs whose new-token per-layer embedding rows were TRAINED (--train_per_layer 1)
     # are their own recipe; before, those rows were random and frozen
     if m is not None and a.get("train_per_layer"):
         m = m + "+ple"
-    # 2026-09-24 (v1.165): control-position ablation -- the word trained BEFORE the caption; never the native word cell
+    # control-position ablation -- the word trained BEFORE the caption; never the native word cell
     if m is not None and a.get("word_first"):
         m = m + "+wf"
     if m is not None and a.get("gcf_word_pos") in ("mix", "first"):
-        m = m + ("+pmix" if a.get("gcf_word_pos") == "mix" else "+pfirst")   # v1.167/v1.184 placement ablations
+        m = m + ("+pmix" if a.get("gcf_word_pos") == "mix" else "+pfirst")   # placement ablations
     if m is not None and a.get("train_sources"):
         m = m + "+ad"          # one adapter per request; the Ground-CF loop merges the look/read halves into one cell
-    # 2026-09-22 (STATUS v1.94): a Ground-CF run trained under the two-modality protocol is its own cell
-    # 2026-09-24 (v1.147): Ground-CF only. Since OCR went off by default (v1.133) every new run records
+    # a Ground-CF run trained under the two-modality protocol is its own cell
+    # Ground-CF only. Since OCR went off by default every new run records
     # c3_sources=look,read, so the 48 resubmitted ladder runs got +2s and fell outside cpgrid's ladder keys.
     if m is not None and a.get("c3_sources") == "look,read" and a.get("task") == "clevr3":
         m = m + "+2s"
@@ -92,12 +77,12 @@ def method_of(run, args):
 
 def _method_of_proto(run, args):
     a = args or {}
-    # compose-trained runs (2026-09-13) are their own cells: they must never
+    # compose-trained runs are their own cells: they must never
     # overwrite a parity cell through the newer-file-wins rule.
     if "_compose" in (a.get("run_name") or run or ""):
         _m, _L = _method_of_inner(run, a)
         return (_m + "+compose"), _L
-    # weight-decay control (2026-09-21): identical args except --weight_decay 0, so without a suffix it
+    # weight-decay control: identical args except --weight_decay 0, so without a suffix it
     # would land in the reference word+ctm cell and win through the newer-file-wins rule.
     if "_wd0" in (a.get("run_name") or run or ""):
         _m, _L = _method_of_inner(run, a)
@@ -108,14 +93,14 @@ def _method_of_proto(run, args):
 def _method_of_inner(run, a):
     m = a.get("method")
     if m == "lora":
-        # LoRA trained with a counterfactual objective is its own cell (2026-09-14): without the
+        # LoRA trained with a counterfactual objective is its own cell: without the
         # suffix a LoRA+CTM run would overwrite the SFT LoRA row through the newer-file-wins rule.
         lam = {k[4:] for k in a if k.startswith("lam_") and float(a.get(k) or 0) > 0}
         lam.discard("sft"); lam.discard("iit"); lam.discard("aat")
         base = f"lora_r{a.get('lora_r') or '?'}"
         if a.get("ctrl_style") == "request":
-            base += "+req"      # request-conditioned recipe (2026-09-21), never the historical row
-        rsfx = "+rot" if a.get("instr_rotate") else ""   # 2026-09-23 (v1.123): trained on rotated INSTR variants
+            base += "+req"      # request-conditioned recipe, never the historical row
+        rsfx = "+rot" if a.get("instr_rotate") else ""   # trained on rotated INSTR variants
         return ((base + "+" + "+".join(sorted(lam))) if lam else base) + rsfx, None
     if m == "pt":
         # wave O gave PT the causal arms: attribute them, or they'd collide
@@ -123,7 +108,7 @@ def _method_of_inner(run, a):
         lam = {k[4:] for k in a if k.startswith("lam_") and float(a.get(k) or 0) > 0}
         lam.discard("sft"); lam.discard("iit"); lam.discard("aat")
         base = "pti" if "_pti_" in (a.get("run_name") or "") else "pt"
-        # 2026-09-21: the same data-recipe axes as the word branch below. Without them the
+        # the same data-recipe axes as the word branch below. Without them the
         # Ground-CF PT run trained with 30% absence items (clevr3_f_pt_5tok_apoabs_seed0*) mapped to
         # the plain "pt+apo" key and, being newer, overwrote the plain APO run in the ID grid while
         # the OOD grid held the plain run -- Table 1's PT+APO Ground-CF cell was the abs recipe.
@@ -142,22 +127,22 @@ def _method_of_inner(run, a):
         if arm != "ctrl" or style not in ("neutral",):
             return f"word[{arm}/{style}]" + ("+" + "+".join(sorted(lam)) if lam else ""), L
         # the v3 DATA recipe (slot negatives) is a separate axis from the
-        # objective: before 2026-09-11 a run with both lam_ctm and slot
-        # negatives collided with plain CTM in the same cell, and better()
+        # objective: before a run with both lam_ctm and slot
+        # negatives collided with plain CTM in the same cell, and better
         # then kept whichever eval file was newer, so Table 1 mixed recipes
-        # across models (STATUS 2026-09-11 FLAG A). Keep them apart.
+        # across models. Keep them apart.
         v3 = float(a.get("slot_negative_frac") or 0) > 0
-        # image-twin CTM on Ground-CF (2026-09-14) is a different data recipe from text-only CTM
+        # image-twin CTM on Ground-CF is a different data recipe from text-only CTM
         # and must not overwrite it in the cell.
         img = bool(a.get("clevr3_image_twins"))
         ab = bool(a.get("clevr3_absence"))
-        cp = bool(a.get("cp_pairs"))      # conflict-preserving training pairs (2026-09-22): a separate recipe
-        # 2026-09-23 (v1.118): the gamma-sensitivity runs differ from the reference ONLY in --gamma, which no
+        cp = bool(a.get("cp_pairs"))      # conflict-preserving training pairs: a separate recipe
+        # the gamma-sensitivity runs differ from the reference ONLY in --gamma, which no
         # other part of the key records, so their evaluations would have replaced the reference
         # `word+ctm+img+cp+2s` cell through the newer-file-wins rule. Off-default gamma gets its own suffix.
         _gm = a.get("gamma")
         gsfx = f"+g{float(_gm):g}" if _gm is not None and abs(float(_gm) - 0.1) > 1e-9 else ""
-        # 2026-09-23 (v1.123): Hewitt-style carrier templates are a different training prompt from the bare
+        # Hewitt-style carrier templates are a different training prompt from the bare
         # `<question> <tokens>` form; they must never share a cell.
         tsfx = "+tpl" if a.get("neo_template") == "hewitt" else ""
         if lam:
@@ -173,7 +158,7 @@ def cfg(run):
     if run not in CFG:
         d = load(f"{ROOT}/runs/{run}/config.json") or {}
         a = dict(d.get("args") or {})
-        # 2026-09-22 (STATUS v1.96): the recipe key must name the objective the run APPLIED, not the one it was
+        # the recipe key must name the objective the run APPLIED, not the one it was
         # asked for. train.py can force a term off (it silenced APO for every LoRA run until today, so LoRA+APO
         # trained as LoRA+SFT and the two Ground-CF adapters were byte-identical); the applied weights are in
         # obj_global. Any lam_* recorded there overrides the requested argument.
@@ -195,7 +180,7 @@ _VOID = [re.compile(l.strip()) for l in open(_VOID_FILE) if l.strip() and not l.
 
 def _void(run):
     """Runs listed in results/void_run_patterns.txt (regex per line) never enter the grid. Added
-    2026-09-21 for the ladder PT+CTM / LoRA+CTM runs whose CTM pairs carried no trainable request;
+for the ladder PT+CTM / LoRA+CTM runs whose CTM pairs carried no trainable request;
     their fixed reruns carry a _v2_ marker that the patterns do not match. Demotion, not deletion."""
     return any(p.search(run) for p in _VOID)
 
@@ -203,8 +188,7 @@ def _void(run):
 def better(newmeta, oldmeta):
     """PARITY SELECTION, not max-selection. The old keep-max rule silently
     picked the best-scoring file across seeds/run-variants -- a luckiest-file
-    bias that inflated borderline cells (caught 2026-08-07 reconciling
-    Table 1). Policy: seed 0 beats other seeds; among equals, the NEWER eval
+    bias that inflated borderline cells. Policy: seed 0 beats other seeds; among equals, the NEWER eval
     file wins (later vintages carry fixes/records, and re-evals supersede)."""
     ns, nm = newmeta
     os_, om = oldmeta
@@ -225,25 +209,25 @@ def main():
     meta = {}                               # key -> (seed, file mtime)
 
     # ---------------- ladder
-    # vcf3 = the third-colour VCF battery (STATUS v1.66), written by VCF-trained runs into eval/vcf3_<split>/
+    # vcf3 = the third-colour VCF battery, written by VCF-trained runs into eval/vcf3_<split>/
     # *3 = the conflict-preserving (third-value) battery of a ladder benchmark, written by that benchmark's
-    # own runs into eval/<ds>3_<split>/ (STATUS v1.66 VCF; v1.81 ColorSwap and COCO-CF)
+    # own runs into eval/<ds>3_<split>/
     for ds, dname in (("vcf", "vcf"), ("color", "color"), ("coco", "coco"),
                       ("vcf3", "vcf3"), ("color3", "color3"), ("coco3", "coco3")):
         _prefix = {"vcf3": "vcf", "color3": "color", "coco3": "coco"}.get(dname, dname)
         for f in (glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_step_800.json")
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_step_800.json")
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_step_800.json")
-                  # 2026-09-23 (v1.120): HELD-OUT request template evaluations (SC_TEMPLATE=heldout) -- the
+                  # HELD-OUT request template evaluations (SC_TEMPLATE=heldout) -- the
                   # paper's headline for every learned interface; keyed `+ho`, the in-template file stays as is
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_heldout_step_800.json")
-                  # 2026-09-24 (v1.153): the FIXED ladder protocol (SC_LADDER_PROTO=2: one candidate set per example in
+                  # the FIXED ladder protocol (SC_LADDER_PROTO=2: one candidate set per example in
                   # every version, one template per example). Its own cells (`+p2`), never merged with protocol 1.
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_step_800.json")
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_p2_heldout_step_800.json")
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_noop_p2_step_800.json")
                   + glob.glob(f"{ROOT}/runs/*/eval/{dname}_{SPLIT}/flip_ll_iv[1-5]_p2_step_800.json")):
-            # 2026-09-17: the grid is the IN-DISTRIBUTION reference. A run trained on another task and
+            # the grid is the IN-DISTRIBUTION reference. A run trained on another task and
             # evaluated here (the word-aliasing transfer evals of 654686 write into foreign run dirs) is
             # a transfer measurement, not a grid cell, and must never compete for the same key.
             if f.split("/runs/")[1].split("/")[0].split("_")[0] != _prefix:
@@ -254,13 +238,13 @@ def main():
             d = load(f)
             if not d or d.get("look_flip") is None:
                 continue
-            # 2026-09-21: the bank is bfloat16. A float32 evaluation (V100 pool) agrees on summary
+            # the bank is bfloat16. A float32 evaluation (V100 pool) agrees on summary
             # metrics to <=.014 but only .96-.99 per item, which missed the pre-registered bar, so it
-            # never enters the grid (STATUS v1.70). Files written before the dtype field exists carry
+            # never enters the grid. Files written before the dtype field exists carry
             # no key and are bf16 by construction.
             if d.get("weight_dtype") not in (None, "bfloat16"):
                 continue
-            # 2026-09-14: English phrasing files. iv5 is the paper's instruction row ("instr"); the
+            # English phrasing files. iv5 is the paper's instruction row ("instr"); the
             # original phrasing is "instr_v0" and iv1-iv4 are "instr_iv1".."instr_iv4" (appendix table).
             # An iv-tagged file whose method field is not frozen is a neologism eval that happened to
             # run with the env var set (qwen2b/e4b neo dirs) and is NOT an instruction row.
@@ -270,7 +254,7 @@ def main():
             args = cfg(run)
             # IN-DOMAIN ONLY: transfer evals (a vcf-trained run evaluated on
             # color data) live in the same eval-dir layout and were silently
-            # colliding with in-domain rows (caught 2026-08-07; the ColorSwap
+            # colliding with in-domain rows (caught the ColorSwap
             # PT read=.21 cell was a SEED-2 + cross-run artifact).
             dd = os.path.basename(str(args.get("data_dir") or ""))
             if args and dd and dd != dname and dd != _prefix:
@@ -290,19 +274,19 @@ def main():
             if "heldout" in os.path.basename(f):
                 meth = meth + "+ho"
             if "_p2_" in os.path.basename(f):
-                meth = meth + "+p2"          # v1.153: protocol 2, last suffix
+                meth = meth + "+p2"          # protocol 2, last suffix
             key = (ds, model_of(run, args), meth, L)
             row = {"R.look": d.get("look_acc"), "G.look": d.get("look_flip"),
                    "R.read": d.get("read_acc"), "G.read": d.get("read_flip"),
                    "S.look": d.get("look_stay"), "S.read": d.get("read_stay"),
                    # Sc = conjunctive stay (correct before AND unchanged under the competing edit),
-                   # the mirror of flip; summary field since 2026-09-13, derived from the per-item
-                   # records for older files (2026-09-14).
+                   # the mirror of flip; summary field since, derived from the per-item
+                   # records for older files.
                    "Sc.look": stay_c(d, "look"), "Sc.read": stay_c(d, "read")}
             nm = (seed_of(args), os.path.getmtime(f))
             _ts = (args or {}).get("train_sources")
             if _ts:
-                # 2026-09-23 (v1.125): one LoRA adapter per request -- keep this request's fields, merge halves
+                # one LoRA adapter per request -- keep this request's fields, merge halves
                 _src = _ts.split(",")[0]
                 row = {k: v for k, v in row.items() if k.endswith("." + _src)}
                 if key in grid and RUNS.get(key) and run not in str(RUNS[key]):
@@ -315,7 +299,7 @@ def main():
                 grid[key] = row; meta[key] = nm; RUNS[key] = run
 
     # ---------------- Ground-CF
-    # 2026-09-22 (STATUS v1.86): SC_GCF_TAG=_cp4 restricts Ground-CF to the conflict-preserving four-skill
+    # SC_GCF_TAG=_cp4 restricts Ground-CF to the conflict-preserving four-skill
     # files; without it the pre-fix (agreement-edit) files would be harvested next to them.
     _gcf_tag = os.environ.get("SC_GCF_TAG", "")
     for f in glob.glob(f"{ROOT}/runs/*/eval/clevr3_{SPLIT}/flip_step_800*.json"):
@@ -326,20 +310,20 @@ def main():
         if _gcf_tag and _gcf_tag not in base:
             continue
         if "_probe_" in base:
-            continue          # v1.130: interface-probe evaluations are read by the tracker, never grid cells
+            continue          # interface-probe evaluations are read by the tracker, never grid cells
         if "_picks" in base or "_smoke" in base:
             continue
         if "_agree" in base:
-            continue          # v1.161: old-vs-new (agreement-twin) diagnostic, never a grid cell
+            continue          # old-vs-new (agreement-twin) diagnostic, never a grid cell
         if "_trcar" in base:
-            continue          # v1.165: held-out question + TRAINING carriers (wording-shift diagnostic), never a grid cell
+            continue          # held-out question + TRAINING carriers (wording-shift diagnostic), never a grid cell
         if "_reloc" in base:
-            continue          # v1.166: control relocated to an untrained position (SC_GCF_CTRL_POS), never a grid cell
+            continue          # control relocated to an untrained position (SC_GCF_CTRL_POS), never a grid cell
         if "_ctw" in base or "_restwin" in base:
-            continue          # v1.189/v1.191: clean-twin reruns are PROMOTED into the canonical name (scripts/promote_clean_twins.py);
+            continue          # clean-twin reruns are PROMOTED into the canonical name (scripts/promote_clean_twins.py);
                               # the _ctw source copy and the demoted residue-twin version (_restwin) are never grid cells
-        # 2026-09-17: same guard. 654686 evaluated COCO- and ColorSwap-trained words on Ground-CF via
-        # word aliasing and wrote flip_step_800.json into runs/coco_*/eval/clevr3_test_id/. method_of()
+        # same guard. 654686 evaluated COCO- and ColorSwap-trained words on Ground-CF via
+        # word aliasing and wrote flip_step_800.json into runs/coco_*/eval/clevr3_test_id/. method_of
         # mapped those to the SAME key as the genuine Ground-CF word and the newer mtime WON, so Table 1
         # printed a COCO word's transfer score (.36/.17) as the Ground-CF word's own result (.88/1.0).
         if not run.startswith("clevr3"):
@@ -347,14 +331,14 @@ def main():
         d = load(f)
         if not d or d.get("look_flip") is None:
             continue
-        # STATUS v1.95: a batched-scoring file must have reproduced the single-sequence picks on its checked items
+        # a batched-scoring file must have reproduced the single-sequence picks on its checked items
         _bc = d.get("batched_check") or {}
         if d.get("batched_scoring") and _bc.get("n") and (_bc.get("pick_agreement") or 0) < 1.0:
             print(f"[skip] {base} in {run}: batched pick agreement {_bc.get('pick_agreement')} < 1.0 (v1.95)")
             continue
         args = cfg(run)
         if "_instr" in base:
-            # 2026-09-23 (v1.114): the FILE records which instruction ran (`instr_variant`, added to
+            # the FILE records which instruction ran (`instr_variant`, added to
             # eval_clevr3_flip.py); prefer it. The filename regex stays as the fallback for older files.
             # Ground-CF's conflict-preserving baselines run INSTR_VARIANT=5 but are tagged `_cp4_instr`,
             # so the old filename-only rule filed them as v0 and they never joined the ladder's `instr` row.
@@ -370,32 +354,32 @@ def main():
             meth, L = method_of(run, args)
         if meth is None:
             continue
-        # 2026-09-23 (v1.119): a question-phrasing-shift evaluation (SC_QSTYLE=generic, tag _cp4_qgen) is its own
+        # a question-phrasing-shift evaluation (SC_QSTYLE=generic, tag _cp4_qgen) is its own
         # cell; without the suffix it would replace the in-phrasing reference cell through newer-file-wins.
         if "_qgen" in base:
             meth = meth + "+qgen"
-        # 2026-09-24 (v1.143): answer-token-only decision score (SC_SCORE=answer, tag *_ans) is its own cell, never
+        # answer-token-only decision score (SC_SCORE=answer, tag *_ans) is its own cell, never
         # merged with the banked whole-turn cells through newer-file-wins.
         if re.search(r"_ans(?=\.json$|_)", base):
             meth = meth.replace("+2s", "+ans+2s") if "+2s" in meth else meth + "+ans"
-        # 2026-09-23 (v1.120): held-out question phrasing (SC_QSTYLE=heldout, tag _cp4_ho / _cp4xfer_ho) = the
+        # held-out question phrasing (SC_QSTYLE=heldout, tag _cp4_ho / _cp4xfer_ho) = the
         # headline cell for learned interfaces. `+ho` goes BEFORE `+2s` because cpgrid appends `+2s` last.
         if re.search(r"_ho(?=\.json$|_)", base):
             meth = meth.replace("+2s", "+ho+2s") if "+2s" in meth else meth + "+ho"
-        # 2026-09-23 (v1.124): frozen baselines evaluated on FACT captions (SC_CAPTION_STYLE_OVERRIDE=fact, tag _fc)
+        # frozen baselines evaluated on FACT captions (SC_CAPTION_STYLE_OVERRIDE=fact, tag _fc)
         if "_fc" in base and "+fc" not in meth:
             meth = meth.replace("+2s", "+fc+2s") if "+2s" in meth else meth + "+fc"
-        # 2026-09-22 (STATUS v1.98): the two-source suffix describes the EVALUATION that was run, which the
+        # the two-source suffix describes the EVALUATION that was run, which the
         # result file records in `sources`. A frozen baseline is hosted by whatever checkpoint happened to load
         # the backbone, so its run config need not carry the protocol; the file always does.
         _srcs = d.get("sources")
         _two = (_srcs == ["look", "read"]) or ((args or {}).get("c3_sources") == "look,read")
-        if meth.startswith("noop") or meth.startswith("instr"):     # v1.139: "noop+fc" missed +2s (fact-caption tag came first)
+        if meth.startswith("noop") or meth.startswith("instr"):     # "noop+fc" missed +2s (fact-caption tag came first)
             if _two:
                 meth = meth + "+2s"
         # PT_INSERTED is only wired into the two-source request template; on
         # clevr3 the flag is a no-op, so pti runs are byte-identical duplicates
-        # of pt (verified 2026-08-19: all 4 models, all 9 metrics identical).
+        # of pt.
         if meth == "pti":
             continue
         key = ("groundcf", model_of(run, args), meth, L)
@@ -405,13 +389,13 @@ def main():
             row[f"R.{ch}"] = d.get(f"{ch}_acc")
             row[f"G.{ch}"] = d.get(f"{ch}_flip")
             row[f"S.{ch}"] = d.get(f"{ch}_stay")
-        # DENOMINATORS (2026-09-13): on Ground-CF look_acc is scored over ALL items while
+        # DENOMINATORS: on Ground-CF look_acc is scored over ALL items while
         # look_flip is scored on the image-twin subset (colour and shape only; count and
         # spatial have no image twin). Comparing them is the different-denominator error the
         # ledger warns about, so the twin-subset accuracy is carried alongside as R.looktwin
         # and is the value any table that prints accuracy NEXT TO look flip must use.
         row["R.looktwin"] = d.get("look_twin_acc")
-        # 2026-09-23 (STATUS v1.110): Ground-CF twins were extended from two skills (colour, shape) to four
+        # Ground-CF twins were extended from two skills (colour, shape) to four
         # (plus count and spatial). Both vintages are on disk under the same filename, and the old keep-newest
         # rule let a TWO-skill file win a cell while a sibling arm's cell came from a FOUR-skill file -- the
         # two are not comparable (a two-skill evaluation omits the harder half). A cell now prefers the file
@@ -421,7 +405,7 @@ def main():
         nm = (seed_of(args), os.path.getmtime(f))
         _ts = (args or {}).get("train_sources")
         if _ts:
-            # 2026-09-23 (v1.124): modality-specific adapter -- keep only THIS request's fields (the other
+            # modality-specific adapter -- keep only THIS request's fields (the other
             # request was scored with the wrong adapter loaded) and merge with the other half; provenance = both runs.
             _src = _ts.split(",")[0]
             row = {k: v for k, v in row.items() if k.endswith("." + _src) or (k.endswith(".looktwin") and _src == "look") or k == "n_skills"}
@@ -440,7 +424,7 @@ def main():
             grid[key] = row; meta[key] = nm; RUNS[key] = run
 
     # ---------------- MVG (grounding battery; <ocr> is an ablation, starred)
-    # 2026-09-21: the rebuilt-metadata evaluation (pairs_clean_rb, tag _rb) is banked under its OWN
+    # the rebuilt-metadata evaluation (pairs_clean_rb, tag _rb) is banked under its OWN
     # dataset key "mvgrb", never mixed with the _clean cells: different pairs file, different numbers.
     for f in (glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_clean.json")
               + glob.glob(f"{ROOT}/runs/*/eval/mvg_flip/flip_step_800_rb.json")):
@@ -466,7 +450,7 @@ def main():
         if key not in grid or better(nm, meta[key]):
             grid[key] = row; meta[key] = nm; RUNS[key] = run
     for style in ("instr", "noop"):
-        # 2026-09-23 (v1.117): Qwen-2B/E4B frozen files are tagged `_clean_noop_noop.json` / `_clean_instr_instr.json`
+        # Qwen-2B/E4B frozen files are tagged `_clean_noop_noop.json` / `_clean_instr_instr.json`
         # (style AND tag appended), so the exact-name glob only ever matched Gemma-3 -- the MVG grid had baselines
         # for one model. `clean_{style}*` still excludes the crop files (`clean_crop0.25_...`).
         for f in glob.glob(f"{ROOT}/runs/_frozen_*/eval/mvg_flip/flip_step_800_clean_{style}*.json") + \
@@ -535,7 +519,7 @@ def main():
             ("vcf", "VCF", ["R.look", "G.look", "R.read", "G.read"]),
             ("color", "ColorSwap", ["R.look", "G.look", "R.read", "G.read"]),
             ("coco", "COCO-CF", ["R.look", "G.look", "R.read", "G.read"]),
-            # 2026-09-22 (STATUS v1.98): the conflict-preserving (third-value) ladder batteries. They were
+            # the conflict-preserving (third-value) ladder batteries. They were
             # harvested into `grid` from the first day (the loop above reads eval/<ds>3_<split>/) but this
             # output list did not name them, so every *3 row was silently dropped from master_grid.{md,json}
             # and no corrected ladder cell could ever reach a table or figure.

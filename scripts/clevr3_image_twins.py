@@ -1,45 +1,15 @@
 #!/usr/bin/env python
-"""GROUND-CF IMAGE TWINS — the missing <look> counterfactual.
+"""Render the colour and shape image twins of Ground-CF.
 
-WHY THIS DID NOT EXIST, AND WHY THAT WAS A BUILD GAP RATHER THAN A DESIGN CHOICE.
-Ground-CF's counterfactuals are channel EDITS: we rewrite the caption or the OCR
-string and ask whether the answer follows. That gives <read> and <ocr> a proper
-FOLLOWS/IGNORES pair and leaves <look> with nothing to follow -- the image never
-changes, so there is no visual intervention. For a long time the docs said "no
-image twin by design"; that was wrong. `prepare_clevr3.py` renders every scene
-itself with PIL flat fills, so a second image differing in exactly one attribute
-is constructible, and <look> is currently the ONLY channel in the whole project
-with no FOLLOWS number anywhere.
-
-WHAT AN EXACT TWIN NEEDS. The same property that makes VCF and ColorSwap work
-(JOINT .85-1.00): the two images must differ ONLY in the probed value, so the pair
-realises do(look := v') with everything else -- positions, other objects, palette,
-lighting, resolution -- byte-identical. Anything less and the model can win on a
-confound.
-
-  colour  EXACT. The target's fill is one flat PALETTE colour inside a known bbox.
-          Recolour those pixels and nothing else moves. This is the cleanest twin
-          in the dataset and it is a true minimal pair.
-  object  EXACT. Erase the target's bbox to the background and redraw the NEW
-          shape at the same centre, same radius, same colour, with the renderer's
-          own `draw()`. Only the silhouette changes.
-  count   NOT ATTEMPTED. Adding or removing an object changes occlusion, spacing
-          and the spatial relation between the target and the anchor, so the pair
-          would differ in more than the probed value. It needs a re-render from
-          the scene graph, which the item file does not store.
-  spatial NOT ATTEMPTED, same reason: moving an object changes the whole layout.
-
-So this covers 2 of 4 skills exactly and declines the other two rather than
-shipping confounded pairs. `count` and `spatial` keep the channel-edit treatment
-they already have.
-
-Output: data/clevr3/images_twin/<id>_<skill>_<newvalue>.png plus a pairs file
-whose schema matches the other twin sets, so eval_clevr3_flip.py can consume it.
-
-Usage
-  python scripts/clevr3_image_twins.py --split test_id
-  python scripts/clevr3_image_twins.py --split test_ood
-"""
+Since the text sources are edited as strings, the image is the only source that needs a second render. A twin differs
+from its original in exactly one value, and everything else (positions, other objects, palette, resolution) is
+byte-identical:
+  colour  the target's flat fill is recoloured inside its box
+  shape   the box is cleared and the new shape is drawn at the same centre, radius and colour with the renderer's own
+          draw
+Count and spatial twins need the scene graph and are made by clevr3_twins_count_spatial.py. With --from_pairs, the
+images of an existing pairs file are reproduced bit-exactly. Images go to --out_images
+(default data/clevr3/images_twin_clean/)."""
 import argparse, collections, json, os, sys
 from PIL import Image, ImageDraw
 
@@ -67,10 +37,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test_id")
     ap.add_argument("--data_dir", default="data/clevr3")
-    ap.add_argument("--out_images", default="data/clevr3/images_twin_clean")   # v1.191: the corrected set; never the old dir
+    ap.add_argument("--out_images", default="data/clevr3/images_twin_clean")   # the corrected set; never the old dir
     ap.add_argument("--out_pairs", default=None)
     ap.add_argument("--from_pairs", default="",
-                    help="v1.191: regenerate the images of an EXISTING pairs file (its ids and gold_b values), so the "
+                    help="regenerate the images of an EXISTING pairs file (its ids and gold_b values), so the "
                          "released twins are reproduced bit-exactly; without it the new value is chosen by crc32")
     a = ap.parse_args()
     import zlib
@@ -110,7 +80,7 @@ def main():
         if not gold:
             rej["no look value"] += 1
             continue
-        # CONFLICT PRESERVATION (2026-09-15): the replacement must differ from every value a TEXT
+        # CONFLICT PRESERVATION: the replacement must differ from every value a TEXT
         # channel asserts. Otherwise the edited image agrees with the caption (or the on-screen text)
         # and the second half of Flip is free -- the failure mode the borrowed ladder benchmarks have
         # by construction. Measured before the fix: 86 of 374 test_id twins agreed with the caption.
@@ -119,7 +89,7 @@ def main():
         im = Image.open(src).convert("RGB")
         x0, y0, x1, y1 = [int(round(v)) for v in bb]
         x0, y0 = max(0, x0), max(0, y0)
-        # v1.191 FIX: the renderer fills INCLUSIVE bounds [cx - r, cx + r] (PIL), so the bbox's last column and row
+        # FIX: the renderer fills INCLUSIVE bounds [cx - r, cx + r] (PIL), so the bbox's last column and row
         # belong to the object; before this fix they were never erased / recoloured and every colour / object twin kept a
         # 1-px edge of the old object (results/twin_residue_audit.md). Clamp to the last pixel, iterate inclusively.
         x1, y1 = min(im.width - 1, x1), min(im.height - 1, y1)
@@ -131,7 +101,7 @@ def main():
             if gold not in PALETTE:
                 rej["look colour not in palette"] += 1
                 continue
-            # EXCLUDE COLOURS ALREADY IN THE SCENE. make_scene() guarantees the
+            # EXCLUDE COLOURS ALREADY IN THE SCENE. make_scene guarantees the
             # target has a UNIQUE colour; recolouring it to a colour another
             # object already wears silently breaks that invariant, which is what
             # makes the "What shape is the <colour> object?" question answerable.
@@ -153,7 +123,7 @@ def main():
             if not pool:
                 rej["no same-pool colour available that keeps the conflict"] += 1
                 continue
-            # v1.191: crc32, not hash() -- str hashes are salted per process, so the old choice was not reproducible
+            # crc32, not hash -- str hashes are salted per process, so the old choice was not reproducible
             new = forced.get(it["id"]) or sorted(pool)[zlib.crc32(it["id"].encode()) % len(pool)]
             tgt, rep = PALETTE[gold], PALETTE[new]
             px = im.load()
@@ -188,7 +158,7 @@ def main():
                 continue
             colour = cnt.most_common(1)[0][0]
             d = ImageDraw.Draw(im)
-            d.rectangle([x0, y0, x1, y1], fill=BG)   # erase INCLUSIVE (v1.191), keep the rest
+            d.rectangle([x0, y0, x1, y1], fill=BG)   # erase INCLUSIVE, keep the rest
             # centre and radius exactly as before the fix (end coordinates clamped to the image size, not size - 1)
             X1, Y1 = min(im.width, int(round(bb[2]))), min(im.height, int(round(bb[3])))
             cx, cy = (x0 + X1) // 2, (y0 + Y1) // 2
@@ -213,7 +183,7 @@ def main():
         })
 
     p = os.path.join(ROOT, a.out_pairs or
-                     f"data/clevr3/pairs_look_{a.split.replace('test_','')}_clean.jsonl")   # v1.191: never the old file
+                     f"data/clevr3/pairs_look_{a.split.replace('test_','')}_clean.jsonl")   # never the old file
     with open(p, "w") as f:
         for r in pairs:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")

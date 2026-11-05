@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-"""Stage 3: assemble SFT items from claims.jsonl with (a) per-(role,channel) CAP,
-(b) refusal/mismatch items from gold absence, (c) uniform deviant-channel conflicts.
-Emits train items keyed by operator word. Frames must already be extracted; items
-for VIS/OCR whose frames are missing are written with need_frames=True and skipped
-by the trainer's collate if absent.
+"""Stage 3 of the MultiVENT-G pipeline: training items from claims.jsonl.
 
-Usage: python scripts/multiventg_build_items.py --claims data/multiventG/claims.jsonl \
-   --json data/multiventG/multivent_g.json [--cap 70] [--mismatch_frac 0.25] [--seed 0]
-"""
+Items are capped per (role, source), include refusal items where the gold annotation is absent and conflicts on a
+deviating source, and are keyed by request word. Frames must already be extracted (scripts/extract_frames.py); visual
+and on-screen-text items whose frames are missing are marked need_frames=True and skipped in training.
+
+  python scripts/multiventg_build_items.py --claims data/multiventG/claims.jsonl --json data/multiventG/multivent_g.json"""
 import argparse, json, random
 from collections import defaultdict
 

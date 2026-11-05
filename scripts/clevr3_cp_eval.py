@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Ground-CF conflict-preserving protocol with ONE candidate set per item (STATUS v1.94, 2026-09-22).
+"""Ground-CF conflict-preserving protocol with ONE candidate set per item.
 
 For every conflict item (image value A != caption value B) and its four-skill image twin (value A', where one exists):
   caption-edit value  w  = a third value no shown source states (deterministic, skill vocabulary)
@@ -20,7 +20,7 @@ from scsrc.tokens import c3_sources
 
 
 def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
-    # v1.161 (author: old-vs-new on the same checkpoints and items). SC_GCF_AGREE_TWIN=1 adds, for the image request, an
+    # SC_GCF_AGREE_TWIN=1 adds, for the image request, an
     # AGREEMENT version of the image twin: the edited image (value tv) with the caption ALSO set to tv, as the old
     # agreement-resolving twins had it. look_flip_agree = correct on the original AND tv on that version (old-style
     # Flip), next to look_flip (conflict-preserving: caption still says B). SC_GCF_LOOK_ONLY=1 skips the caption request
@@ -56,7 +56,7 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
         A, B = ch["look"], ch["read"]
         Y = tuple(dict.fromkeys([A, B, w] + ([tv] if tv else [])))
         if __import__("os").environ.get("SC_CP_CANDS", "twin") == "full":
-            # 2026-10-02 (protocol note item 6): the FULL skill inventory as the candidate set -- every permitted colour /
+            # the FULL skill inventory as the candidate set -- every permitted colour /
             # shape / count / relation -- with the item's own values first so the twin candidates keep their order.
             # chance = 1/|V| (cand_n records it). Opt-in: eval_clevr3_flip.py --cands full (needs --tag).
             from scsrc.clevr3 import _C3_VOCAB as _V
@@ -70,9 +70,9 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
             img_twin = dict(it); img_twin["image"] = pr["ctx_b"]["image"]
             chx = dict(img_twin["channels"]); chx["look"] = tv; img_twin["channels"] = chx
         # ---- image request
-        pick.ctx = "base"   # v1.143: context label for the item log
+        pick.ctx = "base"   # context label for the item log
         p0, s0 = pick(base, "look", Y, i)
-        pick.ctx = "capedit"   # v1.143: context label for the item log
+        pick.ctx = "capedit"   # context label for the item log
         pc, s_c = pick(cap_edit, "look", Y, i)
         acc = int(p0 == A)
         R["look_acc"].append(acc); SK[sk]["look_acc"].append(acc)
@@ -80,11 +80,11 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
         R["look_stay_c"].append(int(acc and pc == A)); SK[sk]["look_stay_c"].append(int(acc and pc == A))
         R["look_leak_text"].append(int(p0 in (B, w)))
         R.setdefault("look_margin", []).append(float(s0[A] - s0[B]))
-        _r4 = lambda d: {str(k): round(float(v), 4) for k, v in d.items()}   # v1.130: keep every candidate score
+        _r4 = lambda d: {str(k): round(float(v), 4) for k, v in d.items()}   # keep every candidate score
         rec_look = {"id": it["id"], "skill": sk, "p0": p0, "p_capedit": pc, "A": A, "B": B, "w": w, "Y": list(Y),
                     "scores": {"base": _r4(s0), "capedit": _r4(s_c)}}
         if img_twin is not None:
-            pick.ctx = "twin"   # v1.143: context label for the item log
+            pick.ctx = "twin"   # context label for the item log
             pt_, s_t = pick(img_twin, "look", Y, i)
             R["look_twin_acc"].append(acc); SK[sk]["look_twin_acc"].append(acc)
             R["look_flip"].append(int(acc and pt_ == tv)); SK[sk]["look_flip"].append(int(acc and pt_ == tv))
@@ -96,7 +96,7 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
                 R.setdefault("look_flip_agree", []).append(int(acc and pa_ == tv))
                 SK[sk].setdefault("look_flip_agree", []).append(int(acc and pa_ == tv))
                 rec_look.update({"p_twin_agree": pa_}); rec_look["scores"]["twin_agree"] = _r4(s_a)
-        # v1.131 (author): each context's source values, gold and the gold's score, explicit per record
+        # each context's source values, gold and the gold's score, explicit per record
         rec_look["values"] = {"base": {"image": A, "caption": B}, "capedit": {"image": A, "caption": w}}
         rec_look["gold"] = {"base": A, "capedit": A}
         if img_twin is not None:
@@ -104,14 +104,14 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
             if AGREE:
                 rec_look["values"]["twin_agree"] = {"image": tv, "caption": tv}; rec_look["gold"]["twin_agree"] = tv
         rec_look["lp_gold"] = {c: rec_look["scores"][c].get(g) for c, g in rec_look["gold"].items()}
-        rec_look["cap_first"] = eval_design(it, i)[1]                  # v1.133: block order of this item's prompts
+        rec_look["cap_first"] = eval_design(it, i)[1]                  # block order of this item's prompts
         PK["look"].append(rec_look)
         if LOOK_ONLY:
             continue
         # ---- caption request
-        pick.ctx = "base"   # v1.143: context label for the item log
+        pick.ctx = "base"   # context label for the item log
         r0, t0 = pick(base, "read", Y, i)
-        pick.ctx = "capedit"   # v1.143: context label for the item log
+        pick.ctx = "capedit"   # context label for the item log
         rc, tc = pick(cap_edit, "read", Y, i)
         racc = int(r0 == B)
         R["read_acc"].append(racc); SK[sk]["read_acc"].append(racc)
@@ -121,7 +121,7 @@ def cp_protocol(rows, pairs, pick, R, SK, PK, max_n=10**9, presence=None):
         rec_read = {"id": it["id"], "skill": sk, "p0": r0, "p1": rc, "old": B, "new": w, "Y": list(Y),
                     "scores": {"base": _r4(t0), "capedit": _r4(tc)}}
         if img_twin is not None:
-            pick.ctx = "twin"   # v1.143: context label for the item log
+            pick.ctx = "twin"   # context label for the item log
             rt, t_t = pick(img_twin, "read", Y, i)
             R["read_stay"].append(int(rt == r0)); SK[sk]["read_stay"].append(int(rt == r0))
             R["read_stay_c"].append(int(racc and rt == B)); SK[sk]["read_stay_c"].append(int(racc and rt == B))

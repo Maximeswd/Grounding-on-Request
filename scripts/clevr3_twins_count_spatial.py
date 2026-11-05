@@ -1,22 +1,14 @@
 #!/usr/bin/env python
-"""GROUND-CF IMAGE TWINS FOR COUNT AND SPATIAL (2026-09-21).
+"""Render the count and spatial image twins of Ground-CF.
 
-clevr3_image_twins.py gave <look> exact twins for colour and object by editing the target's bbox in
-place. Count and spatial were "not attempted" because the item file stores no scene graph. The graph
-is recoverable: prepare_clevr3.py draws every scene from ONE seeded RNG, so replaying main() with the
-same arguments and a render() that records instead of writing yields every scene's object list. The
-replayed items are checked against the shipped test files before anything is rendered.
-
-  count    remove ONE object that is neither the target nor the anchor (the farthest from the target),
-           k -> k-1; target/anchor pixels and their relation are untouched. Needs k >= 3.
-  spatial  mirror the target across the anchor on the dominant axis (left<->right or above<->below),
-           other coordinate kept; accepted only if the new relation is the exact opposite, the target
-           stays on canvas, and no object comes within 56 px of it.
-Rows go to data/clevr3/pairs_look_cs_<id|ood>.jsonl (count+spatial only) and
-data/clevr3/pairs_look_all_<id|ood>.jsonl (colour+object existing pairs + the new ones) so one
-evaluation yields the four-skill average with the per-skill breakdown the evaluator already records.
-Images: data/clevr3/images_twin_cs/. Nothing existing is modified.
-"""
+The item files store no scene graph, but prepare_clevr3.py draws every scene from one seeded generator, so replaying it
+recovers each scene's object list (checked against the shipped test files before anything is rendered).
+  count    remove one object that is neither the target nor the anchor (the one farthest from the target): k -> k-1,
+           with the target, the anchor and their relation untouched; needs k >= 3
+  spatial  mirror the target across the anchor on the dominant axis; accepted only if the relation is exactly reversed,
+           the target stays on the canvas and no object comes within 56 px of it
+Writes data/clevr3/pairs_look_cs_<split>.jsonl, the four-skill data/clevr3/pairs_look_all_<split>.jsonl and the images
+in data/clevr3/images_twin_cs/."""
 import json, os, sys, math, importlib, tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -27,12 +19,12 @@ R, MIN_D = 24, 56
 
 
 def replay_scene_graphs():
-    """sid -> (objs, k) by replaying the generator with recording render()."""
+    """sid -> (objs, k) by replaying the generator with recording render."""
     captured = {}
     def fake_render(objs, path):
         captured[os.path.basename(path)[:-4]] = [dict(o) for o in objs]
-    # 2026-09-21: the recording stub MUST be undone. Leaving it installed made every later
-    # pc.render(new, dst) in main() record instead of write, so the pair rows were produced while
+    # the recording stub MUST be undone. Leaving it installed made every later
+    # pc.render(new, dst) in main record instead of write, so the pair rows were produced while
     # images_twin_cs/ stayed empty and the whole _cs4 evaluation died on FileNotFoundError.
     real_render = pc.render
     pc.render = fake_render
@@ -63,7 +55,7 @@ def check_alignment(replayed, split):
 
 
 def main():
-    # 2026-09-22 (STATUS v1.86): --splits train renders the TRAINING twins for count and spatial so CTM can
+    # --splits train renders the TRAINING twins for count and spatial so CTM can
     # train the image request on all four skills; default keeps the shipped test behaviour byte-identical.
     splits = (sys.argv[sys.argv.index("--splits") + 1].split(",") if "--splits" in sys.argv else ["test_id", "test_ood"])
     outimg = f"{ROOT}/data/clevr3/images_twin_cs"; os.makedirs(outimg, exist_ok=True)

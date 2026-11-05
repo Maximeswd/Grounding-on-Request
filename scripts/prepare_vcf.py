@@ -1,21 +1,10 @@
 #!/usr/bin/env python3
-"""Visual-CounterFact as the ATOMIC rung of the modality-conflict ladder.
+"""Build the VCF (Visual-CounterFact) splits in the shared two-image format.
 
-VCF gives the SAME object in two colours (original_image = prior colour,
-counterfact_image = edited colour). That is a colour minimal pair, so we
-attach synthetic captions and build the identical look-vs-READ conflict used
-by ColorSwap -- the axis is modality everywhere, kept constant on purpose.
-
-The prior stays in the data as a COVARIATE, not a trained <know> token:
-image_1 always shows the prior-congruent colour and image_2 the
-counterfactual, so a spec's img_idx recovers prior-congruence for free
-(baseline model performance quantifies the prior pull). klass = prior colour.
-
-Emits the ColorSwap/UnifiedExample schema via to_hf + save_to_disk, so the
-existing load_task / build_specs / collate / eval pipeline runs unchanged.
-Split by held-out OBJECT (test_ood = unseen entities).
-Writes data/vcf/{train,test_id,test_ood} + manifest.json.
-"""
+VCF shows the same object in two colours, its usual colour and an edited one, which gives a colour minimal pair. We
+attach captions and build the same image-versus-caption conflict as for ColorSwap. image_1 always shows the usual colour
+and image_2 the edited one, so the model's prior can be analysed per example. test_ood holds out objects.
+Writes data/vcf/{train,test_id,test_ood} and manifest.json."""
 import argparse, ast, hashlib, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scsrc.tasks import UnifiedExample

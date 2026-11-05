@@ -167,7 +167,7 @@ def build_mvraw_ctm_pair(processor, item, mate, device, n_tokens=1, n_frames=8,
 
 
 def build_mvraw_sm_pair(processor, item, mate, device, n_tokens=1, n_frames=8, style="neo", other=None):
-    """STAY MARGIN on noisy real video (2026-09-22, STATUS v1.102): the COMPETING channel's content is replaced by
+    """STAY MARGIN on noisy real video: the COMPETING channel's content is replaced by
     the mate chunk's while the requested channel is untouched, and the requested channel's own claims must still beat
     the claims the competitor now carries. Mirrors build_clevr3_sm_pair and build_mvg_sm_pair. `other` names the
     competing channel (the paper's two sources are VIS and ASR); None -> the first channel that is not this one."""
@@ -257,7 +257,7 @@ def build_mvraw_corr_example(processor, item, device, n_tokens=1, n_frames=8):
 
 def build_mvraw_corr_ctm(processor, item, ch, mate, device, n_tokens=1,
                          n_frames=8):
-    """INTERVENTIONAL twin for corroboration, and the reason this operator is
+    r"""INTERVENTIONAL twin for corroboration, and the reason this operator is
     worth having: swapping ONE attesting channel's content must make the gold
     set LOSE exactly that source, so the counterfactual is exact and GRADED.
 
@@ -387,7 +387,7 @@ class MvrawDataset:
                                               self.device, self.n, self.nf,
                                               self.style)
         if self.sm:
-            # v1.102: the competitor's twins live under the OTHER channel's key for the same chunk
+            # the competitor's twins live under the OTHER channel's key for the same chunk
             _oc = "ASR" if str(it["channel"]).upper() == "VIS" else "VIS"
             _m = self.pairs.get((it["chunk_id"], _oc))
             if _m:

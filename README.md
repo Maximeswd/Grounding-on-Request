@@ -6,32 +6,45 @@ Code and data for the paper (preprint; under review at ICLR 2027).
 
 ## Overview
 
-Since a vision-language model can answer correctly from one source while the user asked for another, accuracy alone
-does not tell us which evidence an answer rests on. We seek to understand this at a more fundamental level: we change
-only the requested source and require the answer to follow (**Flip**), and we change only the competing source and
-require the answer to stay (**Stay**). This allows us to separate *routing* (naming a source) from *grounding*
-(tracking an intervention on it). We find that there exists a large gap between the two. Naming a source is cheap:
-words, soft prompts, LoRA and plain English all route. On the other hand, grounding has to be installed, and
-counterfactual objectives do this where plain fine-tuning does not.
+When an image and its caption disagree, can a user reliably control which one a vision-language model (VLM) follows?
+Since a model might give the correct answer from parametric knowledge without following the requested evidence, accuracy
+alone cannot answer this question. We therefore seek to understand modality control at a more fundamental level, through
+conflict-preserving counterfactual interventions. Specifically, **Flip** measures whether an initially correct answer
+follows an edit to the requested modality, while **Stay** measures whether it remains stable when the competing modality
+is edited. This allows us to separate an answer that is correct from an answer that actually follows the modality of
+choice.
 
-In particular, we expand on neologism learning. In this method, new words are introduced, with new word embeddings.
-These new words are placed in natural language; their embeddings are trained to minimize a loss on a set of examples
-that exemplify a concept, while the model itself stays frozen. We introduce one word per source and draw upon research
-in counterfactual evaluation to train them on paired interventions (CTM). We also go one step further and construct a
-realistic but simple dataset, Ground-CF, in which image, caption and on-screen text can each be edited independently,
-and we push the method towards real news video (MultiVENT-G). Surprisingly to us, a soft prompt placed at the word's
-position is the same computation as the word: the interfaces differ in placement and wording, not in vocabulary.
+Our work aims to bridge the gap between measuring modality control and explicitly learning it. In particular, we expand
+on neologism learning. In this method, new words are introduced, with new word embeddings. These new words are placed in
+natural language; their embeddings are trained to minimize a loss on a set of examples that exemplify a concept, while
+the pretrained model itself stays fixed. We introduce `<look>` for visual grounding and `<read>` for textual grounding.
+Since standard supervised fine-tuning optimizes examples independently, it does not teach how answer preferences should
+move when the requested evidence changes. We therefore draw upon research in counterfactual evaluation and introduce the
+Counterfactual Twin-Margin (CTM) objective, which uses paired interventions so that the original answer becomes less
+likely and the replacement answer more likely after an edit to the requested modality.
 
-Overall, our work contributes: (1) Flip and Stay, a conflict-preserving counterfactual measure of modality control,
-together with Ground-CF; (2) evidence that accuracy and English instructions overstate visual control; (3) neologisms
-with counterfactual supervision for user-selectable grounding; and (4) evidence that on real video the bottleneck is
-access to the visual evidence, not the selection of the source.
+We evaluate three VLMs on three existing benchmarks (VCF, ColorSwap, COCO-CF), and we also go one step further and
+construct a realistic but simple dataset, Ground-CF, with image–text interventions over color, shape, count and spatial
+relations. We find that there exists a large gap between natural-language instructions and learned modality words,
+particularly for visual requests. Surprisingly to us, a single learned embedding per modality already provides strong
+lightweight visual control and remains stable on average across held-out attribute values. On the other hand, LoRA
+achieves the strongest absolute control, although its visual advantage narrows under held-out evaluation. Moreover,
+counterfactual supervision improves control in several settings where standard supervision is weaker. Finally, we push
+the method farther towards real data and evaluate it on news video (MultiVENT-G), where visual control improves
+considerably when the relevant evidence is made easier to access.
+
+Overall, our work contributes: (1) a conflict-preserving counterfactual formulation of modality grounding control using
+Flip and Stay, together with Ground-CF; (2) evidence that accuracy and natural-language instructions substantially
+overstate reliable visual control; (3) neologism learning for user-selectable modality grounding, together with CTM-based
+counterfactual supervision; and (4) evidence that lightweight learned controls are effective on held-out attributes and
+extend to realistic news-video frames. Our work, though focused on images and text for simplicity, applies to all
+modalities an answer can be drawn from: the same words and objectives can be trained for any further source, such as
+speech or a position in time.
 
 ## Setup
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-export HF_HOME=~/.cache/huggingface        # SC_OFFLINE=1 on nodes without internet
 huggingface-cli download google/gemma-3-4b-it --revision 093f9f388b31de276ce2de164bdc2081324b9767
 python tests/test_static.py && python tests/test_tasks.py && python tests/test_swap.py
 ```
@@ -41,61 +54,86 @@ python tests/test_static.py && python tests/test_tasks.py && python tests/test_s
 | Gemma-3-4B | `google/gemma-3-4b-it` | `093f9f388b31de276ce2de164bdc2081324b9767` |
 | Qwen3.5-4B | `Qwen/Qwen3.5-4B` | `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` |
 | Qwen3.5-2B | `Qwen/Qwen3.5-2B` | `15852e8c16360a2fea060d615a32b45270f8a8fc` |
-| Gemma-4 E4B | `google/gemma-4-E4B-it` | `fee6332c1abaafb77f6f9624236c63aa2f1d0187` |
+
+Set `SC_OFFLINE=1` on machines without internet access once the models are cached.
+
+## Repository layout
+
+```
+train.py              trains one configuration (everything but the new rows / soft prompt / adapter is frozen)
+evaluate.py           shared scoring helpers
+scsrc/                library: request words, prompts, datasets, objectives, model wrappers
+scripts/              data preparation, the Flip/Stay evaluators, aggregation
+configs/base.yaml     default hyperparameters
+configs/paper/        the training command of every run in the paper, one file per benchmark
+evaluator/            standalone Ground-CF scorer (no training code needed)
+data/                 Ground-CF in full; split manifests and derived annotations for the other benchmarks
+tests/                CPU-only tests
+```
 
 ## Ground-CF
 
-`data/clevr3/` (code name `clevr3`) ships the benchmark in full: items and splits (`train`, `dev`, `test_id`,
-`test_ood`), one-source twins and evidence boxes; see [DATASET_CARD.md](DATASET_CARD.md). Any model, or your own
-generations, can be scored without the training code:
+`data/clevr3/` holds the benchmark (`clevr3` is its name in the code): items and splits, one-source twins and evidence
+boxes; see [data/README.md](data/README.md). Any model can be scored without the training code:
 
 ```bash
-python evaluator/groundcf_eval.py --model google/gemma-3-4b-it --split test_id
-python evaluator/groundcf_eval.py --generations my_outputs.jsonl
+python evaluator/groundcf_eval.py hf --model google/gemma-3-4b-it --split test_id      # likelihood over the candidates
+python evaluator/groundcf_eval.py requests --split test_id -o requests.jsonl           # or: export the contexts,
+python evaluator/groundcf_eval.py score --requests requests.jsonl --answers answers.jsonl   # run any model, score its answers
 ```
 
 ## Training
 
-`train.py` trains one configuration; everything else in the model is frozen. The objective is
-`lam_sft·CE + lam_sft_twin·CE(twin) + lam_ctm·CTM + lam_sm·Stay`: SFT is `--lam_sft 1`, paired SFT adds
-`--lam_sft_twin 1`, the Flip margin `--lam_ctm 1` and the Stay margin `--lam_sm 1`.
+The objective is `lam_sft·CE + lam_sft_twin·CE(twin) + lam_ctm·CTM + lam_sm·Stay`: SFT is `--lam_sft 1`, paired SFT adds
+`--lam_sft_twin 1`, the Flip margin is `--lam_ctm 1` and the Stay margin `--lam_sm 1`.
 
 | interface | flags |
 |---|---|
-| neologism (new rows in the carrier sentence) | `--method neo --arm ctrl --n_tokens L` |
+| neologism (new rows in the request sentence) | `--method neo --arm ctrl --n_tokens L` |
 | prompt tuning (soft prefix) | `--method pt --arm ctrl --n_tokens L --pt_read_init caption` |
-| matched-position soft prompt (the word's slot) | `--method pt ... --gcf_pt_carrier 1` |
-| shared LoRA | `--method lora --lora_r 16 --ctrl_style neutral --instr_rotate 0,2,4,5` |
+| soft prompt at the word's position | `--method pt ... --gcf_pt_carrier 1` |
 | one LoRA adapter per request | `--method lora --lora_r 16 --ctrl_style adapter --train_sources look` |
 
-Every run of the paper is one line of a manifest in `configs/` (`configs/iclr/` holds the paper's waves, the dated
-manifests the follow-up studies); `python train.py $(sed -n 1p configs/iclr/<manifest>.txt)` trains one. Run names
-follow `{task}_{method}_{arm}_{L}tok_{objective}_seed{k}[_{model}]`; a run stopped at a time limit resumes bitwise
-identically with `--resume_ckpt`.
+`configs/paper/{groundcf,ladder,mvg}.txt` hold the exact command of every run behind the paper's tables. To retrain one:
+
+```bash
+grep -w clevr3_2s_1tok_ctm_cp_fc_seed0 configs/paper/groundcf.txt | sh
+```
+
+Run names follow `{task}_{interface}_{L}tok_{objective}_seed{k}[_{model}]`; checkpoints land in `runs/<run>/ckpt/`, and a
+run stopped at a time limit resumes bitwise identically with `--resume_ckpt`.
 
 ## Evaluation
 
+All scores are teacher-forced likelihoods over a fixed candidate set, at step 800, on `test_id` and `test_ood`:
+
 ```bash
-python scripts/eval_clevr3_flip.py --run_dir runs/<run> --data_dir data/clevr3 --split test_ood --step 800 --cp 1   # Ground-CF
-python scripts/eval_flip_ll.py --run_dir runs/<run> --task coco --data_dir data/coco --split test_ood --step 800   # ladder
-python scripts/eval_mvg_flip.py --run_dir runs/<run> --step 800 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl  # MVG
+# Ground-CF
+SC_QSTYLE=heldout python scripts/eval_clevr3_flip.py --run_dir runs/<run> --data_dir data/clevr3 --split test_id \
+    --step 800 --max_n 1000 --pairs_file data/clevr3/pairs_look_all_id_clean.jsonl --cp 1 --tag _cp4_ho
+# VCF, ColorSwap, COCO-CF (--task / --data_dir vcf | color | coco)
+SC_LADDER_PROTO=2 SC_LADDER_LEADIN=1 SC_TEMPLATE=heldout python scripts/eval_flip_ll.py --run_dir runs/<run> \
+    --task vcf --data_dir data/vcf --split test_id --max_n 140 --third_value 1 --out_task vcf3
+# MultiVENT-G, held-out videos (add --crop_bbox 0.25 for the evidence crop)
+python scripts/eval_mvg_flip.py --run_dir runs/<run> --step 800 --pairs data/mvg_ctm/pairs_clean_rb_heldout_videos.jsonl \
+    --max_per_type 300 --mvg data/multiventG/multivent_g_rebuilt.json --tag _rbho
+# metalinguistic probes (Figure 4)
+python scripts/eval_meta_words.py --run_dir runs/<run> --data_dir data/clevr3 --split test_id --step 800 --n_items 40 --tag _meta_fc2
 ```
 
-The ladder rungs are rebuilt from their sources: VCF with `scripts/prepare_vcf.py` (`mgolov/Visual-Counterfact`),
-ColorSwap with `scripts/download_data.py` and `scripts/prepare_task.py` (`stanfordnlp/colorswap`), COCO-CF with
-`scripts/prepare_coco_cf.py` and `scripts/coco_oracle_gate.py` (`Intel/COCO-Counterfactuals`); MultiVENT-G with
-`extract_frames.py`, `scripts/prepare_multiventg.py`, `scripts/multiventg_build_items.py` and `scripts/prepare_mvg_ctm.py`.
-Terms per source: [DATA_LICENSES.md](DATA_LICENSES.md). `scripts/master_grid.py`, `scripts/stats_pass.py` and
-`scripts/harvest.py` aggregate the per-run outputs. The trained rows, LoRA adapters and evaluation outputs of every run
-are released as archives (digests in `SHA256SUMS`) that extract into `runs/`.
+Results are written to `runs/<run>/eval/`. `scripts/master_grid.py` collects them into one table, `scripts/stats_pass.py`
+adds seed-paired intervals and exact McNemar tests, and `scripts/harvest.py` prints the per-benchmark tables.
 
-## Follow-up studies
+The VCF, ColorSwap and COCO-CF images are not redistributed; rebuild them from their sources with
+`scripts/prepare_vcf.py` (`mgolov/Visual-Counterfact`), `scripts/download_data.py` and `scripts/prepare_task.py`
+(`stanfordnlp/colorswap`), and `scripts/prepare_coco_cf.py` with `scripts/coco_oracle_gate.py` (`Intel/COCO-Counterfactuals`).
+MultiVENT-G is rebuilt with `scripts/extract_frames.py`, `scripts/prepare_multiventg.py`, `scripts/multiventg_build_items.py`
+and `scripts/prepare_mvg_ctm.py`.
 
-Since the submission we replicate the fixed recipes across seeds and models (`scripts/gen_replication_manifests.py`),
-compare plain SFT with the Flip margin, the Stay margin and both (`scripts/gen_objective_factorial.py`,
-`scripts/dev_select_objective.py`), sweep capacity on every dataset (`scripts/gen_capacity_sweeps.py`) and test the
-control at other positions (`--gcf_ctrl_pos`, `--ladder_ctrl_pos`) and at the activation level (`--method act`).
-Selections are made on a development partition with pre-registered criteria (`scripts/dev_select_*.py`).
+## Released checkpoints and outputs
+
+The trained rows, LoRA adapters and evaluation outputs of every run are released as archives that extract into `runs/`;
+their SHA-256 digests are in `SHA256SUMS`.
 
 ## Citation
 
@@ -108,4 +146,4 @@ Selections are made on a development partition with pre-registered criteria (`sc
 }
 ```
 
-Code: Apache License 2.0 ([LICENSE](LICENSE)). Data: [DATA_LICENSES.md](DATA_LICENSES.md).
+Code: Apache License 2.0 ([LICENSE](LICENSE)). Data: see [data/README.md](data/README.md).

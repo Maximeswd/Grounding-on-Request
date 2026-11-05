@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-"""Full evaluation protocol over a checkpoint. Exact string-match on parsed
-{object: color}. Saves per-example records (output, correct, distractor, EM) to
-runs/<run>/eval/records_step_<n>.jsonl and logs scalars + a table to wandb so you
-can verify every answer yourself.
+"""Generation-based evaluation of a checkpoint, and the helpers the Flip/Stay evaluators in scripts/ build on.
 
-ctrl invoked as the trained USER instruction ('give me a {op} answer'); ctrl
-tokens forbidden from output (input-only). gen tokens emitted. Tests:
-controllability, generation, swaps (test split=generalization), no-pixels probe,
-template-generalization, token-identity, verbalization + plug-in."""
+Answers are parsed and scored by exact match, with per-example records in runs/<run>/eval/records_step_<n>.jsonl.
+apply_checkpoint restores a trained run (request rows, soft prompt or adapter) together with the prompt settings
+recorded in its config.json, so every evaluator renders prompts exactly as in training."""
 import argparse, os, json, glob
 from collections import defaultdict
 from tqdm import tqdm
@@ -24,7 +20,7 @@ from scsrc.swaps import conflict_examples, flip_score
 from scsrc.verbalize import verbalize_operator, plugin_test, synonyms_operator, eval_synonyms
 
 
-TASK = "color"   # module-global; set per-invocation in main() so eval fns share it
+TASK = "color"   # module-global; set per-invocation in main so eval fns share it
 
 
 def _m(x):
@@ -37,8 +33,8 @@ def _ks(d):  # {obj:color} -> "obj: color, ..."
 
 def apply_checkpoint(run_dir, step, device):
     meta = json.load(open(os.path.join(run_dir, "ckpt", f"step_{step}", "meta.json")))
-    # 2026-09-22 (STATUS v1.94): a run trained under the two-modality Ground-CF protocol is evaluated with the same
-    # prompt (no on-screen-text block); scsrc.tokens.c3_sources() reads this at call time.
+    # a run trained under the two-modality Ground-CF protocol is evaluated with the same
+    # prompt (no on-screen-text block); scsrc.tokens.c3_sources reads this at call time.
     try:
         _args = (json.load(open(os.path.join(run_dir, "config.json"))).get("args") or {})
         _c3 = _args.get("c3_sources")
@@ -46,18 +42,18 @@ def apply_checkpoint(run_dir, step, device):
             os.environ["SC_C3_SOURCES"] = _c3
             if _c3 != "look,read,ocr":
                 print(f"[clevr3] source protocol from config: {_c3}")
-        # 2026-09-23 (STATUS v1.123): the word's carrier form is a property of the RUN. Restore it here so every
+        # the word's carrier form is a property of the RUN. Restore it here so every
         # evaluator renders the prompt the run was trained with (bare for banked runs, hewitt templates for the
         # new ones); the training-only instruction rotation must never leak into evaluation.
         os.environ["SC_NEO_TEMPLATE"] = _args.get("neo_template") or "bare"
-        # 2026-09-29 protocol-v2 switches travel with the checkpoint (train.py records them in config.json args)
+        # protocol-v2 switches travel with the checkpoint (train.py records them in config.json args)
         os.environ["SC_CTRL_TEMPLATE_SET"] = _args.get("ctrl_template_set") or "legacy"
         os.environ["SC_GCF_FORMAT"] = _args.get("gcf_format") or "legacy"
         os.environ["SC_GCF_CONT"] = _args.get("gcf_cont") or "leadin"
         os.environ["SC_GCF_PT_CARRIER"] = str(_args.get("gcf_pt_carrier") or 0)
         if not os.environ.get("SC_MVG_SOURCES_OVERRIDE"):
-            os.environ["SC_MVG_SOURCES"] = _args.get("mvg_sources") or "desc,ocr,vis"   # 2026-10-02: MVG blocks travel with the checkpoint
-        # 2026-10-19 trained positions travel with the checkpoint; an explicit SC_GCF_CTRL_POS in the environment (relocation
+            os.environ["SC_MVG_SOURCES"] = _args.get("mvg_sources") or "desc,ocr,vis"   # MVG blocks travel with the checkpoint
+        # trained positions travel with the checkpoint; an explicit SC_GCF_CTRL_POS in the environment (relocation
         # evaluations) is kept for native runs, and SC_GCF_CTRL_POS_OVERRIDE wins over the config for trained-position runs
         _gp = _args.get("gcf_ctrl_pos") or "native"
         if os.environ.get("SC_GCF_CTRL_POS_OVERRIDE"):
@@ -82,7 +78,7 @@ def apply_checkpoint(run_dir, step, device):
         os.environ["SC_CAPTION_STYLE"] = os.environ.get("SC_CAPTION_STYLE_OVERRIDE") or _args.get("caption_style") or "template"
         os.environ.pop("SC_INSTR_ROTATE", None); os.environ.pop("SC_Q_ROTATE", None); os.environ.pop("SC_TRAIN_SOURCES", None)
         os.environ["SC_LORA_ADAPTER"] = "1" if (_args.get("method") == "lora" and _args.get("ctrl_style") == "adapter") else "0"
-        os.environ["SC_MVG_PT_PREFIX"] = str(int(_args.get("mvg_pt_prefix") or 0))     # 2026-10-24: MVG standard prompt tuning
+        os.environ["SC_MVG_PT_PREFIX"] = str(int(_args.get("mvg_pt_prefix") or 0))     # MVG standard prompt tuning
         os.environ["SC_EVAL_REQUESTS"] = _args.get("train_sources") or ""
         if os.environ["SC_CAPTION_STYLE"] != "template":
             print(f"[prompt] caption style: {os.environ['SC_CAPTION_STYLE']}")
@@ -91,7 +87,7 @@ def apply_checkpoint(run_dir, step, device):
     except Exception:
         os.environ["SC_NEO_TEMPLATE"] = "bare"
         os.environ["SC_CAPTION_STYLE"] = os.environ.get("SC_CAPTION_STYLE_OVERRIDE") or "template"
-    # CROSS-MODEL TRANSPLANT (2026-09-16): load the DONOR's trained rows into a DIFFERENT model.
+    # CROSS-MODEL TRANSPLANT: load the DONOR's trained rows into a DIFFERENT model.
     # Only the embedding width has to match; Gemma-3-4B, Qwen-3.5-4B and Gemma-4-E4B are all 2560,
     # so rows can cross model families. load_neologisms_by_name hard-fails on a width mismatch.
     _host = os.environ.get("SC_TRANSPLANT_MODEL", "").strip()
@@ -100,7 +96,7 @@ def apply_checkpoint(run_dir, step, device):
     forbid = None; all_new_ids = None
     if method in ("neo", "pt"):
         # SOURCE OF TRUTH = the checkpoint's own name_to_ids. Reconstructing
-        # token strings from default_specs() silently BROKE every task whose
+        # token strings from default_specs silently BROKE every task whose
         # token set differs (mvg desc/ocr/vis, clevr3 src_*/op_*/fx_*): the
         # saved rows landed at ids whose STRINGS were look/read/compare, so
         # trigger("<desc_ctrl>") tokenized as junk text and the trained rows
@@ -109,7 +105,7 @@ def apply_checkpoint(run_dir, step, device):
         from scsrc.tokens import token_strings
         neo_path = os.path.join(run_dir, "ckpt", f"step_{step}", "neo.pt")
         ck = _t.load(neo_path, map_location="cpu")
-        # WORD ALIASING (2026-09-16): SC_WORD_ALIAS="look_ctrl=src_look,read_ctrl=src_read" lets rows
+        # WORD ALIASING: SC_WORD_ALIAS="look_ctrl=src_look,read_ctrl=src_read" lets rows
         # trained under one task's vocabulary be TESTED under another's, with no retraining. The rows
         # are the learned object; the name is only the dictionary key that puts them in the prompt.
         _alias = dict(kv.split("=", 1) for kv in os.environ.get("SC_WORD_ALIAS", "").split(",")
@@ -126,12 +122,12 @@ def apply_checkpoint(run_dir, step, device):
                           for nm in names}
         all_new_ids = [i for ids in name_to_ids_ck.values() for i in ids]
         # seeded resize: E4B's per-layer rows for the new ids are then the training draw (meta seed), and
-        # checkpoints that stored them get them restored below (2026-09-21, Gate 3)
+        # checkpoints that stored them get them restored below
         M.resize_for_new_tokens(model, processor.tokenizer, seed=meta.get("seed", 0))
         loaded = M.load_neologisms_by_name(model, neo_path, name_to_ids_ck, alias=_alias)
         assert set(loaded) == set(names), \
             f"checkpoint rows not fully restored: {set(names) - set(loaded)}"
-        if meta.get("act"):                                   # 2026-10-19 activation control: delta + hooks
+        if meta.get("act"):                                   # activation control: delta + hooks
             import scsrc.act as A
             _ctrl, _ad = A.load(os.path.join(run_dir, "ckpt", f"step_{step}", "act.pt"), device)
             A.install(model, _ctrl, int(_ad["layer"]), name_to_ids_ck, processor.tokenizer, A.image_token_id(model, processor.tokenizer))
@@ -160,7 +156,7 @@ def apply_checkpoint(run_dir, step, device):
     model._neo_all_ids = list(all_new_ids) if all_new_ids is not None else None
     # MVG eval scripts render the request through scsrc.mvg.mvg_word, which needs the method:
     # a PT checkpoint owns pt_<channel> rows, a neo checkpoint owns <channel>_ctrl, and LoRA owns
-    # neither (its request is literal text). Before 2026-09-17 every MVG site rendered
+    # neither (its request is literal text). Before every MVG site rendered
     # <channel>_ctrl regardless, so PT runs never saw their own rows.
     from scsrc.mvg import set_word_method
     set_word_method(meta.get("method", "neo"))
@@ -446,7 +442,7 @@ def eval_generation_lora(model, processor, ds, specs, device, rec, max_n=None):
         # task-aware wording, mirroring the lora TRAINING prompt in
         # scsrc/collate.py (r7 hardcoded "color" here for all tasks, so the
         # counting/spatial lora cells were evaluated with a color-phrased
-        # prompt -- caught by scripts/audit_render.py)
+        # prompt)
         from scsrc.prompts import slot_word as _sw
         _w = _sw(TASK)
         u = ("Report each object's %s according to the image and the text, and whether they "

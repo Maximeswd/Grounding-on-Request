@@ -1,34 +1,22 @@
 #!/usr/bin/env python
-"""groundcf-eval: measure a model's SOURCE DEPENDENCE on Ground-CF.
+"""groundcf-eval: score the modality control of any model on Ground-CF, without the training code.
 
-Training-code-free. Three subcommands:
+Three subcommands:
+  requests   write the evaluation contexts as JSONL (prompt text, image path, candidate answers); run your own model
+             (any API or framework) over them, one answer per request
+  score      score answers.jsonl against the gold answers: accuracy, Flip and Stay per request, with Wilson 95%
+             intervals and the failure categories (unmappable / ambiguous)
+  hf         both steps for a Hugging Face model, using teacher-forced likelihood over the candidates (no generation,
+             so no parsing noise)
 
-  requests   materialize the evaluation contexts as a JSONL of requests
-             (prompt text + image path + candidate answers). Run YOUR model
-             (any API, any framework) over them, one output per request.
-  score      score your answers.jsonl against gold: routing (acc), FLIP,
-             STAY per channel, with Wilson 95% intervals and failure
-             categories (unmappable / ambiguous).
-  hf         run both steps directly for a HuggingFace model id using
-             teacher-forced likelihood over the candidate answers
-             (no generation, no parsing noise).
+For a text request, an edit asserts a different value in the requested text source: Flip means the answer follows the
+edit, and Stay means the answer is unchanged when the other text source is edited. For the image request, the contexts
+use image-swap pairs (pairs_look_*.jsonl) with exact twin renders, and Flip means the answer follows the swap. Chance
+for an evidence-blind chooser is .25 per Flip. Report Flip and Stay separately; JOINT = min(Flip, Stay).
 
-Construction (mirrors the paper's battery exactly):
-  read / ocr : channel-edit twins -- the caption or on-screen-text block
-               asserts a different value attested by another channel.
-               FLIP = answer tracks the edit to the requested channel;
-               STAY = answer unchanged when the OTHER text channel is edited.
-  look       : image-swap pairs (pairs_look_*.jsonl) with exact twin renders.
-               FLIP = answer tracks the image swap.
-Chance for an evidence-blind chooser: .25 per flip; routing chance 1/3.
-Report FLIP and STAY separately; JOINT = min(FLIP, STAY) is the aggregate.
-
-Examples:
-  python groundcf_eval.py requests --data ../groundcf --split test_id -o req.jsonl
-  python groundcf_eval.py score    --requests req.jsonl --answers ans.jsonl
-  python groundcf_eval.py hf       --data ../groundcf --split test_id \
-                                   --model google/gemma-3-4b-it
-"""
+  python evaluator/groundcf_eval.py requests --data data/clevr3 --split test_id -o req.jsonl
+  python evaluator/groundcf_eval.py score    --requests req.jsonl --answers ans.jsonl
+  python evaluator/groundcf_eval.py hf       --data data/clevr3 --split test_id --model google/gemma-3-4b-it"""
 import argparse, json, math, os, re, sys
 
 INSTR = {"look": "Answer using only the image.",
@@ -235,7 +223,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("requests")
-    r.add_argument("--data", default="../groundcf")
+    r.add_argument("--data", default="data/clevr3")
     r.add_argument("--split", default="test_id")
     r.add_argument("--max_n", type=int, default=0)
     r.add_argument("-o", "--out", default="requests.jsonl")
@@ -245,7 +233,7 @@ def main():
     s.add_argument("-o", "--out", default=None)
     h = sub.add_parser("hf")
     h.add_argument("--model", required=True)
-    h.add_argument("--data", default="../groundcf")
+    h.add_argument("--data", default="data/clevr3")
     h.add_argument("--split", default="test_id")
     h.add_argument("--max_n", type=int, default=0)
     h.add_argument("-o", "--out", default=None)

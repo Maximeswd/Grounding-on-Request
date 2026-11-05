@@ -9,11 +9,11 @@ Run: python tests/test_static.py   (exits nonzero on findings)
 import builtins, os, sys, symtable
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILES = ["train.py", "evaluate.py", "diagnostic.py", "analysis.py"] + \
+FILES = ["train.py", "evaluate.py"] + \
     [os.path.join("scsrc", f) for f in os.listdir(os.path.join(ROOT, "scsrc")) if f.endswith(".py")] + \
     [os.path.join("scripts", f) for f in os.listdir(os.path.join(ROOT, "scripts")) if f.endswith(".py")]
 
-BUILTIN = set(dir(builtins)) | {"__file__", "__name__", "__doc__", "__package__", "__spec__", "__class__"}  # __class__: implicit cell of super()
+BUILTIN = set(dir(builtins)) | {"__file__", "__name__", "__doc__", "__package__", "__spec__", "__class__"}  # __class__: implicit cell of super
 
 
 def walk(table, bound_above, findings, path):
@@ -24,7 +24,7 @@ def walk(table, bound_above, findings, path):
     for sym in table.get_symbols():
         n = sym.get_name()
         # NOTE: unbound names in functions are classified GLOBAL_IMPLICIT, so we
-        # must NOT exclude is_global(); module-level bindings arrive via bound_above.
+        # must NOT exclude is_global; module-level bindings arrive via bound_above.
         if sym.is_referenced() and not sym.is_assigned() and not sym.is_imported() \
                 and not sym.is_parameter() and n not in bound_above and n not in BUILTIN \
                 and not sym.is_declared_global():
@@ -46,16 +46,16 @@ def main():
             findings.append(f"{rel}: SyntaxError {e}")
             continue
         walk(st, set(), findings, rel)
-        # 2026-09-23 (v1.125): a module-level function defined twice silently takes the LATER body. An edit that
-        # replaced one block left an older heldout_question() below it, which overrode the new one unnoticed.
+        # a module-level function defined twice silently takes the LATER body. An edit that
+        # replaced one block left an older heldout_question below it, which overrode the new one unnoticed.
         import re as _re
         _defs = _re.findall(r"^def ([A-Za-z_][A-Za-z_0-9]*)\(", src, _re.M)
         for _d in sorted({d for d in _defs if _defs.count(d) > 1}):
             findings.append(f"{rel}: module-level function '{_d}' defined {_defs.count(_d)} times (the last one wins)")
-        # 2026-09-24 (v1.139): a function-local import of a name that is ALSO imported at module level makes the name
+        # a function-local import of a name that is ALSO imported at module level makes the name
         # local to the whole function, so every use outside that branch raises UnboundLocalError. train.py's ladder
         # preflight did exactly this ("from scsrc.dataset import ObjectiveDataset" inside main) and killed all 48
-        # ladder main-grid training tasks at start-up (2026-09-23 16:20-23:17).
+        # ladder main-grid training tasks at start-up.
         import ast as _ast
         try:
             _tree = _ast.parse(src)

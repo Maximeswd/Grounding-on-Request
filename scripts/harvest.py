@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
-"""Every paper/presentation table in one command.
+"""Print the result tables from the evaluation outputs in one command.
 
-  python scripts/harvest.py                 # print all tables
-  python scripts/harvest.py --md out.md     # also write markdown
+  python scripts/harvest.py               # print all tables
+  python scripts/harvest.py --md out.md   # also write Markdown
 
-Tables:
-  T1 method comparison   best-neo vs pt / LoRA / frozen+instruction, look & read
-                         flips, per (dataset x model) + means. THE headline.
-  T2 objective effect    plain SFT -> best causal objective (CTM/CTMv3/APO)
-  T3 capacity            look-routing and look-flip vs L per dataset (incl MVG)
-  T4 arm x capacity      does the winning arm change with L?
-  T5 transfer            src -> tgt routing/flip, incl. ladder -> MVG bridge
-  T6 MVG                 selectivity, channel flips, report-generation, RAG
-  T7 compare             argmax acc vs calibration-free discrimination/AUC
-  T8 mechanism           commitment-position attention, citation sites, SAP,
-                         and the attention-vs-behaviour couplings
-  T9 verbalization       token vs english vs filler routing
- T10 causal claim ledger what we may and may not assert, with the numbers
-All numbers are read from disk; missing cells print as '--' (never invented).
-"""
+T1 compares the interfaces (words, prompt tuning, LoRA, instructions) per dataset and model, and T2 the objectives
+(plain SFT versus the counterfactual objectives). The remaining tables are filled when the corresponding evaluations are
+present."""
 import argparse, glob, json, os
 from collections import defaultdict
 

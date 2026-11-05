@@ -40,7 +40,7 @@ def loglik(model, processor, image, user_text, candidate, device="cuda", tokens=
     lp = torch.log_softmax(logits[0, plen - 1:ids.shape[1] - 1, :], dim=-1)
     tok_lp = lp.gather(-1, tgt.unsqueeze(-1)).squeeze(-1)
     total = float(tok_lp.sum())
-    if tokens:   # v1.142: ids + per-token log-probs of the whole assistant turn (lead-in, answer, end of turn)
+    if tokens:   # ids + per-token log-probs of the whole assistant turn (lead-in, answer, end of turn)
         return total, total / n_ans, int(n_ans), tgt.tolist(), [round(float(x), 4) for x in tok_lp]
     return total, total / n_ans, int(n_ans)
 
@@ -56,7 +56,7 @@ def forced_choice(model, processor, image, user_text, candidates, device="cuda")
     (scripts/eval_clevr3_generate.py). Returns (argmax_idx, [total_lp,...]).
 
     Do NOT pass bare values here -- scoring "cat: white" as the whole turn is
-    out-of-distribution and diverges from generation (anchor fail 2026-07-21)."""
+    out-of-distribution and diverges from generation."""
     tots = [loglik(model, processor, image, user_text, c, device)[0]
             for c in candidates]
     best = max(range(len(tots)), key=lambda i: tots[i])
@@ -68,14 +68,13 @@ def forced_choice_per_object(model, processor, image, user_text, obj_keys,
                             img_key, txt_key, task, device="cuda", base_src="img"):
     """Multi-object forced choice (ColorSwap fix). A conjunction answer like
     'butterfly: blue, spots: orange' routes PER OBJECT, so a single pure-vs-pure
-    choice is confounded (anchor 2026-07-21). For each object, score two
+    choice is confounded. For each object, score two
     full-answer candidates that differ ONLY in that object's value (image vs
     caption); the per-object routing is the argmax. Returns {obj: ('img'|'txt', margin)}.
 
     base_src = which source the OTHER objects are held at. This MUST match the
     token being tested, or the held context biases every per-object choice
-    toward that source (bug 2026-07-22: base always 'img' crushed <read> to
-    0.03 on ColorSwap). So the caller passes base_src='img' when testing <look>
+    toward that source. So the caller passes base_src='img' when testing <look>
     and 'txt' when testing <read>: the held context matches the op's target,
     the shared prefix cancels, and only object o's value is under test.
     Atomic answers (VCF/COCO, one object) reduce to the ordinary forced choice."""

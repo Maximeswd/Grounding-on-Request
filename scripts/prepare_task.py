@@ -1,37 +1,9 @@
 #!/usr/bin/env python
-"""Materialize a processed task dataset (LOGIN NODE; needs internet + the raw
-data). Produces ColorSwap-shaped splits the compute nodes read locally via
-data.load_task -> train.py --data_dir.
+"""Build a dataset in the shared two-image format (ColorSwap: --task color). Needs internet access and the raw data.
 
-Pipeline (see scsrc/tasks.py):
-  raw rows --adapter--> SlotItem stream
-  --split_by_class--> {train, test_id, test_ood}  (held-out CLASSES -> test_ood)
-  --build_examples (per split, swap-matched)--> ColorSwap-shaped rows
-  --save_to_disk--> <out>/{train,test_id,test_ood} + manifest.json
-
-Each row: image_1, image_2 (Image), caption_1, caption_2 (natural text stating
-the slot value), key_1, key_2 (JSON {obj: value}), task, klass, id,
-caption_source="human", has_swap. data.keys_from_row reads key_1/key_2 directly,
-so values may be ints / relations / attributes -- no value-specific parser.
-
-Examples
-  # counting (the gate task); hold out counts 4 and 7 for compositional OOD
-  python scripts/prepare_task.py --task counting --source vikhyatk/tallyqa-test \
-      --split_name test --out $SC_ROOT/data/counting --heldout 4,7 --simple_only
-
-  # counting OOD eval set (separate dataset; eval only)
-  python scripts/prepare_task.py --task counting_ood --source vikhyatk/CountBenchQA \
-      --split_name train --out $SC_ROOT/data/counting_countbench
-
-  # spatial from a VSR jsonl + a local COCO mirror (or --download)
-  python scripts/prepare_task.py --task spatial --vsr_jsonl vsr_random_train.jsonl \
-      --image_dir /path/to/coco --out $SC_ROOT/data/spatial --heldout "above,below"
-
-  # attributes (color) from GQA balanced (heaviest; preliminary)
-  python scripts/prepare_task.py --task attr --source lmms-lab/GQA \
-      --gqa_instr train_balanced_instructions --gqa_images train_balanced_images \
-      --by_attr color --out $SC_ROOT/data/attr_color --heldout "color:purple,color:pink"
-"""
+raw rows -> slot items (scsrc/task_adapters.py) -> held-out classes go to test_ood -> swap-matched examples
+(scsrc/tasks.py) -> <out>/{train,test_id,test_ood} and manifest.json. Each row holds image_1, image_2, caption_1,
+caption_2 (natural text stating the slot value), key_1, key_2 (JSON {object: value}), task, klass and id."""
 import argparse, io, json, os, random, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

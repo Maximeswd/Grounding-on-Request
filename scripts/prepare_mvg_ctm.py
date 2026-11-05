@@ -1,29 +1,15 @@
 #!/usr/bin/env python3
-"""MVG counterfactual-twin pairs mined from MultiVENT-G's own annotations.
+"""Counterfactual twin pairs for MultiVENT-G, mined from its own annotations.
 
-The insight (user, 2026-07-23): the spatial annotations (entity + frame + bbox)
-and temporal role spans give WITHIN-VIDEO counterfactuals -- things true in one
-frame and absent/different in another -- which is exactly the twin structure
-CTM/flip-stay need, per (event_type, role, channel):
-
-  vis_value_swap : same (video, role), two spatial entries at distant frames
-                   with DIFFERENT entities -> frame A vs frame B, golds
-                   entity_A vs entity_B (+ bboxes for the causal-crop metric).
-                   The strongest pair: everything about the video constant,
-                   only the evidence frame changes.
-  vis_presence   : a frame inside the role's temporal span vs a frame >=5s
-                   outside ALL spans of that role -> evidence present/absent;
-                   gold flips value -> 'unavailable' (honesty target).
-  ocr_ablate     : the OCR claim's source string present vs removed from the
-                   on-screen-text block (text channels live in the PROMPT, so
-                   their twins are exact string edits).
-  desc_swap      : the DESC claim's answer replaced in the description by a
-                   donor value from another video of the same (event_type,
-                   role) -> exact text twin with a real alternative value.
-
-Writes data/mvg_ctm/pairs.jsonl + a per-(event_type, role, channel, type)
-count manifest. Usable for BOTH CTM-style training margins and flip/stay eval.
-"""
+Since the spatial annotations (entity, frame, box) and the temporal role spans describe what is true at each moment of
+a video, they give within-video counterfactuals, per (event type, role, source):
+  vis_value_swap  the same role at two distant frames that show different entities (with boxes, for the crop
+                  evaluation); everything about the video is constant except the evidence frame
+  vis_presence    a frame inside the role's span versus a frame at least 5 s outside all of its spans
+  ocr_ablate      the claim's on-screen string present versus removed (text sources are exact string edits)
+  desc_swap       the claim's answer in the description replaced by a value from another video with the same
+                  (event type, role)
+Writes data/mvg_ctm/pairs.jsonl and a count manifest. The pairs serve both CTM training and eval_mvg_flip.py."""
 import argparse, json, os, re
 from collections import defaultdict, Counter
 import sys as _sys, os as _os
@@ -42,7 +28,7 @@ def main():
     ap.add_argument("--min_gap_s", type=float, default=3.0)
     ap.add_argument("--max_frame_err_s", type=float, default=1.0,
                     help="reject a pair if the nearest EXTRACTED frame is more "
-                         "than this far from the ANNOTATED frame. nearest() "
+                         "than this far from the ANNOTATED frame. nearest "
                          "previously had no bound, so a 'positive frame' could "
                          "be seconds away from where the entity was annotated.")
     ap.add_argument("--min_certainty", type=int, default=4,
@@ -55,7 +41,7 @@ def main():
                     help="THE BIG ONE: reject a pair if the OTHER side's entity "
                          "is annotated within this window of THIS side's time. "
                          "If both values are visible at both times no frame swap "
-                         "can flip the answer -- the twin is degenerate. 72% of "
+                         "can flip the answer -- the twin is degenerate. 72%% of "
                          "the original vis_value_swap pairs failed this test, "
                          "which is why vis-flip sat at chance.")
     ap.add_argument("--out_suffix", default="",

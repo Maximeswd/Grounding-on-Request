@@ -1,17 +1,11 @@
 #!/usr/bin/env python
-"""Stage 1 of the MultiVENT-G pipeline: turn multivent_g.json into per-video
-claim-generation prompts (for a strong LLM) + a manifest of gold annotations.
+"""Stage 1 of the MultiVENT-G pipeline: per-video claim-generation prompts and a manifest of the gold annotations.
 
-Usage:
-  python scripts/prepare_multiventg.py --json data/multiventG/multivent_g.json \
-      [--out data/multiventG] [--languages english] [--min_certainty 4]
+  python scripts/prepare_multiventg.py --json data/multiventG/multivent_g.json [--out data/multiventG]
 
-Writes:
-  data/multiventG/prompts/<video_id>.txt   one self-contained prompt per video
-  data/multiventG/gold_manifest.jsonl      the filtered annotations we prompted on
-  data/multiventG/claims/                  (empty) paste LLM outputs here, one
-                                           <video_id>.jsonl each; cat into claims.jsonl
-"""
+Writes data/multiventG/prompts/<video_id>.txt (one self-contained prompt per video), data/multiventG/gold_manifest.jsonl
+and an empty data/multiventG/claims/ for the generated claims (one <video_id>.jsonl per video, concatenated into
+claims.jsonl). See --help for the filters."""
 import argparse, json, os
 
 PROMPT_HEADER = """You convert GOLD annotations of news videos into atomic, verifiable claims.

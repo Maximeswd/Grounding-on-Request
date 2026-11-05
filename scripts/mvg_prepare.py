@@ -1,36 +1,12 @@
 #!/usr/bin/env python3
-"""Materialize the MultiVENT-G channel-grounding dataset (stage 1: DESC/OCR/VIS).
+"""Build the MultiVENT-G source-grounding dataset (description, on-screen text, frame).
 
-Reads  data/multiventG/claims.jsonl (channel-pure claims, QA'd),
-       data/multiventG/frames_manifest.jsonl, ../multivent_g descriptions.
-Writes data/mvg/{train,test_id,test_ood}.jsonl + manifest.json + weights.json.
-
-Each ITEM = one (video, role, channel) claim, carrying EVERYTHING the collate
-needs, with all anti-shortcut machinery decided HERE (reproducible, auditable):
-
-  - sources: desc_text (full description), ocr_strings (video's OCR
-    source_texts), vis_frame (path). All three sources presented per item.
-  - cond agree|conflict (50/50 by hash bit). Conflict = the item's OWN channel
-    source perturbed with a donor value (source-level, never the claim):
-      DESC: answer span substituted inside desc_text (evidence.span)
-      OCR : the claim's OCR string replaced by the donor's string
-      VIS : vis_frame replaced by the donor claim's frame
-    Donor: same role+channel+event_type, casefolded value differs, generic-head
-    filter, drawn deterministically (hash-seeded). Gold ALWAYS = faithful
-    report of the (possibly perturbed) source.
-  - rotation: perm6 in 0..5 -> ordering of the three source blocks (position
-    is never informative about channel).
-  - independent bits: cond, perm6, donor choice, trust designation all come
-    from different bytes of sha1(video_id|role|channel|claim_id).
-  - answer casing NORMALIZED (casefold) in gold targets: OCR answers are
-    lowercase and DESC answers cased in the raw claims -- a target-side
-    channel marker a probe could read. Original casing kept in 'answer_raw'.
-  - balancing: per-(event_type, role, channel) inverse-frequency weights
-    written to weights.json (loader-side weighted sampling; cap 70/cell);
-    structural zeros documented in manifest, never fabricated.
-  - splits: by VIDEO. OOD-event = ALL videos of held-out event types
-    (protests, launch_discovery). Remaining videos: 85/15 train/test_id.
-"""
+Reads data/multiventG/claims.jsonl and data/multiventG/frames_manifest.jsonl and writes
+data/mvg/{train,test_id,test_ood}.jsonl, manifest.json and weights.json. Each item is one (video, role, source) claim
+and carries all three sources. Half of the items (by hash) are conflicts, in which the item's own source is perturbed
+with a donor value: the answer span inside the description, the on-screen string, or the frame. Donors share role,
+source and event type, differ in value and are drawn deterministically; the gold answer is always a faithful report of
+the (possibly perturbed) source."""
 import argparse
 import hashlib
 import json
@@ -66,7 +42,7 @@ def main():
     a = ap.parse_args()
 
     mvg = json.load(open(a.mvg))
-    # 2026-10-02: the rebuilt annotation file (data/multiventG/multivent_g_rebuilt.json) carries no event_type; take it
+    # the rebuilt annotation file (data/multiventG/multivent_g_rebuilt.json) carries no event_type; take it
     # from the existing materialized items (data/mvg_hard/*.jsonl), which record it per video. Videos without any item
     # (DESC-only claims) are dropped exactly as the original build dropped them.
     et = {v: mvg[v]["event_type"] for v in mvg if isinstance(mvg[v], dict) and "event_type" in mvg[v]}
@@ -80,7 +56,7 @@ def main():
         print(f"[mvg_prepare] event_type from the annotation file for {sum(1 for v in mvg if 'event_type' in (mvg[v] if isinstance(mvg[v], dict) else {}))} videos, "
               f"from data/mvg_hard items for the rest -> {len(et)} of {len(mvg)} videos typed (untyped videos are dropped)")
         mvg = {v: mvg[v] for v in mvg if v in et}
-    # 2026-10-02: the rebuilt json has description=None for some videos; drop them (no DESC block can be rendered)
+    # the rebuilt json has description=None for some videos; drop them (no DESC block can be rendered)
     _ok = {v for v in mvg if isinstance(mvg[v], dict) and mvg[v].get("description")}
     if len(_ok) < len(mvg):
         print(f"[mvg_prepare] videos without a description dropped: {len(mvg) - len(_ok)}")
@@ -94,7 +70,7 @@ def main():
         frames[r["video_id"]].append((r["t"], r["path"]))
 
     claims = [json.loads(l) for l in open(a.claims)]
-    _n0 = len(claims); claims = [c for c in claims if c["video_id"] in et]     # 2026-10-02: untyped videos carry no items
+    _n0 = len(claims); claims = [c for c in claims if c["video_id"] in et]     # untyped videos carry no items
     if _n0 != len(claims):
         print(f"[mvg_prepare] claims of untyped videos dropped: {_n0 - len(claims)} of {_n0}")
     by_vid = defaultdict(list)

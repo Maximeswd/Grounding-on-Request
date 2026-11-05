@@ -72,7 +72,7 @@ CTRL_TEMPLATES_HELDOUT = [
 # a fixed canonical template for eval / verbalization (must be a TRAIN template)
 CTRL_CANONICAL = CTRL_TEMPLATES[0]
 
-# ---- v2 carriers (2026-09-29, protocol note items 2-3): SOURCE-SELECTION language ------------------
+# ---- v2 carriers: SOURCE-SELECTION language ------------------
 # The legacy set describes a response property ("Give me a {op} answer", "Answer in {op} mode") and one legacy
 # template ("Using {op}, answer about this image.") names the image even for the caption control. The v2 set says
 # which evidence the answer must come from and never names a source. Selected per run with
@@ -278,7 +278,7 @@ _PT_TEMPLATES_HELDOUT = [
 ]
 
 
-# v1.150 (2026-09-24): TEMPLATE-SENSITIVITY SWEEP, evaluation only, never trained, disjoint from every training and
+# TEMPLATE-SENSITIVITY SWEEP, evaluation only, never trained, disjoint from every training and
 # held-out pool above. One visible prompt per id, the learned control (word, prefix, or nothing) swapped in at the given
 # position, so the two methods and the frozen model see IDENTICAL text. Neutral: no template names a source.
 #   start: "<ctl> {text} Caption: ..."   mid: "{text} <ctl> Caption: ..."   end: "{text} Caption: ... <ctl>"
@@ -479,7 +479,7 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
     sources symmetrically (its meaning IS the comparison; differentiates
     neither look nor read)."""
     if op == "compare":
-        # COMPARE v2 (2026-07-27). Three changes over v1, all confound fixes:
+        # COMPARE v2. Three changes over v1, all confound fixes:
         #  1. NEUTRAL RECEIPTS. v1 said "the image says X, and the text says Y",
         #     which is the same English source-naming co-text we measured to
         #     destroy causal grounding for look/read (sourced style: look-flip
@@ -573,7 +573,7 @@ def natural_ctrl_content(op, value_str, task, img_str=None, txt_str=None,
 
 
 # ---------------------------------------------------------------------------
-# COMPOSED REQUESTS (ctrl_style="compose", 2026-09-13). Two modality requests in
+# COMPOSED REQUESTS. Two modality requests in
 # ONE prompt, in either order; the answer gives both grounded values IN THE
 # REQUESTED ORDER and ends with a verdict. Source-neutral throughout: the target
 # names the sources only as "first"/"second", so flipping the request order
@@ -613,7 +613,7 @@ def compose_carrier(method, mode, srcs, n, word_name=None):
     if method == "pt":
         # SC_COMPOSE_CMP applies to the PREFIX too. Giving the word a third carrier for the verdict
         # while leaving the prefix with two would recreate, in our own favour, exactly the unmatched
-        # budget we diagnosed on 2026-09-18. pt_compare is already in default_specs()["pt"].
+        # budget we diagnosed on pt_compare is already in default_specs["pt"].
         import os as _os
         _pre = [trigger(f"pt_{s}", n) for s in srcs]
         if _os.environ.get("SC_COMPOSE_CMP", "0") == "1":
@@ -626,7 +626,7 @@ def compose_carrier(method, mode, srcs, n, word_name=None):
         # Without it the composed answer must name both grounded values AND decide conflict/agree out
         # of the same 2L rows that carry the two source selections, while LoRA gets the whole weight
         # update for the verdict for free. That asymmetry is the leading explanation for the composed
-        # panel of 2026-09-18 (neologism attribution .57/.46 against LoRA's .91/.79 while the same
+        # panel of (neologism attribution .57/.46 against LoRA's .91/.79 while the same
         # word answers single requests at .83/.91). Off by default so banked runs are untouched.
         import os as _os
         if _os.environ.get("SC_COMPOSE_CMP", "0") == "1":
@@ -659,13 +659,13 @@ def compose_target(v1, v2, relation):
     return compose_answers(v1, v2) + compose_verdict(relation)
 
 
-LADDER_FILLER = "lantern"   # neutral word that keeps the carrier sentence intact when the control moves (scripts/eval_relocation.py)
+LADDER_FILLER = "lantern"   # neutral word that keeps the carrier sentence intact when the control moves
 
 
 def ladder_ctrl_pos(native_txt, tpl, trig, cap, cap_first, pos):
-    """Trained-position variants of the ladder word prompt (2026-10-19, train.py --ladder_ctrl_pos). prefix = the control
+    """Trained-position variants of the ladder word prompt. prefix = the control
     before everything; postq = after the whole request; postcap = right after the caption clause; slot = native. The slot
-    keeps a filler word so the carrier sentence stays grammatical, exactly as scripts/eval_relocation.py renders them."""
+    keeps a filler word so the carrier sentence stays grammatical, exactly as the relocation evaluation renders them."""
     if pos in ("", "native", "slot"):
         return native_txt
     body = render_ctrl(tpl, LADDER_FILLER, cap, cap_first=cap_first)

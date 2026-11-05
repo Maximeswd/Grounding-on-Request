@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Conflict detection from TWO SEPARATE single-request prompts on Ground-CF (author, 2026-09-23, STATUS v1.131).
+"""Conflict detection from TWO SEPARATE single-request prompts on Ground-CF.
 
 Reads the open-generation files written with --agree_ctx 1 (gen_step_<step><tag>.json) and computes, per interface and
 model, detect / attrib / false / balanced for the forced choice and for the parsed generation
@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def detect_two_prompts(recs_look, recs_read):
-    """v1.131: conflict detection from TWO SEPARATE single-request prompts. Per item, the <look> and <read> answers in
+    """conflict detection from TWO SEPARATE single-request prompts. Per item, the <look> and <read> answers in
     the original (conflict) context and in the agree context (caption edited to the image value).
       detect = answers differ on the conflict item; attrib = both answers are their own source's value;
       false  = answers differ on the agree item; balanced = (detect + 1 - false) / 2 (chance .5 for a constant policy).

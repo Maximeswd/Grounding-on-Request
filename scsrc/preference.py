@@ -107,7 +107,7 @@ def _mask_shared_prefix(ch, rj):
     return ch, rj
 
 
-from .prompts import LORA_INSTR   # single definition (2026-09-21); collate's request-LoRA branch uses it too
+from .prompts import LORA_INSTR   # single definition; collate's request-LoRA branch uses it too
 
 
 def _ctrl_user(op, n, cap, template, method="neo"):
@@ -116,17 +116,17 @@ def _ctrl_user(op, n, cap, template, method="neo"):
     form) or inserted at the word slot under PT_INSERTED=1 (placement control).
     Pairs for method=pt were previously IMPOSSIBLE (dataset gated on neo), so
     every PT run was SFT-only regardless of its lam_* flags -- the objective
-    axis was confounded with the interface axis until 2026-08-05."""
+    axis was confounded with the interface axis until"""
     import os as _os
     if method == "lora" and _os.environ.get("SC_LORA_ADAPTER", "0") == "1":
-        # v1.125: one adapter per request -- the prefix's neutral prompt without the prefix
+        # one adapter per request -- the prefix's neutral prompt without the prefix
         from .prompts import pt_template as _ptt, _PT_TEMPLATES as _PTT2
         return (template if template in _PTT2 else _ptt(0)).format(cap=cap)
     if method == "lora":
         # LoRA carries no learned request token: its request is the English instruction it is
         # evaluated with (scripts/eval_flip_ll.py INSTR_VARIANTS[0], the paper's phrasing), so a
         # LoRA + CTM pair must use exactly that carrier or the objective trains a different prompt
-        # from the one that is scored (2026-09-14).
+        # from the one that is scored.
         return f'Caption: "{cap}". {LORA_INSTR[op]}'
     if method == "pt":
         prefix = trigger(f"pt_{op}", n)
@@ -135,7 +135,7 @@ def _ctrl_user(op, n, cap, template, method="neo"):
             # "{cap} is already in the template" branch and SILENTLY DROPS the prefix -- the pair
             # prompts then contain no learned rows at all. `template` here is a pt_template, which has
             # {cap} and no {op}, so the canonical word template is the only correct choice
-            # (found 2026-09-15; it fired on the five pti runs that carry lam_ctm).
+            # .
             # Rotate the WORD's templates for the inserted control too, keyed off which pt_template the
             # caller handed us so the two arms stay in step (spec is not in scope here).
             from .prompts import pick_ctrl_template as _pct, _PT_TEMPLATES as _PTT
@@ -144,16 +144,16 @@ def _ctrl_user(op, n, cap, template, method="neo"):
         from .prompts import pt_template
         # Rotate with the item, as the word's pairs do. A fixed index here gave the prefix ONE
         # instruction in its counterfactual pairs while the word saw five, inside the very comparison
-        # Section 6 rests on (found 2026-09-15).
+        # Section 6 rests on.
         return prefix + " " + (template if template and "{cap}" in (template or "") else pt_template(0)).format(cap=cap)
-    # v1.165 control-position ablation (train.py --word_first 1): the word's instruction BEFORE the caption in every
+    # control-position ablation (train.py --word_first 1): the word's instruction BEFORE the caption in every
     # pair, as the prefix sits; default (unset) keeps the caption-first pairs every banked run was trained on
     return render_ctrl(template or ctrl_canonical(), trigger(f"{op}_ctrl", n), cap,
                        cap_first=_os.environ.get("SC_WORD_FIRST", "0") != "1")
 
 
 def build_pref_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_style="neutral", task="color", method="neo"):
-    if method in ("pt", "lora"):   # lora admitted 2026-09-14 (see build_ctm_pair)
+    if method in ("pt", "lora"):   # lora admitted (see build_ctm_pair)
         # pt runs carry arm="na"; their pair semantics ARE the ctrl semantics
         # (the prefix is the request carrier -- see _ctrl_user).
         arm = "ctrl"
@@ -205,7 +205,7 @@ def build_pref_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl
             return None
         # _task was referenced before assignment here since the branch was
         # written -- every call raised NameError, so gen+APO has never actually
-        # trained (caught by the dataset zero-pair guard, 2026-07-31).
+        # trained.
         _task = getattr(spec, 'task', task)
         user = (template or gen_template(_task, 0)).format(cap=spec.fed_caption)
         lt, rt, ct = trigger("look_gen", n), trigger("read_gen", n), trigger("compare_gen", n)
@@ -330,7 +330,7 @@ def build_compose_ctm_pair(processor, ds, spec, n, device, task="color", cap_fir
         srcs = ("read", "look") if ix % 2 else ("look", "read")   # legacy: order by item parity
     if edit_slot is None:
         edit_slot = 0                                              # legacy: twin the FIRST slot only
-    edit_src = srcs[edit_slot]   # 2026-09-21: the second slot can be twinned too (composed Stay)
+    edit_src = srcs[edit_slot]   # the second slot can be twinned too (composed Stay)
     v_look = fmt_key_task(spec.image_key, _task)
     v_read = fmt_key_task(spec.text_key, _task)
     base = {"look": v_look, "read": v_read}
@@ -388,7 +388,7 @@ def _cp_vocab(ds):
 
 
 def cp_captions(ds, spec, op):
-    """CONFLICT-PRESERVING PAIRS (2026-09-22, SC_CP_PAIRS=1 / train.py --cp_pairs). On a two-value
+    """CONFLICT-PRESERVING PAIRS. On a two-value
     ladder item the shipped twins make the two sources AGREE after the edit (the twin image carries the
     caption's value; the twin caption carries the image's value), so the CTM look pair is satisfiable by
     following the caption and the SM term's negative is a value no source asserts. The evaluator's
@@ -431,7 +431,7 @@ def cp_captions(ds, spec, op):
 
 
 def build_ctm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_style="neutral", task="color", method="neo"):
-    if method in ("pt", "lora"):   # lora admitted 2026-09-14: its carrier is the English request (_ctrl_user)
+    if method in ("pt", "lora"):   # lora admitted its carrier is the English request (_ctrl_user)
         # pt runs carry arm="na"; their pair semantics ARE the ctrl semantics
         # (the prefix is the request carrier -- see _ctrl_user).
         arm = "ctrl"
@@ -495,7 +495,7 @@ def build_ctm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_
         if method == "lora":
             return None          # LoRA has no compare carrier (LORA_INSTR has look/read only)
         if method == "pt":
-            # the prefix's own compare row, in the prefix's template (2026-09-21; the neo string
+            # the prefix's own compare row, in the prefix's template (; the neo string
             # was rendered here before, so PT compare-CTM pairs carried no trainable request)
             from .prompts import pt_template as _ptt
             user = trigger("pt_compare", n) + " " + (template if template and "{cap}" in template
@@ -512,11 +512,11 @@ def build_ctm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_
     if op == "look":
         # twin images: shown image (value = image_key) vs the pair's other
         # image, whose value is exactly text_key (fed_caption describes it)
-        # 2026-09-21: the METHOD-AWARE carrier (word / pt prefix / LoRA's English instruction), as
+        # the METHOD-AWARE carrier (word / pt prefix / LoRA's English instruction), as
         # build_pref_pair always used. Until now this line rendered the neologism strings for every
         # method, so a PT or LoRA run's CTM pairs carried no trainable request at all and _bw skipped
         # the term silently (requires_grad False). Every ladder PT+CTM / LoRA+CTM run before this
-        # date is VOID as a CTM comparison (STATUS 2026-09-21 v1.47).
+        # date is VOID as a CTM comparison.
         _cp = cp_captions(ds, spec, "look")
         # conflict-preserving: the caption names C in BOTH contexts, so the image edit A -> B keeps the sources apart
         user = _ctrl_user("look", n, _cp[0] if _cp else spec.fed_caption, template, method)
@@ -540,7 +540,7 @@ def build_ctm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_
     cont_v = _ncc("read", v, _task, style=ctrl_style)
     cont_vp = _ncc("read", vp, _task, style=ctrl_style)
     img = get_image(ds, spec)
-    u_cap = _ctrl_user("read", n, cap, template, method)      # method-aware carrier (2026-09-21)
+    u_cap = _ctrl_user("read", n, cap, template, method)      # method-aware carrier
     u_capp = _ctrl_user("read", n, capp, template, method)
     return {"a_pos": _seq(processor, img, u_cap, cont_v, device),
             "a_neg": _seq(processor, img, u_capp, cont_v, device),
@@ -549,7 +549,7 @@ def build_ctm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_
 
 
 def build_sm_pair(processor, ds, spec, arm, op, n, device, template=None, ctrl_style="neutral", task="color", method="neo"):
-    """STAY MARGIN (2026-09-21): the training analogue of conjunctive Stay. CTM trains the requested
+    """STAY MARGIN: the training analogue of conjunctive Stay. CTM trains the requested
     source's row of the do-table (answer tracks an edit to the REQUESTED source); nothing trains the
     competing row. Here the COMPETING source is edited exactly as the evaluator edits it and the
     requested value must still beat the alternative:
@@ -605,14 +605,14 @@ def seq_logprob(model, ex, no_grad=False):
 
 
 def seq_logprob_batch(model, exs, no_grad=False):
-    """Continuation log-probabilities of SEVERAL examples in ONE forward pass (2026-09-22, STATUS v1.99).
+    """Continuation log-probabilities of SEVERAL examples in ONE forward pass.
 
     Right-padded batch over the example list; padded positions are masked out of attention and out of the
-    score, so each row's value is the same per-token computation as seq_logprob(). This turns the four CTM
+    score, so each row's value is the same per-token computation as seq_logprob. This turns the four CTM
     sequences (and the two Stay sequences, and APO's two) into one forward and one backward each instead of
     one per sequence. The sequential path stays as the reference; SC_BATCH_CHECK=1 prints the difference
     on the first steps of a run. Requires the memory for the whole batch (80 GB cards); train.py's
-    --batch_terms auto turns it on only there. token_type_ids is not passed, exactly as vision_kwargs()
+    --batch_terms auto turns it on only there. token_type_ids is not passed, exactly as vision_kwargs
     never passed it in the single-sequence path."""
     ctx = torch.no_grad() if no_grad else nullcontext()
     with ctx:
@@ -645,7 +645,7 @@ _BATCH_TOL = 0.5      # bf16 batched vs sequential on |log p| ~ 10-30; the eval 
 
 
 def _batch_check(model, term, exs, lps):
-    """In-run guard (STATUS v1.99): on the first 8 batched terms of a run, compare with the sequential
+    """In-run guard: on the first 8 batched terms of a run, compare with the sequential
     reference; print the difference; if it ever exceeds _BATCH_TOL, switch the run back to the sequential
     path for good and say so. Always on when batching is on (SC_BATCH_CHECK=0 disables the print only)."""
     if _BATCH_CHECKS["n"] >= 8:
@@ -682,7 +682,7 @@ def _batch_or_none(model, exs, no_grad=False):
 def reference_rows(model, ids, ref_rows):
     """APO-zero reference = the model as it was before this interface was trained.
     Embedding interfaces (word, prefix): the learned rows are swapped back to their initialisation.
-    LoRA (2026-09-22, STATUS v1.96): there are no learned rows; the reference is the base model with the
+    LoRA: there are no learned rows; the reference is the base model with the
     adapter disabled, which is the same statement -- the pretrained model without this interface. Before this
     train.py forced APO off for LoRA ("[obj] APO/VGM only apply to method=neo/pt"), so every LoRA+APO run was
     SFT with a different name; the two Ground-CF adapters were byte-identical.
@@ -799,7 +799,7 @@ def _objective_terms(model, rec, eff, all_new_ids, ref_rows, _bw):
             out = model(input_ids=sft["input_ids"], attention_mask=sft["attention_mask"],
                         labels=sft["labels"], **pv)
             comps["ce"] = float(out.loss); total += _bw(out.loss, eff["lam_sft"])
-    # KEY MISMATCH, fixed 2026-07-30. The generic ObjectiveDataset (color/vcf/coco)
+    # KEY MISMATCH, fixed The generic ObjectiveDataset (color/vcf/coco)
     # stores the APO pair under "pref", but every task with its own dataset class
     # -- clevr3.py:323, mvg.py:436, mvraw.py:348, temporal.py:189 -- stores it
     # under "apo". Reading only "pref" meant lam_apo was silently a no-op on
@@ -863,7 +863,7 @@ def _objective_terms(model, rec, eff, all_new_ids, ref_rows, _bw):
         _q = [c["a_pos"], c["a_neg"], c["b_pos"], c["b_neg"]]
         lps = _batch_or_none(model, _q) if _batched_terms() else None
         if lps is not None:
-            # v1.99: the four twin sequences in one forward; one backward for both margins
+            # the four twin sequences in one forward; one backward for both margins
             _batch_check(model, "ctm", _q, lps)
             la = -F.logsigmoid(eff["gamma"] * (lps[0] - lps[1]))
             lb = -F.logsigmoid(eff["gamma"] * (lps[2] - lps[3]))
@@ -882,7 +882,7 @@ def _objective_terms(model, rec, eff, all_new_ids, ref_rows, _bw):
                                                - seq_logprob(model, c["b_neg"])))
             comps["ctm"] += float(lb); total += _bw(lb, eff["lam_ctm"])
     if eff.get("lam_sft_twin", 0) > 0 and rec.get("ctm") is not None:
-        # paired-SFT control (2026-09-26, reviewers R2-Q1 / R3-W1): the edited context (C', v') = the CTM record's
+        # paired-SFT control: the edited context (C', v') = the CTM record's
         # b_pos gets plain MEAN-token cross-entropy over its continuation (the SFT loss form on the twin), with no
         # cross-context coupling. Same twins and the same warm-up ramp as CTM, so only the coupling differs.
         c = rec["ctm"]; ex = c["b_pos"]
@@ -894,7 +894,7 @@ def _objective_terms(model, rec, eff, all_new_ids, ref_rows, _bw):
         ce_t = -(tokp * mk).sum() / mk.sum().clamp_min(1)
         comps["ce_twin"] = float(ce_t); total += _bw(ce_t, eff["lam_sft_twin"])
     if eff.get("lam_sft_stay", 0) > 0 and rec.get("sm") is not None:
-        # context-matched SFT control (2026-10-05, advisor note 4 item 2): the competing-edit context with the selected
+        # context-matched SFT control: the competing-edit context with the selected
         # source's answer, (C_u', v) = the Stay record's positive sequence, gets plain mean-token cross-entropy and no
         # margin. CTM+Stay versus this arm isolates the Stay MARGIN from exposure to the competing-edit contexts.
         ex = rec["sm"]["pos"]
@@ -935,7 +935,7 @@ def _objective_terms(model, rec, eff, all_new_ids, ref_rows, _bw):
                       - seq_logprob(model, e["b_neg"])).detach()
         le = F.relu(m_crop - m_full) / max(float(eff.get("gamma", 1.0)), 1e-6)
         comps["ecc"] = float(le); total += _bw(le, eff["lam_ecc"])
-        comps["ecc_n"] = 1.0          # 2026-10-07 activation gate: fraction of records that carried an ECC pair
+        comps["ecc_n"] = 1.0          # activation gate: fraction of records that carried an ECC pair
     if eff.get("lam_aat", 0) > 0 and rec.get("aat") is not None and rec.get("sft") is not None:
         # ATTENTION-ALIGNMENT: teach the token to allocate GAZE. Cross-entropy
         # between the decision positions' attention over image patches and the

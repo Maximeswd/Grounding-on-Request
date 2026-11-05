@@ -1,14 +1,10 @@
 #!/usr/bin/env python
-"""COCO oracle-gate: keep only test pairs the FROZEN model can actually read.
+"""Keep only the COCO-CF test pairs that the frozen model can actually read.
 
-COCO's diffusion images miss the intended object ~27% of the time; on those the
-row cannot route correctly no matter what, which would confound control accuracy
-with perception failure. For each test item, the frozen model + an explicit
-"answer from the image only" instruction must produce n0 on image_0 AND n1 on
-image_1 (via LL forced-choice over {n0,n1}); keep only those. Gates the TEST
-splits (training stays on the full set -- mild noise is fine there). Writes
-data/coco/{split}_gated.
-"""
+The COCO-Counterfactuals images miss the intended object about 27% of the time, and on such a pair no request can route
+correctly, which would confuse control with perception. For each test pair, the frozen model, instructed to answer from
+the image only, must choose n0 on image_0 and n1 on image_1 (likelihood forced choice over {n0, n1}). Training splits are
+not filtered. Writes data/coco/{split}_gated."""
 import argparse, os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datasets import load_from_disk

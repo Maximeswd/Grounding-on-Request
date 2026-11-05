@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Every pair builder must carry the METHOD'S OWN request (2026-09-21).
+"""Every pair builder must carry the METHOD'S OWN request.
 
 Found the hard way: build_ctm_pair rendered the neologism strings for every method, so a PT or LoRA
 run's CTM pairs contained no trainable parameter, the margin had requires_grad False and _bw skipped it

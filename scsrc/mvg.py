@@ -18,13 +18,13 @@ from PIL import Image
 from .collate import _encode, _prompt_len, NEG_SLOT_WORDS
 from .tokens import trigger
 
-# ---- request-word rendering (2026-09-17) ---------------------------------------------------------
+# ---- request-word rendering ---------------------------------------------------------
 # MVG prompt-tuning runs are trained with --pt_inserted 1: the learned rows sit in the SAME slot as
 # the neologism, but the checkpoint registers them as pt_<channel>, not <channel>_ctrl. Until
-# 2026-09-17 every MVG site rendered <channel>_ctrl regardless of method, so on a PT run the
+# every MVG site rendered <channel>_ctrl regardless of method, so on a PT run the
 # tokenizer split "<vis_ctrl_0>" into literal text and the PT rows never appeared in any prompt
 # (train or eval); they moved only through the tied softmax. All MVG prompt-tuning numbers banked
-# before this date are void (STATUS 2026-09-17). The ladder (collate.py) and Ground-CF (clevr3.py)
+# before this date are void. The ladder (collate.py) and Ground-CF (clevr3.py)
 # were already method-aware.
 _WORD_METHOD = {"method": "neo"}
 _PT_ROW = {"vis": "pt_vis", "desc": "pt_desc", "ocr": "pt_ocr"}
@@ -46,7 +46,7 @@ def mvg_word(name, n_tokens):
 
 
 def assert_words_registered(tokenizer, n_tokens, chans=("vis", "desc", "ocr")):
-    """Refuse to train or evaluate with an unregistered request string (the 2026-09-17 bug class).
+    """Refuse to train or evaluate with an unregistered request string.
     LoRA is exempt BY DESIGN: it adds no embedding rows, so its request is the literal string
     "<vis_ctrl_0>..." as ordinary text and the adapted weights learn to respond to it."""
     if _WORD_METHOD["method"] == "lora":
@@ -65,7 +65,7 @@ MVG_CH = {"DESC": "desc", "OCR": "ocr", "VIS": "vis"}
 
 
 def mvg_sources():
-    """Active MultiVENT-G evidence blocks (2026-10-02): SC_MVG_SOURCES, default "desc,ocr,vis" = the banked three-block
+    """Active MultiVENT-G evidence blocks: SC_MVG_SOURCES, default "desc,ocr,vis" = the banked three-block
     prompt; the author's two-modality setting is "desc,vis" (no on-screen-text block, no OCR items). train.py sets it from
     --mvg_sources and records it in config.json; evaluate.apply_checkpoint restores it."""
     import os as _os
@@ -120,7 +120,7 @@ def mvg_user_content(item, op_trig, override=None):
     _prefix = (_WORD_METHOD["method"] == "pt" and _os.environ.get("SC_MVG_PT_PREFIX", "0") == "1")
     _adapter = (_WORD_METHOD["method"] == "lora" and _os.environ.get("SC_LORA_ADAPTER", "0") == "1")
     if _prefix or _adapter:
-        # 2026-10-24: standard prompt tuning (soft rows prepended to the user turn, --mvg_pt_prefix 1) and one LoRA
+        # standard prompt tuning (soft rows prepended to the user turn, --mvg_pt_prefix 1) and one LoRA
         # adapter per request (--ctrl_style adapter): the question carries no request sentence
         q = it["role_question"] if it.get("role_question") else "Answer the question."
     else:
@@ -205,7 +205,7 @@ def build_mvg_ctm_pair(processor, item, pair, device, n_tokens=1):
 
 
 def build_mvg_sm_pair(processor, item, pair, device, n_tokens=1):
-    """STAY MARGIN on video (2026-09-22, STATUS v1.88): the competing channel is edited with a mined twin
+    """STAY MARGIN on video: the competing channel is edited with a mined twin
     OF THAT CHANNEL and the requested channel's value must still beat the value the competitor now asserts.
       VIS item  (look): competitor = description -> a desc_swap pair; desc := donor description (gold_b)
                         logP(gold_vis | frame, desc') > logP(gold_b | frame, desc')
@@ -408,12 +408,12 @@ class MvgDataset:
                       for l in open(os.path.join(data_dir, f"{split}.jsonl"))]
         _act = mvg_sources()
         _ts = os.environ.get("SC_TRAIN_SOURCES", "")
-        if _ts:                      # 2026-10-24: one LoRA adapter per request -> train only that source's items
+        if _ts:                      # one LoRA adapter per request -> train only that source's items
             _keep = {{"look": "vis", "read": "desc"}.get(x.strip(), x.strip()) for x in _ts.split(",") if x.strip()}
             _n1 = len(self.items)
             self.items = [it for it in self.items if MVG_CH.get(it["channel"]) in _keep]
             print(f"[mvg] train_sources={sorted(_keep)}: {_n1} items -> {len(self.items)}")
-        if len(_act) < 3:            # 2026-10-02: train only the active channels' items (two-modality MVG)
+        if len(_act) < 3:            # train only the active channels' items (two-modality MVG)
             _n0 = len(self.items)
             self.items = [it for it in self.items if MVG_CH.get(it["channel"]) in _act]
             print(f"[mvg] sources={','.join(_act)}: {_n0} items -> {len(self.items)} (inactive channels' items dropped)")
@@ -522,7 +522,7 @@ class MvgDataset:
                 if _v is not None:
                     rec["vgm"] = _v
         if self.sm and not neg:
-            # Stay margin (v1.88): twins of the OTHER channel for the same (video, role), rotating
+            # Stay margin: twins of the OTHER channel for the same (video, role), rotating
             _other = {"VIS": "DESC", "DESC": "VIS"}.get(str(item["channel"]).upper())
             _ps = self.ctm.get((item["video_id"], item["role"], _other)) if _other else None
             if _ps:

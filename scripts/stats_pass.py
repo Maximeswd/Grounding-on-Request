@@ -1,31 +1,18 @@
 #!/usr/bin/env python
-"""Statistics pass for the 9-page submission (EXECUTION_SEP Track S).
+"""Wilson intervals and paired exact McNemar tests for the paper's headline comparisons.
 
-Produces results/stats_pass.json plus two auto tables:
-  paper/iclr2027/tables/tab_stats_main.tex   headline proportions w/ Wilson CI
-  paper/iclr2027/tables/tab_mcnemar.tex      paired exact McNemar comparisons
+Paired tests are used only where the items are genuinely paired (same items, same split); p-values are exact and
+two-sided, n is reported everywhere, and F1 gets a percentile bootstrap (10k resamples). Writes results/stats_pass.json
+and two LaTeX tables in results/tables/.
 
-Rules (from the plan): paired tests only where item-level pairing is real;
-exact two-sided p; report n everywhere; intervals, never stars. F1 is not a
-proportion -> percentile bootstrap (10k) over claims.
-
-Pairings used (all genuinely item-level):
-  M1 emitted-vs-posthoc citation faithfulness  -- same generations
-     (recomputed per claim from banked citefaith records via the same
-     claim_of parser the battery uses)
-  M2 word_sft vs pti flips                     -- same items, same split
-     (flip_ll records; item order deterministic per split)
-  M3 word_sft vs best-instruction-variant flips -- same items
-  M4 words vs lexical claim attribution        -- same claims (chunk_id+claim)
-
-Usage: python scripts/stats_pass.py
-"""
+Usage: python scripts/stats_pass.py"""
 import glob, json, math, os, random, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.eval_citefaith import claim_of, OPS  # same parser as the battery
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "paper", "iclr2027", "tables")
+OUT = os.path.join(ROOT, "results", "tables")
+os.makedirs(OUT, exist_ok=True)
 
 
 def wilson(p, n, z=1.96):

@@ -23,7 +23,7 @@ import contextlib
 import torch
 
 
-# 2026-09-16: the original helper hard-coded self_attn.o_proj, which is Gemma/Llama naming. Both Qwen
+# the original helper hard-coded self_attn.o_proj, which is Gemma/Llama naming. Both Qwen
 # models crashed here with "no decoder layers with self_attn.o_proj found" (job 652381 tasks 2 and 3,
 # dead in 15 s), so the Hua et al. baseline silently covered only two of the four models. These are the
 # attention-block and output-projection names actually in use across the families we run.

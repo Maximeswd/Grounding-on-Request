@@ -1,0 +1,11 @@
+# MultiVENT-G: the training command of every run behind the paper's tables, one run per line.
+# Train one with:  grep -w <run_name> configs/paper/mvg.txt | sh
+python train.py --method pt --arm na --n_tokens 5 --steps 800 --lam_sft 1.0 --lam_ctm 1.0 --pt_inserted 1 --run_name mvgV2_5tok_ptctm_fix_seed0 --task mvg --data_dir data/mvg_hard
+python train.py --method neo --n_tokens 5 --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_5tok_sftctm_hard_seed0 --task mvg --data_dir data/mvg_hard
+python train.py --method lora --arm na --lora_r 16 --steps 800 --pref_warmup 100 --lr 0.0002 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_lora_r16_ctm_seed0 --task mvg --c3_sources look,read,ocr --data_dir data/mvg_hard
+python train.py --method pt --arm na --n_tokens 5 --model_id Qwen/Qwen3.5-4B --steps 800 --lam_sft 1.0 --lam_ctm 1.0 --pt_inserted 1 --run_name mvgV2_5tok_ptctm_fix_seed0_qwen35 --task mvg --data_dir data/mvg_hard
+python train.py --method neo --n_tokens 5 --model_id Qwen/Qwen3.5-4B --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_5tok_sftctm_hard_seed0_qwen35 --task mvg --data_dir data/mvg_hard
+python train.py --method lora --arm na --lora_r 16 --model_id Qwen/Qwen3.5-4B --steps 800 --pref_warmup 100 --lr 0.0002 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_lora_r16_ctm_seed0_qwen35 --task mvg --c3_sources look,read,ocr --data_dir data/mvg_hard
+python train.py --method pt --arm na --n_tokens 5 --model_id Qwen/Qwen3.5-2B --steps 800 --lam_sft 1.0 --lam_ctm 1.0 --pt_inserted 1 --run_name mvgV2_5tok_ptctm_fix_seed0_qwen2b --task mvg --data_dir data/mvg_hard
+python train.py --method neo --n_tokens 5 --model_id Qwen/Qwen3.5-2B --steps 800 --pref_warmup 100 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_5tok_sftctm_hard_seed0_qwen2b --task mvg --data_dir data/mvg_hard
+python train.py --method lora --arm na --lora_r 16 --model_id Qwen/Qwen3.5-2B --steps 800 --pref_warmup 100 --lr 0.0002 --lam_sft 1.0 --lam_ctm 1.0 --run_name mvgV2_lora_r16_ctm_seed0_qwen2b --task mvg --data_dir data/mvg_hard

@@ -20,11 +20,11 @@ from scsrc.collate import _encode, _prompt_len
 from scsrc.tokens import CLEVR3_SOURCES, c3_sources
 from evaluate import apply_checkpoint
 
-SRCS = list(CLEVR3_SOURCES)   # look, read, ocr (module default; main() re-reads the run's protocol)
+SRCS = list(CLEVR3_SOURCES)   # look, read, ocr (module default; main re-reads the run's protocol)
 
 
 def cand(v):
-    # 2026-09-29 (audit item 1): the evaluation candidate uses the SAME formatter as the training targets; the answer
+    # the evaluation candidate uses the SAME formatter as the training targets; the answer
     # format travels with the checkpoint (SC_GCF_CONT restored by evaluate.apply_checkpoint; leadin for banked runs)
     from scsrc.clevr3 import c3_cont
     return c3_cont(v)
@@ -46,11 +46,11 @@ def loglik(model, proc, umsg, candidate, device):
 
 @torch.no_grad()
 def loglik_batch(model, proc, umsg, candidates, device):
-    """Summed log-likelihood of EVERY candidate continuation in ONE forward pass (STATUS v1.95, 2026-09-22).
+    """Summed log-likelihood of EVERY candidate continuation in ONE forward pass.
     The prompt (image + text) is identical across candidates, so the B sequences are right-padded and stacked;
     causal attention makes right padding inert for the real tokens. Vision tensors are concatenated along dim 0
     (Gemma: [B,C,H,W]; Qwen: [B*patches,D] with image_grid_thw [B,3]). Returns {candidate: (sum, mean, n_tokens)}.
-    Numerically the same computation as loglik() per sequence; the evaluators verify pick agreement on their
+    Numerically the same computation as loglik per sequence; the evaluators verify pick agreement on their
     first items and record it."""
     cands = list(candidates)
     encs = [_encode(proc, umsg + [{"role": "assistant", "content": [{"type": "text", "text": c}]}], device) for c in cands]
@@ -115,7 +115,7 @@ def main():
 
     global SRCS
 
-    SRCS = list(c3_sources())   # two-modality protocol runs evaluate on their two sources (STATUS v1.94)
+    SRCS = list(c3_sources())   # two-modality protocol runs evaluate on their two sources
     items = [json.loads(l) for l in open(os.path.join(a.data_dir, f"{a.split}.jsonl"))][:a.max_n]
 
     cell_hit = defaultdict(list)          # (skill, source) -> [0/1]

@@ -65,9 +65,9 @@ def loglik_mvg(model, proc, umsg, candidate, device, with_n=False, tokens=False)
     lp = torch.log_softmax(lg[0, plen - 1:ids.shape[1] - 1, :], -1)
     tl = lp.gather(-1, tgt.unsqueeze(-1)).squeeze(-1)
     total = float(tl.sum())
-    if tokens:   # v1.142: ids + per-token log-probs of the whole assistant turn
+    if tokens:   # ids + per-token log-probs of the whole assistant turn
         return total, int(n), tgt.tolist(), [round(float(x), 4) for x in tl]
-    return (total, int(n)) if with_n else total   # v1.141: token count for the per-token mean
+    return (total, int(n)) if with_n else total   # token count for the per-token mean
 
 
 def cand(v):

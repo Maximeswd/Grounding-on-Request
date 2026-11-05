@@ -1,6 +1,6 @@
 """Real per-video fps, replacing the hard-coded /30 assumption.
 
-Measured 2026-07-27 over the 413 EN videos: 26 distinct fps values, 35% of the
+Measured over the 413 EN videos: 26 distinct fps values, 35% of the
 corpus is NOT ~30fps (12, 15, 20, 23.98, 24, 25, 50, 59.94, 60 all present),
 and two entries are container artefacts (90000 = timebase, 120 on a 15s clip).
 Converting a spatial annotation's `frame` index with /30 therefore mislocated

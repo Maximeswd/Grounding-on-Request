@@ -23,7 +23,7 @@ except Exception:  # older transformers
 
 def load(model_id=None, dtype=torch.bfloat16, attn="eager", device="cuda"):
     model_id = model_id or paths.MODEL_ID
-    # SC_DTYPE=float32|float16|bfloat16 overrides the weight dtype (2026-09-21): the V100 pool has no bf16,
+    # SC_DTYPE=float32|float16|bfloat16 overrides the weight dtype: the V100 pool has no bf16,
     # so evaluations there score in float32. Gemma-4-E4B (per-layer table ~2.8B params) does not fit a
     # 32 GB card in float32 and stays on A100/L40S. Training never sets this.
     import os as _os0
@@ -76,7 +76,7 @@ def freeze_all(model):
 
 # ---- neologism (embedding-only) --------------------------------------------
 def _resolve_cached(model_id):
-    """Repo id -> a complete local snapshot when the cache's default revision is incomplete (2026-09-22, v1.96).
+    """Repo id -> a complete local snapshot when the cache's default revision is incomplete.
 
     The Gemma-4-E4B cache holds two snapshots and `refs/main` points at the one WITHOUT processor files, so on a
     compute node (no internet) `AutoProcessor.from_pretrained("google/gemma-4-E4B-it")` raises "Can't load feature
@@ -111,7 +111,7 @@ def _resolve_cached(model_id):
 def per_layer_table(model):
     """Gemma-4 (E4B) carries a SECOND embedding table, `embed_tokens_per_layer` (hidden_size_per_layer_input
     x n_layers per token), that resize_token_embeddings extends with RANDOM rows for the new ids. Gemma-3 and
-    Qwen-3.5 have none. Returns that table's weight or None (2026-09-21, validate_gates Gate 3 on E4B)."""
+    Qwen-3.5 have none. Returns that table's weight or None."""
     for getter in ("get_per_layer_input_embeddings",):
         for obj in (model, getattr(model, "model", None), getattr(getattr(model, "model", None), "language_model", None)):
             fn = getattr(obj, getter, None) if obj is not None else None
@@ -126,7 +126,7 @@ def per_layer_table(model):
 
 
 def per_layer_module(model):
-    """The embed_tokens_per_layer MODULE (E4B) or None; per_layer_table() returns its weight."""
+    """The embed_tokens_per_layer MODULE (E4B) or None; per_layer_table returns its weight."""
     for obj in (model, getattr(model, "model", None), getattr(getattr(model, "model", None), "language_model", None)):
         fn = getattr(obj, "get_per_layer_input_embeddings", None) if obj is not None else None
         if callable(fn):
@@ -140,14 +140,14 @@ def per_layer_module(model):
 
 
 def train_per_layer_rows(model, tokenizer, name_to_ids, trainable_ids, specs_by_name, mode="word_mean", seed=0):
-    """v1.157 (2026-09-24, author): make the NEW tokens' per-layer embedding rows (Gemma-4 E4B) trainable.
+    """make the NEW tokens' per-layer embedding rows (Gemma-4 E4B) trainable.
 
     Before this, resize_token_embeddings gave the new ids RANDOM per-layer rows (mean_resizing=False) that were never
     trained, so on E4B every word / prefix token fed noise into its per-layer input while its main row trained
     (identical rows at step 100 and 800 in every E4B word and prefix run). The table is ~262k x 10752, far too large to
     hand to AdamW, so only the new rows become a small Parameter P that the patched embed_tokens_per_layer lookup uses
     at new-token positions (same embed_scale); every other row is the frozen table. Init mirrors init_neologisms: the
-    mean of the init word's per-layer rows + 0.01 N(0,1) (word_mean), else 0.02 N(0,1). Returns (P, sync); sync()
+    mean of the init word's per-layer rows + 0.01 N(0,1) (word_mean), else 0.02 N(0,1). Returns (P, sync); sync
     writes P into the table so save_neologisms stores the trained rows and a reload (load_neologisms_by_name) restores
     them; (None, None) when the model has no per-layer table."""
     mod = per_layer_module(model)
@@ -243,7 +243,7 @@ def init_neologisms(model, tokenizer, name_to_ids, specs_by_name,
 
 def save_neologisms(W, all_new_ids, name_to_ids, path, per_layer=None):
     """per_layer: the model's per-layer embedding table (E4B) or None; its rows for the new ids are stored
-    too, so a reload restores exactly what training used (2026-09-21)."""
+    too, so a reload restores exactly what training used."""
     import os
     os.makedirs(os.path.dirname(path), exist_ok=True)
     d = {"rows": W.data[all_new_ids].detach().cpu(), "ids": list(all_new_ids), "name_to_ids": name_to_ids}
@@ -270,7 +270,7 @@ def load_neologisms_by_name(model, path, name_to_ids, alias=None):
     alias: {saved_name -> name_to_use}. The rows are the learned object; the name is
     only a dictionary key, so renaming lets a word trained under one task's vocabulary
     (ladder: look_ctrl/read_ctrl) be tested under another's (Ground-CF: src_look/src_read)
-    WITHOUT retraining. That is the cross-dataset transfer test (2026-09-16)."""
+    WITHOUT retraining. That is the cross-dataset transfer test."""
     ckpt = torch.load(_resolve_neo_path(path), map_location="cpu")
     alias = alias or {}
     src = {}
@@ -333,12 +333,12 @@ def setup_lora(model, r=16, alpha=32, dropout=0.05,
     cfg = LoraConfig(r=r, lora_alpha=alpha, lora_dropout=dropout,
                      target_modules=names, task_type="CAUSAL_LM")
     model = get_peft_model(model, cfg)
-    # RE-APPLY AFTER WRAPPING. M.load() sets use_cache=False and turns on
-    # gradient checkpointing, but get_peft_model() returns a NEW outer module:
+    # RE-APPLY AFTER WRAPPING. M.load sets use_cache=False and turns on
+    # gradient checkpointing, but get_peft_model returns a NEW outer module:
     # neither setting survives the rewrap, so the LoRA path silently trained with
     # checkpointing OFF and the KV cache ON. Measured consequence on MVR: memory
     # grew every step and hit 136.8 GiB of a 139.8 GiB H200 by step 114 -- an
-    # accumulation, not a capacity limit. enable_input_require_grads() is
+    # accumulation, not a capacity limit. enable_input_require_grads is
     # required for peft + checkpointing: with every base weight frozen the
     # checkpointed segments have no grad-requiring input and produce no graph.
     if os.environ.get("SC_GRAD_CKPT", "") == "1":

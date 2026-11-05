@@ -1,10 +1,16 @@
 #!/usr/bin/env python
-"""Train one configuration. Objective L = lam_sft*CE + lam_apo*APO + lam_vgm*VGM,
-with PER-OPERATOR coefficients: --per_op '{"look":{"lam_apo":0,"lam_vgm":1},
-"read":{"lam_apo":1},"compare":{"lam_apo":1}}' assigns VGM to <look> and APO to
-<read>/<compare> (each on an SFT base). Globals apply where per_op is silent.
-Every term is independently toggleable so SFT-only / APO-only / VGM-only / any
-combination all run from this file. Launched in parallel via a Slurm array."""
+r"""Train one configuration of a modality request, with the pretrained model frozen.
+
+The request is either new word embeddings (neologisms, --method neo), a soft prompt (--method pt) or a LoRA adapter
+(--method lora). The loss is lam_sft * CE + lam_sft_twin * CE(twin) + lam_ctm * CTM + lam_sm * Stay; every term can be
+switched on or off on its own, so plain SFT, paired SFT and the counterfactual objectives all run from this file, and
+--per_op sets the coefficients per request. Defaults come from configs/base.yaml, overridden on the command line; the
+resolved configuration is written to runs/<run>/config.json and checkpoints to runs/<run>/ckpt/step_<n>/.
+
+  python train.py --method neo --arm ctrl --n_tokens 1 --task clevr3 --data_dir data/clevr3 --lam_sft 1 --lam_ctm 1 \
+      --run_name my_run
+
+configs/paper/*.txt hold the exact command of every run in the paper."""
 import argparse, os, json, signal, random
 import faulthandler
 import math
@@ -59,21 +65,21 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/base.yaml")
     ap.add_argument("--method", required=True, choices=["neo", "lora", "pt", "act"],
-                    help="act (2026-10-19) = neologism rows + a request-conditioned vector added at one decoder layer on the requested evidence span (scsrc/act.py)")
+                    help="act = neologism rows + a request-conditioned vector added at one decoder layer on the requested evidence span (scsrc/act.py)")
     ap.add_argument("--act_layer", type=int, default=9, help="act: decoder layer whose output receives delta (0-based)")
     ap.add_argument("--act_span", default="content", choices=["content"], help="act: which positions of the requested source receive delta")
     ap.add_argument("--act_lr", type=float, default=None, help="act: learning rate of delta (default: the embedding lr)")
     ap.add_argument("--gcf_ctrl_pos", default="native", choices=["native", "first", "between", "pre_src", "post_src", "last"],
-                    help="Ground-CF: TRAIN the control at this position (2026-10-19): first = before both evidence blocks, pre_src / post_src = right before / after the requested source's block, between = after the first block, last = after the question; recorded in config and restored at evaluation")
+                    help="Ground-CF: TRAIN the control at this position: first = before both evidence blocks, pre_src / post_src = right before / after the requested source's block, between = after the first block, last = after the question; recorded in config and restored at evaluation")
     ap.add_argument("--ladder_ctrl_pos", default="native", choices=["native", "prefix", "postq", "postcap"],
-                    help="ladder (VCF/ColorSwap/COCO-CF): TRAIN the word at this position (scsrc/prompts.ladder_ctrl_pos); evaluate with scripts/eval_relocation.py")
+                    help="ladder (VCF/ColorSwap/COCO-CF): TRAIN the word at this position (scsrc/prompts.ladder_ctrl_pos)")
     ap.add_argument("--arm", default="ctrl", choices=["ctrl", "gen", "fuse", "link", "na"])
     ap.add_argument("--n_tokens", type=int, default=4)
     ap.add_argument("--lam_ecc", type=float, default=0.0,
                     help="evidence-crop consistency (MVG vis): the full-frame margin "
                          "must match the margin achieved on the bbox crop. Trains "
                          "LOCALISATION, which the crop-eval identified as the visual "
-                         "channel's ceiling (evidence = median 6% of the frame)")
+                         "channel's ceiling (evidence = median 6%% of the frame)")
     ap.add_argument("--compare_frac", type=float, default=0.0,
                     help="task=mvg: fraction of items rendered as 3-WAY COMPARE "
                          "items (all channels shown, verdict + abstention gold) "
@@ -109,17 +115,17 @@ def main():
     ap.add_argument("--ckpt_every", type=int, default=None, help="checkpoint interval in steps (default: train.ckpt_every in the YAML)")
     ap.add_argument("--keep_opt_state", type=int, default=0, help="1: keep opt_state.pt after a run finishes (the resume-fidelity smoke resumes from a finished run)")
     ap.add_argument("--resume_state", default="auto", choices=["auto", "off"],
-                    help="v1.300: with --resume_ckpt, auto restores the AdamW moments of the trained rows/adapter and the RNG states "
-                         "saved in opt_state.pt (full-state resume); off re-initialises them (restarted continuation = pre-v1.300 behaviour)")
+                    help="with --resume_ckpt, auto restores the AdamW moments of the trained rows/adapter and the RNG states "
+                         "saved in opt_state.pt (full-state resume); off re-initialises them")
     ap.add_argument("--force", action="store_true", help="retrain even if final ckpt exists")
     ap.add_argument("--train_per_layer", type=int, default=0,
-                    help="v1.157: also train the NEW tokens' per-layer embedding rows (Gemma-4 E4B; scsrc.model."
+                    help="also train the NEW tokens' per-layer embedding rows (Gemma-4 E4B; scsrc.model."
                          "train_per_layer_rows). Without it they stay the random rows resize_token_embeddings drew.")
     ap.add_argument("--word_first", type=int, default=0,
-                    help="v1.165 control-position ablation (ladder): the word's instruction BEFORE the caption in every "
+                    help="control-position ablation (ladder): the word's instruction BEFORE the caption in every "
                          "SFT example (forces --cap_first_prob 0) and every CTM/SM pair (SC_WORD_FIRST=1). Grid key +wf.")
     ap.add_argument("--gcf_word_pos", default="native", choices=["native", "mix", "first"],
-                    help="v1.167 Ground-CF mixed placement: 'mix' puts the word's sentence BEFORE the evidence in half the "
+                    help="Ground-CF mixed placement: 'mix' puts the word's sentence BEFORE the evidence in half the "
                          "rows (per-row coin shared by SFT and all pairs; scsrc.clevr3._POS_BIT). Grid key +pmix.")
     ap.add_argument("--model_id", default=None, help="HF model id; default scsrc.paths.MODEL_ID (Gemma-3-4B)")
     ap.add_argument("--steps", type=int, default=None)
@@ -155,7 +161,7 @@ def main():
     ap.add_argument("--extend_ckpt", type=str, default=None,
                     help="ctrl arm: load these trained rows FROZEN; train only --add_word rows")
     ap.add_argument("--resume_ckpt", type=str, default=None,
-                    help="v1.210 (author: finish a run stopped by the walltime): a run's ckpt/step_<n> directory (neo/pt rows or a LoRA adapter; v1.298); "
+                    help="a run's ckpt/step_<n> directory; "
                          "loads its rows, advances the LR schedule and the data stream to step n and trains on to "
                          "--steps. The optimizer state is NOT restored (never saved): AdamW restarts at step n. Writes "
                          "config_resume.json; the run's original config.json is kept.")
@@ -198,44 +204,44 @@ def main():
                          "image patches || evidence bbox mask); clevr3 look cells")
     ap.add_argument("--aat_layer", type=int, default=12)
     ap.add_argument("--lam_sft_stay", type=float, default=None,
-                    help="context-matched SFT control (2026-10-05, advisor): mean-token cross-entropy on the competing-edit "
+                    help="context-matched SFT control: mean-token cross-entropy on the competing-edit "
                          "context (C_u', v) -- the Stay record's positive sequence -- with NO margin; CTM+Stay vs this isolates the margin")
     ap.add_argument("--lam_sft_twin", type=float, default=None,
-                    help="paired-SFT control (2026-09-26, reviewers R2-Q1/R3-W1): plain mean-token cross-entropy on the "
+                    help="paired-SFT control: plain mean-token cross-entropy on the "
                          "EDITED context with its own gold answer, (C', v') = the CTM record's b_pos. Same twins and "
                          "the same warm-up ramp as CTM, no cross-context coupling. Use with --lam_ctm 0 --cp_pairs 1.")
     ap.add_argument("--lam_ctm", type=float, default=None,
                     help="counterfactual-twin margin: symmetric two-sided source-swap "
                          "margin on exact twins (trains what flip/stay measures)")
     ap.add_argument("--cp_pairs", type=int, default=0,
-                    help="conflict-preserving CTM/SM pairs on the ladder (2026-09-22): the objective's captions are "
+                    help="conflict-preserving CTM/SM pairs on the ladder: the objective's captions are "
                          "moved to third/fourth values so the two sources still disagree after every edit; sets "
                          "SC_CP_PAIRS=1 for scsrc.preference.cp_captions and is recorded in config.json (grid key +cp)")
     ap.add_argument("--lam_sm", type=float, default=None,
                     help="stay margin: the competing source is edited as the evaluator edits it and "
                          "the requested value must still beat the alternative (trains the Stay half "
-                         "of the criterion; CTM trains the Flip half). 2026-09-21.")
+                         "of the criterion; CTM trains the Flip half).")
     ap.add_argument("--ctrl_template_set", default="legacy", choices=["legacy", "srcsel"],
-                    help="ladder control carriers: legacy (banked) or srcsel = source-selection sentences (2026-09-29)")
+                    help="ladder control carriers: legacy (banked) or srcsel = source-selection sentences")
     ap.add_argument("--gcf_format", default="legacy", choices=["legacy", "v2"],
                     help="Ground-CF prompt: legacy (banked) or v2 = labelled Image/Caption/Question blocks, the control "
-                         "on its own line, 'Return only the answer.' (2026-09-29)")
+                         "on its own line, 'Return only the answer.'")
     ap.add_argument("--gcf_cont", default="leadin", choices=["leadin", "final", "bare"],
                     help="Ground-CF target/candidate format: leadin = the banked '... final answer: <v>'; final = 'Final answer: <v>' "
                          "(protocol-v2 primary); bare = '<v>'. One formatter (scsrc.clevr3.c3_cont) serves training and evaluation.")
     ap.add_argument("--selfcheck_items", type=int, default=0,
                     help="clevr3: after the final save, score K training items in-process (both requests, candidate "
-                         "continuations) and write ckpt/step_<n>/selfcheck.json; scripts/smoke_v2_reload.py reloads and compares")
+                         "continuations) and write ckpt/step_<n>/selfcheck.json")
     ap.add_argument("--gcf_pt_carrier", type=int, default=0, choices=[0, 1],
                     help="prompt tuning only: 1 = matched-position control, the soft tokens in the word's carrier slot")
     ap.add_argument("--init_words", default="",
                     help="Ground-CF initialization-word override for BOTH embedding interfaces, e.g. look:look,read:read "
-                         "(default: image / caption). Sets SC_C3_INIT_WORDS (2026-10-02 initialization ablation).")
+                         "(default: image / caption). Sets SC_C3_INIT_WORDS.")
     ap.add_argument("--exclude_scenes", default="", help="file of Ground-CF scene ids to drop from training (the dev partition)")
     ap.add_argument("--train_scenes", type=int, default=0, help="keep only the first N distinct training scenes (nested data-size subsets)")
     ap.add_argument("--mvg_sources", default="desc,ocr,vis",
-                    help="MultiVENT-G evidence blocks and training channels: desc,ocr,vis (banked) or desc,vis (two-modality, "
-                         "2026-10-02). Sets SC_MVG_SOURCES; recorded in config.json; restored at evaluation.")
+                    help="MultiVENT-G evidence blocks and training channels: desc,ocr,vis (banked) or desc,vis. "
+                         "Sets SC_MVG_SOURCES; recorded in config.json; restored at evaluation.")
     ap.add_argument("--save_step0", type=int, default=0, choices=[0, 1],
                     help="also save ckpt/step_0 right after initialization (untrained controls for the step-0 probes)")
     ap.add_argument("--pt_read_init", default="text", choices=["text", "caption"],
@@ -243,11 +249,11 @@ def main():
     ap.add_argument("--decay_scope", default="all", choices=["all", "new_rows"],
                     help="neo/pt: 'all' = AdamW decays the whole embedding matrix (banked; frozen rows shrink during "
                          "training, evaluation restores them); 'new_rows' = AdamW runs with weight_decay 0 and the "
-                         "decoupled decay lr*wd is applied to the new rows only, after each step (2026-09-29)")
+                         "decoupled decay lr*wd is applied to the new rows only, after each step")
     ap.add_argument("--weight_decay", type=float, default=None,
                     help="AdamW weight decay; default keeps the historical 0.01. NOTE it applies to "
-                         "the whole embedding matrix (grad-masked frozen rows included), see STATUS "
-                         "2026-09-21 v1.45 F2; pass 0 for the control.")
+                         "the whole embedding matrix (grad-masked frozen rows included);"
+                         " pass 0 for the control.")
     ap.add_argument("--ctm_pairs", default="data/mvg_ctm/pairs.jsonl",
                     help="twin-pair file for MVG CTM (use pairs_clean.jsonl -- "
                          "72%% of the original vis pairs are degenerate)")
@@ -289,15 +295,15 @@ def main():
     ap.add_argument("--task", default=None, choices=[None, "color", "counting", "spatial", "attr", "mvg", "mvgreport", "recheck", "clevr3", "mvraw", "mvrawcorr", "mvgtemporal"],
                     help="slot task; overrides cfg.task")
     ap.add_argument("--factor_mode", default="factored",
-                    choices=["factored", "bundled", "srconly", "instructed", "noop"],  # instructed: English carrier (2026-09-21); noop: no request text -- LoRA adapter per request (v1.125)
+                    choices=["factored", "bundled", "srconly", "instructed", "noop"],  # instructed: English carrier; noop: no request text -- LoRA adapter per request
                     help="clevr3: <src><op> shared tokens (factored) vs one fused "
                          "token per cell (bundled, param-matched at the cell) vs "
                          "source tokens only (srconly = Design A: the question "
                          "carries the skill)")
     ap.add_argument("--clevr3_absence", default="",
-                    help="Ground-CF only: absence records from scripts/clevr3_absence.py (train split); "
+                    help="Ground-CF only: absence records (train split); "
                          "with --clevr3_absence_frac the word is also trained to ABSTAIN when its source "
-                         "lacks the answer (2026-09-15)")
+                         "lacks the answer")
     ap.add_argument("--clevr3_absence_frac", type=float, default=0.0)
     ap.add_argument("--clevr3_image_twins", default="",
                     help="Ground-CF only: pairs file with exact image twins (scripts/clevr3_image_twins.py "
@@ -308,14 +314,13 @@ def main():
                     help="clevr3: explicit questions state the skill (Design A); "
                          "generic questions are skill-free so the operator token "
                          "is the only skill carrier (Design B probe)")
-    ap.add_argument("--workers", type=int, default=int(os.environ.get("SC_WORKERS", "6")),   # 6 since 2026-09-22 18:20 (v1.99)
-                    help="DataLoader workers that build the (image-processed) training records on CPU while the GPU trains "
-                         "(STATUS v1.99: a CTM+Stay record costs ~7 s of CPU; with 0 workers the GPU waited for it every step)")
-    ap.add_argument("--batch_terms", default=os.environ.get("SC_BATCH_TERMS", "0"),   # OFF since 2026-09-23 (v1.104): not numerically equivalent
-                    help="auto|0|1: score the CTM quad / Stay pair / APO pair in one batched forward (STATUS v1.99); "
+    ap.add_argument("--workers", type=int, default=int(os.environ.get("SC_WORKERS", "6")),   # 6
+                    help="DataLoader workers that build the (image-processed) training records on CPU while the GPU trains ")
+    ap.add_argument("--batch_terms", default=os.environ.get("SC_BATCH_TERMS", "0"),   # OFF since not numerically equivalent
+                    help="auto|0|1: score the CTM quad / Stay pair / APO pair in one batched forward; "
                          "auto = on when the card has >= 70 GB and SC_LOWMEM is not set")
-    ap.add_argument("--c3_sources", default="look,read",   # v1.132 (author): OCR skipped everywhere by default
-                    help="Ground-CF sources in the prompt, rows and items (STATUS v1.94): 'look,read' is the two-modality "
+    ap.add_argument("--c3_sources", default="look,read",   # OCR skipped everywhere by default
+                    help="Ground-CF sources in the prompt, rows and items: 'look,read' is the two-modality "
                          "protocol (no on-screen-text block, no src_ocr rows, no ocr items); recorded in config.json (grid +2s)")
     ap.add_argument("--held_cells", default="",
                     help="clevr3: comma list of held-out src:op cells excluded "
@@ -324,7 +329,7 @@ def main():
     ap.add_argument("--data_dir", default=None,
                     help="processed task dir from prepare_task.py; if unset, uses ColorSwap")
     ap.add_argument("--neo_template", default="bare", choices=["bare", "hewitt", "srcsel"],
-                    help="Ground-CF word carrier (2026-09-23, STATUS v1.123): bare = '<question> <tokens>' (banked runs); "
+                    help="Ground-CF word carrier: bare = '<question> <tokens>' (banked runs); "
                          "hewitt = six rotated carrier templates after Hewitt et al., evaluated on two held-out ones. "
                          "Sets SC_NEO_TEMPLATE; recorded in config.json (grid key +tpl).")
     ap.add_argument("--instr_rotate", default="",
@@ -332,7 +337,7 @@ def main():
                          "INSTR variants per item, e.g. 0,2,4 (held-out evaluation uses 1 and 3). Sets SC_INSTR_ROTATE; "
                          "recorded in config.json (grid key +rot).")
     ap.add_argument("--caption_style", default="template", choices=["template", "fact"],
-                    help="Ground-CF text channel (2026-09-23, STATUS v1.124): template = 'The answer to the question is v.' "
+                    help="Ground-CF text channel: template = 'The answer to the question is v.' "
                          "(banked runs); fact = the fact itself ('The diamond is red.'). SC_CAPTION_STYLE; grid key +fc.")
     ap.add_argument("--q_rotate", type=int, default=0,
                     help="Ground-CF: rotate the three training question formulations per item (SC_Q_ROTATE=1); "
@@ -341,7 +346,7 @@ def main():
                     help="Ground-CF: train only these requests, e.g. look -- one modality-specific adapter per request "
                          "for the LoRA baseline (SC_TRAIN_SOURCES; grid key +ad, halves merged by the harvester).")
     args = ap.parse_args()
-    # 2026-09-23 (v1.125): ctrl_style=adapter -- LoRA as ONE adapter per request (--train_sources look|read) with the
+    # ctrl_style=adapter -- LoRA as ONE adapter per request (--train_sources look|read) with the
     # prefix's neutral task text and no request sentence; adapter identity selects the modality (ladder + Ground-CF).
     os.environ['SC_LORA_ADAPTER'] = '1' if (args.method == 'lora' and args.ctrl_style == 'adapter') else '0'
     if args.ctrl_style == 'adapter':
@@ -354,7 +359,7 @@ def main():
     if args.caption_style != "template" or args.q_rotate:
         print(f"[prompt] caption_style={args.caption_style} q_rotate={int(bool(args.q_rotate))}")
     os.environ['SC_NEO_TEMPLATE'] = args.neo_template
-    # 2026-09-29 protocol-v2 switches (all default to the banked behaviour; recorded in config.json via args and
+    # protocol-v2 switches (all default to the banked behaviour; recorded in config.json via args and
     # restored by evaluate.apply_checkpoint): ladder carrier set, Ground-CF explicit format, answer format,
     # matched-position prompt tuning, weight-decay scope.
     os.environ['SC_CTRL_TEMPLATE_SET'] = args.ctrl_template_set
@@ -362,7 +367,7 @@ def main():
     os.environ['SC_GCF_CONT'] = args.gcf_cont
     os.environ['SC_GCF_PT_CARRIER'] = str(args.gcf_pt_carrier)
     os.environ['SC_PT_READ_INIT'] = args.pt_read_init
-    _is_act = (args.method == "act")          # 2026-10-19: the act method is the neo pipeline plus scsrc.act hooks
+    _is_act = (args.method == "act")          # the act method is the neo pipeline plus scsrc.act hooks
     if _is_act:
         args.method = "neo"
         print(f"[act] activation control: word rows + delta at decoder layer {args.act_layer} on the requested evidence span", flush=True)
@@ -439,7 +444,7 @@ def main():
          "lam_sft_twin": args.lam_sft_twin if args.lam_sft_twin is not None else oc.get("lam_sft_twin", 0),
          "lam_sft_stay": args.lam_sft_stay if args.lam_sft_stay is not None else oc.get("lam_sft_stay", 0),
          "lam_sm": args.lam_sm if args.lam_sm is not None else oc.get("lam_sm", 0),
-         "lam_ecc": args.lam_ecc if args.lam_ecc is not None else oc.get("lam_ecc", 0),  # was missing: every ctmecc run before 2026-10-06 trained WITHOUT the crop term
+         "lam_ecc": args.lam_ecc if args.lam_ecc is not None else oc.get("lam_ecc", 0),  # was missing: every ctmecc run before trained WITHOUT the crop term
          "lam_aat": args.lam_aat if args.lam_aat is not None else oc.get("lam_aat", 0),
          "aat_layer": args.aat_layer,
          "lam_drift": args.lam_drift if args.lam_drift is not None else oc.get("lam_drift", 0),
@@ -450,14 +455,14 @@ def main():
         for k, v in per_op.items():
             v.setdefault("lam_sft", g["lam_sft"]); v.setdefault("beta", g["beta"]); v.setdefault("gamma", g["gamma"])
     if args.method not in ("neo", "pt", "lora"):
-        # 2026-09-14: pt admitted. Its pairs come from the same builders (dataset.py gates on
+        # pt admitted. Its pairs come from the same builders (dataset.py gates on
         # method in neo/pt/lora; preference._ctrl_user has a pt carrier) and its APO reference is
         # the prefix at initialisation, exactly as the neo reference is the word at initialisation
         # (ref_rows set in the pt branch below). Before this every "pt ... apo" run was SFT-only.
         if uses(g, per_op, "lam_apo") or uses(g, per_op, "lam_vgm"):
             print("[obj] APO/VGM only apply to method=neo/pt/lora; forcing off."); g["lam_apo"] = g["lam_vgm"] = 0.0; per_op = None
     elif args.method == "lora":
-        # 2026-09-22 (STATUS v1.96): LoRA admitted for APO -- its reference model is the adapter-disabled base
+        # LoRA admitted for APO -- its reference model is the adapter-disabled base
         # model (scsrc.preference.reference_rows). VGM stays off for LoRA: its pair semantics are defined on the
         # learned rows, and it is an ablation the paper does not run for LoRA.
         if uses(g, per_op, "lam_vgm"):
@@ -538,11 +543,11 @@ def main():
     if os.environ.get("SC_PREFLIGHT") == "parse":
         print(f"[preflight-parse] OK run={args.run_name} method={args.method} task={task} steps={args.steps}"); raise SystemExit(0)
     if os.environ.get("SC_PREFLIGHT") == "1" and task != "clevr3" and task in ("color", "counting", "spatial", "attr"):
-        # v1.125: ladder preflight -- processor only; the same ObjectiveDataset the run builds (ops as below).
+        # ladder preflight -- processor only; the same ObjectiveDataset the run builds (ops as below).
         from transformers import AutoProcessor
         from scsrc import paths as _paths
-        # (ObjectiveDataset is imported at module level; a local import here made the name local to main() and
-        #  crashed every non-preflight ladder run at the dataset build -- UnboundLocalError, 2026-09-23 16:20-23:17)
+        # (ObjectiveDataset is imported at module level; a local import here made the name local to main and
+        #  crashed every non-preflight ladder run at the dataset build -- UnboundLocalError,-23:17)
         _mid = args.model_id or _paths.MODEL_ID
         _mid = M._resolve_cached(_mid) if hasattr(M, "_resolve_cached") else _mid
         processor = AutoProcessor.from_pretrained(_mid)
@@ -566,7 +571,7 @@ def main():
         print(f"[preflight] tail: {_txt!r}")
         raise SystemExit(3 if _miss else 0)
     if os.environ.get("SC_PREFLIGHT") == "1" and task == "clevr3":
-        # 2026-09-23 (v1.125): CPU preflight -- processor only, no weights. Builds the SAME Clevr3Dataset the run
+        # CPU preflight -- processor only, no weights. Builds the SAME Clevr3Dataset the run
         # would build (same kwargs as below) and renders/tokenises real SFT and pair records, so a prompt-path error
         # surfaces before a GPU job starts. Learned tokens are not added (they tokenise as plain text here).
         from transformers import AutoProcessor
@@ -605,7 +610,7 @@ def main():
     model, processor = M.load(model_id=args.model_id, attn=cfg["model"]["attn"])
     trainable = None; name_to_ids = all_new_ids = None; ref_rows = None
     _act_ctrl = None
-    _pleP, _ple_sync, _ple_init = None, None, None   # v1.157: E4B per-layer rows (--train_per_layer)
+    _pleP, _ple_sync, _ple_init = None, None, None   # E4B per-layer rows (--train_per_layer)
     if args.method == "neo":
         if task == "mvg":
             from scsrc.tokens import NeoSpec
@@ -739,10 +744,10 @@ def main():
                    NeoSpec("pt_vis", "pt", "image", "vision")]
         elif task == "clevr3":
             # Ground-CF has three sources; the default pt specs cover only
-            # look/read/compare, so <ocr> had no prefix row (STATUS 2026-09-11).
+            # look/read/compare, so <ocr> had no prefix row.
             from scsrc.tokens import NeoSpec
             if args.gcf_format == "v2" or args.pt_read_init == "caption":
-                # 2026-09-29 (audit item 2): prefix rows for the ACTIVE sources only, initialised like the word
+                # prefix rows for the ACTIVE sources only, initialised like the word
                 # (look <- "image", read <- --pt_read_init; caption = matched), so both embedding interfaces register
                 # the same number of control rows from the same initialization words
                 from scsrc.tokens import c3_sources as _c3s, clevr3_specs as _c3specs
@@ -791,7 +796,7 @@ def main():
     print(f"[optim] AdamW lr={lr} weight_decay={_wd_opt}" + (
         f" in the optimizer; decoupled decay {_wd} applied to the {len(all_new_ids)} new rows only after each step"
         if _decay_new_rows_only else " (applies to the full embedding matrix, masked rows included)"))
-    if args.resume_ckpt:     # v1.210: the rows trained to step n (after init, so they overwrite it); v1.298: pt rows and LoRA adapters too
+    if args.resume_ckpt:     # the rows trained to step n (after init, so they overwrite it); pt rows and LoRA adapters too
         if args.method in ("neo", "pt"):
             M.load_neologisms_by_name(model, os.path.join(args.resume_ckpt, "neo.pt"), name_to_ids)
         else:
@@ -827,10 +832,10 @@ def main():
         return min_frac + 0.5 * (1 - min_frac) * (1 + math.cos(math.pi * t))  # cosine
 
     sched = torch.optim.lr_scheduler.LambdaLR(opt, _lr_lambda)
-    for _ in range(_start_step):       # v1.210 resume: the schedule continues where the stopped run left it
+    for _ in range(_start_step):       # resume: the schedule continues where the stopped run left it
         sched.step()
     _resume_state_loaded = False; _ost = None
-    if args.resume_ckpt and args.resume_state == "auto":   # v1.300: full-state resume (advisor gate, 2026-10-07)
+    if args.resume_ckpt and args.resume_state == "auto":   # full-state resume
         _osp = os.path.join(args.resume_ckpt, "opt_state.pt")
         if os.path.exists(_osp):
             _ost = torch.load(_osp, map_location="cpu", weights_only=False)
@@ -879,7 +884,7 @@ def main():
     elif args.extend_ckpt and args.add_word:
         _ops = tuple(w.strip() for w in args.add_word.split(",") if w.strip())
         print(f"[extend] dataset ops restricted to {_ops}")
-    # ---- throughput (STATUS v1.99): records built on CPU by workers; batched margin terms on 80 GB cards
+    # ---- throughput: records built on CPU by workers; batched margin terms on 80 GB cards
     _ds_dev = "cpu" if args.workers > 0 else device
     _dl_kw = (dict(num_workers=args.workers, persistent_workers=True, prefetch_factor=2, worker_init_fn=_worker_init)
               if args.workers > 0 else {})
@@ -1000,7 +1005,7 @@ def main():
                                 absence=(args.clevr3_absence or None),
                                 absence_frac=args.clevr3_absence_frac)
         # lattice sampler: equalize (skill x source) cells so no cell dominates
-        # 2026-09-23 (v1.126): the item ORDER comes from a generator of its own, seeded by --seed, so every
+        # the item ORDER comes from a generator of its own, seeded by --seed, so every
         # objective arm of a model draws the same items in the same order (before, any extra draw on the global
         # RNG -- the /dev/shm loader fallback's retry, prefix initialisation, ... -- shifted it).
         sampler = _SeededSampler(dataset.weights, len(dataset), seed=args.seed)
@@ -1019,7 +1024,7 @@ def main():
                                    ops=_ops, ctrl_site=args.ctrl_site,
                                    lookread_conflict_only=bool(args.lookread_conflict_only),
                                    disentangle_frac=args.disentangle_frac)
-        # v1.126: seeded shuffle order, independent of other RNG consumers (see _SeededSampler)
+        # seeded shuffle order, independent of other RNG consumers (see _SeededSampler)
         loader = DataLoader(dataset, batch_size=1, sampler=_SeededSampler(None, len(dataset), seed=args.seed),
                             collate_fn=collate, **_dl_kw)
 
@@ -1042,14 +1047,14 @@ def main():
                    config={**cfg, **vars(args), "obj_global": g, "per_op": per_op},
                    mode=os.environ.get("WANDB_MODE", "offline")); use_wandb = True
         _ent = os.environ.get("WANDB_ENTITY", "<your-entity>")
-        print(f"[wandb] run id {wandb.run.id} (offline). After `bash scripts/sync_wandb.sh` "
-              f"on the login node, view at: https://wandb.ai/{_ent}/{cfg['wandb']['project']}/runs/{wandb.run.id}",
+        print(f"[wandb] run id {wandb.run.id} (offline). After `wandb sync`, view it at: "
+              f"https://wandb.ai/{_ent}/{cfg['wandb']['project']}/runs/{wandb.run.id}",
               flush=True)
     except Exception as e:
         print("[wandb] disabled:", e); use_wandb = False
 
     def _save_opt_state(d):
-        """v1.300: AdamW moments of the trained rows (neo/pt; the frozen rows' moments are exactly zero) or of the
+        """AdamW moments of the trained rows (neo/pt; the frozen rows' moments are exactly zero) or of the
         adapter (LoRA) plus the RNG states, so --resume_ckpt continues the trajectory. Newest checkpoint only."""
         import glob as _glob
         try:
@@ -1086,7 +1091,7 @@ def main():
     def save_ckpt(step):
         d = os.path.join(out, "ckpt", f"step_{step}"); os.makedirs(d, exist_ok=True)
         if _ple_sync is not None:
-            _ple_sync()          # v1.157: the trained per-layer rows go into the table, so neo.pt stores them
+            _ple_sync()          # the trained per-layer rows go into the table, so neo.pt stores them
             _dp = (_pleP.data.float() - _ple_init).norm().item() / max(_ple_init.norm().item(), 1e-9)
             print(f"[ple] step {step}: per-layer rows moved {_dp:.4f} (relative to init)", flush=True)
             if step >= 100 and _dp == 0.0:
@@ -1116,7 +1121,7 @@ def main():
         # output next to the gold target and the distractor (the other source's
         # value), with a correctness parse. Printed to stdout (-> the .out file),
         # appended to runs/<name>/train_samples.jsonl, and logged as a wandb table.
-        # MEMORY: this block calls model.generate(), which builds a KV cache and
+        # MEMORY: this block calls model.generate, which builds a KV cache and
         # sets use_cache on the way through. Under gradient checkpointing (mvraw)
         # that flag must go back to False or every subsequent training step
         # retains activations -- MVR LoRA grew to 136.8/139.8 GiB and OOM'd at
@@ -1190,7 +1195,7 @@ def main():
             except Exception:
                 pass
             if _uc is not None:
-                model.config.use_cache = _uc      # generate() may have flipped it
+                model.config.use_cache = _uc      # generate may have flipped it
             model.train()
             torch.cuda.empty_cache()
 
@@ -1198,7 +1203,7 @@ def main():
     try:
         it = iter(loader)
     except OSError as _e:
-        # 2026-09-22 (STATUS v1.103): worker start-up allocates POSIX semaphores in /dev/shm; a node whose shared
+        # worker start-up allocates POSIX semaphores in /dev/shm; a node whose shared
         # memory is exhausted raises "No space left on device" here and killed seven ladder runs before step 1.
         # Fall back to building records in this process: slower, identical records, and they still move to the GPU
         # because the dataset was constructed on CPU.
@@ -1206,7 +1211,7 @@ def main():
               f"falling back to in-process record building", flush=True)
         loader.num_workers = 0
         it = iter(loader)
-    if _start_step:                    # v1.210 resume: the records the first n steps consumed, so the data order continues
+    if _start_step:                    # resume: the records the first n steps consumed, so the data order continues
         import time as _time
         _t0 = _time.time()
         for _ in range(_start_step * accum):
@@ -1222,9 +1227,9 @@ def main():
             print("[resume] RNG states restored", flush=True)
     if args.save_step0 and args.method in ("neo", "pt") and _start_step == 0:
         save_ckpt(0)        # the untrained controls (initialization rows) for the step-0 semantic probes
-    _clamp_win_steps = _clamp_win_hits = _clamp_steps_total = _clamp_hit_steps = _clamp_rows_total = 0   # norm-clamp activation (2026-10-08)
+    _clamp_win_steps = _clamp_win_hits = _clamp_steps_total = _clamp_hit_steps = _clamp_rows_total = 0   # norm-clamp activation
     pbar = tqdm(range(_start_step, steps), desc=run_name)
-    # one shared key set for initialization, accumulation, logging and reset (2026-10-01; the round-3 KeyError)
+    # one shared key set for initialization, accumulation, logging and reset
     LOG_KEYS = ("ce", "ce_twin", "ce_stay", "apo", "vgm", "tc", "ctm", "sm", "ecc", "ecc_n", "aat", "drift", "iit")
     agg = {**{k: 0.0 for k in LOG_KEYS}, "n": 0}
     pref_warmup = args.pref_warmup if args.pref_warmup is not None else int(cfg["objective"].get("pref_warmup", 100))
@@ -1293,7 +1298,7 @@ def main():
         # to at most `norm_clamp` x the mean old-row norm after every step.
         # (_norm_ref is None for methods without new rows, e.g. lora.)
         if os.environ.get("SC_LOG_OLDROW_NORM") and all_new_ids and step % 10 == 0:
-            # F2 probe (2026-09-21, revised after review): does decoupled weight decay change the FROZEN
+            # F2 probe: does decoupled weight decay change the FROZEN
             # rows at all in the stored dtype? bf16 rounding can absorb p*(1-lr*wd) entirely, so the
             # exact-arithmetic shrink estimate is NOT an observation. Log dtype, tied-head storage,
             # max |delta| and the count of changed elements on a fixed 20k-row sample vs the first probe.
@@ -1318,7 +1323,7 @@ def main():
                 rows = Wc.data[all_new_ids]
                 nrm = rows.norm(dim=-1, keepdim=True)
                 Wc.data[all_new_ids] = torch.where(nrm > lim, rows * (lim / nrm), rows)
-                _ch = int((nrm > lim).sum().item()); _clamp_win_steps += 1; _clamp_steps_total += 1   # 2026-10-08 diagnostics
+                _ch = int((nrm > lim).sum().item()); _clamp_win_steps += 1; _clamp_steps_total += 1   # diagnostics
                 if _ch:
                     _clamp_win_hits += 1; _clamp_hit_steps += 1; _clamp_rows_total += _ch
         if args.tie_rows and name_to_ids:
@@ -1340,7 +1345,7 @@ def main():
             log["grad_norm"] = float(gn); log["step"] = step; log["lr"] = float(opt.param_groups[0]["lr"])
             _show = {k: f"{log[k]:.3f}" for k in ("ce", "ce_twin", "ctm") }
             _show.update({k: f"{log[k]:.3f}" for k in ("ce_stay",) if abs(log.get(k, 0.0)) > 0})
-            _show.update({k: f"{log[k]:.3f}" for k in ("apo", "sm", "ecc", "ecc_n", "vgm", "tc", "iit") if abs(log.get(k, 0.0)) > 0})   # 2026-10-02: every active term visible
+            _show.update({k: f"{log[k]:.3f}" for k in ("apo", "sm", "ecc", "ecc_n", "vgm", "tc", "iit") if abs(log.get(k, 0.0)) > 0})   # every active term visible
             if _norm_ref is not None and _clamp_win_steps:
                 _show["clamp"] = f"{_clamp_win_hits}/{_clamp_win_steps}"; _clamp_win_steps = _clamp_win_hits = 0
             pbar.set_postfix(**_show)
@@ -1353,7 +1358,7 @@ def main():
             save_ckpt(step + 1); print("[signal] checkpointed; exiting 0"); break
     if args.selfcheck_items and task == "clevr3":
         _selfcheck_clevr3(model, processor, args, out, steps, args.selfcheck_items)
-    if _norm_ref is not None and all_new_ids:        # 2026-10-08 (advisor): how often the norm clamp bit, and where the rows ended
+    if _norm_ref is not None and all_new_ids:        # how often the norm clamp bit, and where the rows ended
         with torch.no_grad():
             _fn = model.get_input_embeddings().weight.data[all_new_ids].float().norm(dim=-1)
         json.dump({"norm_clamp": _nc, "norm_ref_oldrows": _norm_ref, "limit": _nc * _norm_ref, "lr": lr,
@@ -1365,7 +1370,7 @@ def main():
         print(f"[diag] norm clamp active on {_clamp_hit_steps}/{_clamp_steps_total} steps ({_clamp_rows_total} row events); "
               f"final new-row norms mean {_fn.mean().item():.3f} (limit {_nc * _norm_ref:.3f}, old-row mean {_norm_ref:.3f})", flush=True)
     if not _STOP["flag"] and not args.keep_opt_state:
-        # 2026-10-22: a FINISHED run never resumes, so its optimizer state (up to ~240 MB for a LoRA run) is removed;
+        # a FINISHED run never resumes, so its optimizer state (up to ~240 MB for a LoRA run) is removed;
         # a run stopped at the wall keeps it for --resume_ckpt
         import glob as _g
         for _o in _g.glob(os.path.join(out, "ckpt", "step_*", "opt_state.pt")):
@@ -1375,10 +1380,9 @@ def main():
 
 @torch.no_grad()
 def _selfcheck_clevr3(model, processor, args, out, steps, k):
-    """2026-09-29 (audit): score the first k Ground-CF training rows IN-PROCESS, both requests, all channel values as
+    """score the first k Ground-CF training rows IN-PROCESS, both requests, all channel values as
     candidates under the active answer format, and store prompt text, candidates and log-likelihoods next to the final
-    checkpoint. scripts/smoke_v2_reload.py reloads the checkpoint through evaluate.apply_checkpoint and must reproduce
-    the prompt text exactly and the scores to ~1e-3."""
+    checkpoint, so a reload through evaluate.apply_checkpoint can be checked against them (same prompt text, scores to ~1e-3)."""
     import json as _json
     import scsrc.clevr3 as _C3
     from scsrc.clevr3 import clevr3_user_content, c3_cont
@@ -1424,7 +1428,7 @@ def _selfcheck_clevr3(model, processor, args, out, steps, k):
 
 
 class _SeededSampler(torch.utils.data.Sampler):
-    """v1.126: WeightedRandomSampler (weights given) or a uniform shuffle (weights None) drawn from a PRIVATE
+    """WeightedRandomSampler (weights given) or a uniform shuffle (weights None) drawn from a PRIVATE
     torch.Generator seeded with --seed, so the item order is identical across runs that differ only in the
     objective. Logs the first 12 indices of the first pass so the claim can be checked from the .out files."""
     def __init__(self, weights, n, seed=0):

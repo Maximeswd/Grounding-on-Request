@@ -1,33 +1,18 @@
 #!/usr/bin/env python3
-"""CLEVR-3channel: the controlled testbed for the FACTORED source×operator algebra.
+"""Render Ground-CF (data/clevr3/).
 
-Total control over a scene of shapes → exact 3-way counterfactuals across three
-channels, for multiple skills. Each channel independently states a value:
-  look : the TRUE value from the rendered scene
-  read : a fluent caption ("The answer to the question is X.")
-  ocr  : extracted-text format ("COLOR=X") -- prompt strings, the MVG-twin
-         provenance distinction (NOT burned into pixels; that's an appendix
-         probe). Call it the extracted-text channel, never pixel-OCR.
-
-IDENTIFIABILITY (audit 2026-07-22): every look question must be a FUNCTION OF
-THE IMAGE. The v1 questions ("What color is one of the objects?", "Is the first
-object left or right of the second?") were NOT -- 'one of'/'first' have no
-visual referent, so the look gold was unlearnable noise. v2 scenes carry a
-designated TARGET object (unique shape AND unique color) and an ANCHOR object
-(second unique shape); questions reference objects by those unique attributes:
-  count   : How many shapes are in the image?                 -> k
-  color   : What color is the {target_shape}?                 -> target color
-  object  : What shape is the {target_color} object?          -> target shape
-  spatial : Is the {tgt} left of, right of, above, or below the {anchor}?
-            -> dominant-axis relation, placement margin enforced.
-
-STRICT VALUE HOLDOUT: OOD values (triangle / purple / counts 7-9 / 'above')
-appear ONLY as the look gold of test_ood items -- never as read/ocr values,
-never in train questions, never as train distractor-object attributes. ID
-scenes are split train/test_id at the SCENE level (no shared images across
-splits). OOD scenes are generated per axis and contribute ONLY their OOD-axis
-item. Writes data/clevr3/{train,test_id,test_ood}.jsonl + images.
-"""
+Since we want full control over the evidence, every scene is drawn from one seeded generator. A scene has a target
+object (unique shape and colour) and an anchor object, and questions refer to objects only through those unique
+attributes, so every image question is answerable from the image:
+  count    How many shapes are in the image?
+  color    What color is the {target shape}?
+  object   What shape is the {target colour} object?
+  spatial  Is the {target} left of, right of, above, or below the {anchor}?
+Each source states its own value: the image shows the true one, while the caption and an extracted-text block (given as
+text in the prompt, not drawn into the pixels) each assert a value. Held-out values (triangle, purple, counts 7-9,
+'above') appear only as the image answer of test_ood items, never as a text value, in a training question or as a
+distractor attribute. In-distribution scenes are split into train and test_id at the scene level, so no image is shared
+across splits. Writes data/clevr3/{train,test_id,test_ood}.jsonl and the images."""
 import argparse, hashlib, json, os, random, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PIL import Image, ImageDraw

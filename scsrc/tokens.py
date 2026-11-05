@@ -44,7 +44,7 @@ def default_specs() -> Dict[str, List[NeoSpec]]:
         ],
         "pt": [  # prompt-tuning baseline: learned soft PREFIX (not addressable/inline)
             NeoSpec("pt_look", "pt", "image", "image"),
-            # 2026-09-29: SC_PT_READ_INIT=caption (train.py --pt_read_init caption) matches the prefix's caption row to the
+            # SC_PT_READ_INIT=caption (train.py --pt_read_init caption) matches the prefix's caption row to the
             # neologism's initialization word ("caption"); default "text" is the banked behaviour
             NeoSpec("pt_read", "pt", "text", __import__("os").environ.get("SC_PT_READ_INIT", "text")),
             NeoSpec("pt_compare", "pt", "relation", "compare"),
@@ -53,7 +53,7 @@ def default_specs() -> Dict[str, List[NeoSpec]]:
 
 
 # ---- FACTORED source x operator algebra (CLEVR-3channel testbed) -----------
-# The reviewer-designated must-survive contrast: does a source and a skill live
+# The must-survive contrast: does a source and a skill live
 # on SEPARATE, reusable tokens (<look><count>) or must every cell get its own
 # fused token (<look_count>)? Both are param-matched at the CELL level -- with
 # per-slot budget L, a factored cell reads L(source)+L(operator)=2L rows and a
@@ -64,18 +64,18 @@ CLEVR3_SOURCES = {"look": "image", "read": "caption", "ocr": "screen"}
 
 
 def c3_sources():
-    """Active Ground-CF sources (2026-09-22, STATUS v1.94): SC_C3_SOURCES="look,read" is the two-modality protocol
-    (image + caption; no on-screen-text block, rows or items). Default (v1.132): two-source.
+    """Active Ground-CF sources: SC_C3_SOURCES="look,read" is the two-modality protocol
+    (image + caption; no on-screen-text block, rows or items). Default: two-source.
     Read at call time so train.py / evaluators can set it from the run's configuration after import."""
     import os as _os
-    # v1.132 (author: "ocr should be skipped everywhere"): the DEFAULT is now the two-source protocol; the legacy
+    # the DEFAULT is now the two-source protocol; the legacy
     # three-source setup needs SC_C3_SOURCES=look,read,ocr explicitly
     want = [x for x in _os.environ.get("SC_C3_SOURCES", "look,read").split(",") if x]
     return tuple(s for s in CLEVR3_SOURCES if s in want)
 
 
 def c3_init_words():
-    """Initialization words of the Ground-CF controls (2026-10-02): default = the source nouns (image / caption);
+    """Initialization words of the Ground-CF controls: default = the source nouns (image / caption);
     SC_C3_INIT_WORDS="look:look,read:read" (train.py --init_words) overrides them for the initialization ablation. The
     prefix branch of train.py reads the same override, so both embedding interfaces start from identical rows."""
     import os as _os
